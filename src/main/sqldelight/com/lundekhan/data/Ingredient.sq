@@ -1,0 +1,33 @@
+-- Use rowId to fetch ingredient by ID.
+CREATE TABLE ingredient (
+    recipe TEXT NOT NULL,
+    grocery TEXT NOT NULL,
+    amount REAL NOT NULL,
+    unit TEXT NOT NULL DEFAULT "x",
+
+    FOREIGN KEY (recipe) REFERENCES recipe(recipe_name),
+    FOREIGN KEY (grocery) REFERENCES grocery(grocery_name),
+
+    UNIQUE (recipe, grocery)
+);
+
+--
+selectAll:
+SELECT * FROM ingredient;
+
+selectByRecipe:
+SELECT * FROM ingredient
+WHERE recipe == ?;
+
+insert:
+INSERT INTO ingredient (recipe, grocery, amount, unit)
+VALUES (?, ?, ?, ?);
+
+insertFull:
+INSERT INTO ingredient (recipe, grocery, amount, unit)
+VALUES ?;
+
+delete:
+DELETE FROM ingredient
+WHERE recipe == ? AND grocery == ?;
+

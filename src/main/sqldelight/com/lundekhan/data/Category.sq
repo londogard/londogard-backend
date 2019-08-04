@@ -1,0 +1,15 @@
+CREATE TABLE category (
+    category_name TEXT PRIMARY KEY
+);
+
+selectAll:
+SELECT * FROM category;
+
+insert:
+INSERT INTO category(category_name)
+VALUES(?);
+
+insertFull:
+INSERT INTO category(category_name)
+VALUES ?;
+

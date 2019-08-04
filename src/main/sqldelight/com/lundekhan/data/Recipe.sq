@@ -1,0 +1,17 @@
+-- ON UPDATE CASCADE
+CREATE TABLE recipe (
+    recipe_name TEXT PRIMARY KEY,
+    persons INTEGER,
+    recipe_text TEXT
+);
+
+selectAll:
+SELECT * FROM recipe;
+
+insert:
+INSERT INTO recipe (recipe_name, persons, recipe_text)
+VALUES (?, ?, ?);
+
+insertFull:
+INSERT INTO recipe (recipe_name, persons, recipe_text)
+VALUES ?;

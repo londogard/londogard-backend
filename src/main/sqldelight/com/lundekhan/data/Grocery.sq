@@ -1,0 +1,22 @@
+CREATE TABLE grocery (
+    grocery_name TEXT NOT NULL,
+    category_name TEXT,
+    FOREIGN KEY (category_name) REFERENCES category(category_name),
+
+    UNIQUE (grocery_name, category_name)
+);
+
+selectAll:
+SELECT * FROM grocery;
+
+selectByCategory:
+SELECT * FROM grocery
+WHERE category_name = ?;
+
+insert:
+INSERT INTO grocery (grocery_name, category_name)
+VALUES (?, ?);
+
+insertFull:
+INSERT INTO grocery (grocery_name, category_name)
+VALUES ?;
