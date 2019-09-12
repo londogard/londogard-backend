@@ -17,8 +17,6 @@ import io.ktor.response.respondText
 import io.ktor.routing.*
 import io.ktor.sessions.*
 //import org.apache.http.auth.InvalidCredentialsException
-import org.koin.ktor.ext.Koin
-import org.koin.ktor.ext.inject
 import java.io.File
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
@@ -77,20 +75,7 @@ fun Application.module() {
 
     val simpleJwt = SimpleJWT("grocery-list-secret")
 
-    install(Koin) {
-//        sl4jlogger()
-        modules(groceryModule)
-    }
-
-    val db by inject<Database>()
-//    install(Sessions) {
-//        cookie<LundeNetSession>("SESSION") {
-//            transform(SessionTransportTransformerMessageAuthentication(sessionkey))
-//        }
-//    }
-
     install(CORS) {
-
         method(HttpMethod.Options)
         method(HttpMethod.Get)
         method(HttpMethod.Post)
@@ -150,55 +135,6 @@ fun Application.module() {
             call.respond(mapOf("token" to simpleJwt.sign(user.name)))
         }
 
-        route("/grocerylist") {
-            authenticate("jwt") {
-                // All post have GET, DELETE, UPDATE, INSERT
-                // Custom calls should be done with special route + custom POST.
-                // Route ("/ingredients") {
-                // post, get, delete
-                ingredientsRoute(db)
-                post("/ingredients") {
-
-                    // Route get, post, update, delete perhaps???
-0
-                    val post = call.receive<IngredientPost>()
-                    log.debug("${post.ingredient}")
-                    log.debug("${post.method}")
-                    call.respond(mapOf("token" to "LOL"))
-                }
-                post("/categories") {
-
-                }
-                post("/groceries") {
-
-                }
-                post("/recipes") {
-
-                }
-                post("/shoppingitems") {
-
-                }
-                post("/shoppinglists") {
-
-                }
-            }
-        }
-    }
-}
-
-fun Route.ingredientsRoute(db: Database) {
-    val dbIngredients = db.ingredientQueries
-    route("ingredients") {
-        post {
-            val post = call.receive<IngredientPost>()
-            when (post.method) {
-                Method.GET -> dbIngredients.selectAll().executeAsList()
-                Method.INSERT -> dbIngredients.insertFull(post.ingredient)
-                Method.UPDATE -> Unit
-                Method.DELETE -> Unit
-                Method.CUSTOM -> Unit
-            }
-        }
     }
 }
 
