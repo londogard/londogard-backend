@@ -13,9 +13,13 @@ import io.ktor.locations.Location
 import io.ktor.locations.Locations
 import io.ktor.request.receive
 import io.ktor.response.respond
+import io.ktor.response.respondRedirect
 import io.ktor.response.respondText
 import io.ktor.routing.*
 import io.ktor.sessions.*
+import io.ktor.util.InternalAPI
+import org.koin.ktor.ext.Koin
+import org.koin.ktor.ext.inject
 //import org.apache.http.auth.InvalidCredentialsException
 import java.io.File
 
@@ -43,11 +47,15 @@ data class Login(val userName: String = "", val password: String = "")
 @Location("/upload")
 class Upload()
 
+@Location("/url/{shortener}")
+data class UrlRedirect(val shortener: String)
+
 /**
  * Session of this site, that just contains the [userId].
  */
 data class LundeNetSession(val userId: String)
 
+@InternalAPI
 @Suppress("unused") // Referenced in application.conf
 fun Application.module() {
     // This adds automatically Date and Server headers to each response, and would allow you to configure
@@ -62,6 +70,13 @@ fun Application.module() {
     install(ConditionalHeaders)
     // Supports for Range, Accept-Range and Content-Range headers
     install(PartialContent)
+
+    val redirectionMap = mutableMapOf<String, String>()
+    install(Koin) {
+        //        sl4jlogger()
+        modules(groceryModule)
+    }
+    //val db by inject<Database>()
     /**
     // This feature enables compression automatically when accepted by the client.
     install(Compression) {
@@ -111,18 +126,14 @@ fun Application.module() {
     }
 
     routing {
+        UrlShort(redirectionMap)
+
         get("/") {
             call.respondText("Hello World!")
         }
+
         get("/snippets") {
             call.respond(mapOf("OK" to true))
-        }
-        route("/files") {
-            authenticate("jwt") {
-                get {
-                    call.respondText("Welcome to files!")
-                }
-            }
         }
         route("files2") {
             listing(root)

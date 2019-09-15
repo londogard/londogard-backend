@@ -7,4 +7,5 @@ import org.koin.dsl.module
 val groceryModule = module {
     single<SqlDriver> { JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY) }
     single<Database> { createDatabase(get()) }
+    //single<Cache> { get() }
 }

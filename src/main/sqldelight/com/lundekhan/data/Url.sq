@@ -1,0 +1,24 @@
+CREATE TABLE url (
+    full_url TEXT PRIMARY KEY,
+    shortened TEXT
+);
+
+selectAll:
+SELECT * FROM url;
+
+insert:
+INSERT INTO url (full_url, shortened)
+VALUES (?, ?);
+
+insertFull:
+INSERT INTO url (full_url, shortened)
+VALUES ?;
+
+select:
+SELECT * FROM url WHERE full_url == ?;
+
+selectWildcard:
+SELECT * FROM url WHERE full_url LIKE ? + '%';
+
+selectByHash:
+SELECT * FROM url WHERE shortened == ?;

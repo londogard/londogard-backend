@@ -1,8 +1,8 @@
-package com.lundekhan
-
 //package com.lundekhan
 //
-//import io.ktor.application.*
+//import io.ktor.application.ApplicationCall
+//import io.ktor.http.CacheControl
+//import io.ktor.http.content.Version
 //import io.ktor.features.*
 //import io.ktor.html.HtmlContent
 //import io.ktor.http.*
@@ -12,14 +12,14 @@ package com.lundekhan
 //import io.ktor.sessions.*
 //import io.ktor.util.date.*
 //import kotlinx.html.*
-//
-///**
-// * Function that generates HTML for the structure of the page and allows to provide a [block] that will be placed
-// * in the content place of the page.
-// */
-//suspend fun ApplicationCall.respondDefaultHtml(versions: List<Version>, visibility: CacheControl.Visibility, title: String = "LundeNet", block: DIV.() -> Unit) {
+////
+/////**
+//// * Function that generates HTML for the structure of the page and allows to provide a [block] that will be placed
+//// * in the content place of the page.
+//// */
+//suspend fun ApplicationCall.respondDefaultHtml(versions: List<Version>, visibility: CacheControl.Visibility, title: String = "Londogard", block: DIV.() -> Unit) {
 //    val content = HtmlContent(HttpStatusCode.OK) {
-//        val session = sessions.get<YouKubeSession>()
+//        val session = sessions.get<LundeNetSession>()
 //        head {
 //            title { +title }
 //            styleLink("http://yui.yahooapis.com/pure/0.6.0/pure-min.css")
@@ -49,7 +49,7 @@ package com.lundekhan
 //                                    }
 //                                }
 //                                li("nav-item") {
-//                                    a(classes = "pure-button", href = locations.href(Index())) { +"Watch" }
+////                                    a(classes = "pure-button", href = locations.href(Index())) { +"Watch" }
 //                                }
 //                            }
 //                        }
