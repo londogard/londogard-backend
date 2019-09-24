@@ -1,0 +1,21 @@
+--import java.time.LocalDateTime;
+--
+--CREATE TABLE blog (
+--    blog_id INTEGER PRIMARY KEY AUTOINCREMENT,
+--    title TEXT,
+--    date TEXT as LocalDateTime,
+--    blog_body TEXT
+--);
+--
+--selectAll:
+--SELECT * FROM category;
+--
+--insert:
+--INSERT INTO category(category_name)
+--VALUES(?);
+--
+--insertFull:
+--INSERT INTO category(category_name)
+--VALUES ?;
+--
+--
