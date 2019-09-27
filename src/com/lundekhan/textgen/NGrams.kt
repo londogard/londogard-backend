@@ -21,6 +21,7 @@ fun tokenizeWords(reader: Reader): Sequence<String> {
         .asSequence()
         .map { it.value() }
 }
+// Performance between Stanford & Smile etc
 
 fun ngrams(tokens: List<String>, n: Int, padStart: Char? = null, padEnd: Char? = null): List<List<String>> {
     val padLeft = if (padStart != null) List(n) { padStart.toString() } else listOf()
@@ -48,14 +49,8 @@ class LanguageModel(val n: Int, val fileName: String) {
     private val internalLanguageModel: InternalLanguageModel by lazy { createLanguageModel() }
     private val internalWordLanguageModel: InternalLanguageModel by lazy { createWordLanguageModel() }
 
-    private fun readFileAsLinesUsingGetResourceAsStream(fileName: String): BufferedReader =
-        this::class.java.getResourceAsStream(fileName).bufferedReader()
-
-    private fun getFilePath(fileName: String): String =
-        this::class.java.getResource(fileName).path
-
     private fun createWordLanguageModel(): InternalLanguageModel =
-        ngrams(tokenizeWords(FileReader(getFilePath(fileName))).toList(), n)
+        ngrams(tokenizeWords(FileReader(javaClass.getResource(fileName).path)).toList(), n)
             .groupBy(
                 keySelector = { it.dropLast(1).createKey() },
                 valueTransform = { it.last() }
@@ -94,9 +89,7 @@ class LanguageModel(val n: Int, val fileName: String) {
 
     fun generateOneGram(history: List<String>, temperature: Double): String { // This one is the same..!
         val hist = history.takeLast(n - 1).createKey()
-        println(hist)
-        val distr = internalLanguageModel.getOrDefault(hist, missingMap)
-        println(distr)
+        val distr = internalLanguageModel.getOrDefault(hist, missingMap) // perhaps we should shuffle a few times?
         var x = random.nextDouble()
         return distr
             .entries
@@ -116,7 +109,7 @@ class LanguageModel(val n: Int, val fileName: String) {
     object Hej {
         @JvmStatic
         fun main(args: Array<String>) {
-            val lm = LanguageModel(5, "/texts/shakespeare.txt")
+            val lm = LanguageModel(8, "/texts/shakespeare.txt")
             println("Avg time")
             print(measureTimeMillis {
                 println(lm.generateTextByChar("who is the", temperature = 0.5))

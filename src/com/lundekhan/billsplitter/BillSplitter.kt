@@ -43,7 +43,6 @@ fun makePayment(leftToPay: Double, name: String, mutableOwing: MutableList<Pair<
     return PersonPayment(payer, name, amountPaid)
 }
 
-
 fun main(args: Array<String>) {
     println(splitBills(listOf("h" to 0.0, "d" to 10.0, "c" to 15.0, "e" to 0.0)))
 }
