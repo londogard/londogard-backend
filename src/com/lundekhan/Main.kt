@@ -1,10 +1,12 @@
 package com.lundekhan
 
 import com.fasterxml.jackson.databind.SerializationFeature
+import com.lundekhan.htmltemplates.getStyle
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.auth.jwt.jwt
 import io.ktor.features.*
+import io.ktor.html.respondHtml
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
@@ -18,6 +20,7 @@ import io.ktor.response.respondText
 import io.ktor.routing.*
 import io.ktor.sessions.*
 import io.ktor.util.InternalAPI
+import kotlinx.html.*
 import org.koin.ktor.ext.Koin
 import org.koin.ktor.ext.inject
 //import org.apache.http.auth.InvalidCredentialsException
@@ -129,7 +132,17 @@ fun Application.module() {
         UrlShort(redirectionMap)
 
         get("/") {
-            call.respondText("Hello World!")
+            call.respondHtml {
+                this.head {
+                    link(href="http://fonts.googleapis.com/css?family=Roboto", rel="stylesheet", type="text/css")
+                }
+                this.body {
+                    getStyle()
+                    div("tab") {
+                        button(classes="tablinks") { +"smry" }
+                    }
+                }
+            }
         }
 
         get("/snippets") {
