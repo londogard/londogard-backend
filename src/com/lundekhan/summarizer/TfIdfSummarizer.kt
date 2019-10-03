@@ -37,30 +37,15 @@ class TfIdfSummarizer : SmileOperators {
 
         val text = document.normalize()
         val sentences = text.sentences()
-        val corpus = sentences.map { it.bag() }
+        val corpus = sentences.map { it.bag() } // bag includes stemming
+        val words = corpus.flatMap { bag -> bag.keys }.toSet()
+        //val bags = corpus.map { vectorize() }
+        //val data = tfidf(bags)
+        // Corpus is vectorized for each sentence
+        // Need to find
 
 
     }
-
-    object rnd : SmileOperators {
-        @JvmStatic
-        fun main(args: Array<String>) {
-            val document = "Hello who are you king. You are a true king. Who let the dogs out?"
-            val text = document.normalize()
-            val sentences = text.sentences()
-            val corpus = sentences.map { it.bag() }
-            val features = listOf("who", "are", "let", "king", "true")
-            val bags = corpus.map { vectorize(features, it) }
-            val data = tfidf(bags)
-            println(data)
-        }
-    }
-
-    //def parse(file, filetype='filename'):
-    //stemmer = EnglishStemmer()
-    //cleaned_text = clean_doc(text)
-    //stemmed_sentences = stem_words(cleaned_text, stemmer)
-
     //tfidf_vect = TfidfVectorizer(stop_words='english')
     //X = tfidf_vect.fit_transform(stemmed_sentences)
     //tfidf = X.toarray()
@@ -83,13 +68,19 @@ class TfIdfSummarizer : SmileOperators {
     //count[stemmed_sentences.index(sen)] = sum_t     # / len(sen.split()) <-- Gave worse results.
     //maxi = sorted(count.keys(), key=count.get, reverse=True)
     //return cleaned_text, maxi
-
-    //private fun removeWhitespace(line: String): String = line.split().map(::trim).join()
-
-    //private fun stem(doc: String, stemmer: EnglishStemmer) {
-    //    EnglishMinimalStemmer().stem()
-    //}
-
+    object rnd : SmileOperators {
+        @JvmStatic
+        fun main(args: Array<String>) {
+            val document = "Hello who are you king. You are a true king. Who let the dogs out?"
+            val text = document.normalize()
+            val sentences = text.sentences()
+            val corpus = sentences.map { it.bag() }
+            val features = listOf("who", "are", "let", "king", "true")
+            val bags = corpus.map { vectorize(features, it) }
+            val data = tfidf(bags)
+            println(data)
+        }
+    }
 }
 
 
