@@ -1,7 +1,7 @@
 package com.lundekhan
 
+import com.lundekhan.htmltemplates.respondHtmlDefault
 import io.ktor.application.call
-import io.ktor.html.respondHtml
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receiveParameters
 import io.ktor.response.respond
@@ -27,21 +27,18 @@ fun Route.UrlShort(redirections: MutableMap<String, String>) {
     }
 
     get("/url-short") {
-        call.respondHtml {
-            head { title("Londogard: Url-Short") }
-            body {
-                h1 { + "Url-Short" }
-                p { + "Add url to shorten" }
-                form(encType = FormEncType.applicationXWwwFormUrlEncoded, method = FormMethod.post) {
-                    input {
-                        type = InputType.url
-                        name = "url"
-                    }
-                    br
-                    input {
-                        type = InputType.submit
-                        value = "submit"
-                    }
+        call.respondHtmlDefault("Url-Short", 1) {
+            h1 { + "Url-Short" }
+            p { + "Add url to shorten" }
+            form(encType = FormEncType.applicationXWwwFormUrlEncoded, method = FormMethod.post) {
+                input {
+                    type = InputType.url
+                    name = "url"
+                }
+                br
+                input {
+                    type = InputType.submit
+                    value = "submit"
                 }
             }
         }
@@ -53,19 +50,16 @@ fun Route.UrlShort(redirections: MutableMap<String, String>) {
         redirections.putIfAbsent(hash, url)
         launch(Dispatchers.IO) { db.urlQueries.select(url).executeAsOneOrNull() ?: db.urlQueries.insert(url, hash) }
 
-        call.respondHtml {
-            head { title("Londogard: Url-Short") }
-            body {
-                h1 { + "Url-Short" }
-                p { + "Shortend URL:" }
-                input {
-                    type = InputType.url
-                    name = "shortened-url"
-                    value = "londogard.hopto.org/url/$hash"
-                }
-                br()
-                p { + hash}
+        call.respondHtmlDefault("Url-Short", 1) {
+            h1 { + "Url-Short" }
+            p { + "Shortend URL:" }
+            input {
+                type = InputType.url
+                name = "shortened-url"
+                value = "londogard.hopto.org/url/$hash"
             }
+            br()
+            p { + hash}
         }
     }
 }

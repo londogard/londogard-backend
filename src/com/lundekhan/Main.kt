@@ -1,12 +1,12 @@
 package com.lundekhan
 
 import com.fasterxml.jackson.databind.SerializationFeature
-import com.lundekhan.htmltemplates.getStyle
+import com.lundekhan.billsplitter.BillSplit
+import com.lundekhan.htmltemplates.respondHtmlDefault
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.auth.jwt.jwt
 import io.ktor.features.*
-import io.ktor.html.respondHtml
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
@@ -15,14 +15,10 @@ import io.ktor.locations.Location
 import io.ktor.locations.Locations
 import io.ktor.request.receive
 import io.ktor.response.respond
-import io.ktor.response.respondRedirect
-import io.ktor.response.respondText
 import io.ktor.routing.*
 import io.ktor.sessions.*
 import io.ktor.util.InternalAPI
-import kotlinx.html.*
 import org.koin.ktor.ext.Koin
-import org.koin.ktor.ext.inject
 //import org.apache.http.auth.InvalidCredentialsException
 import java.io.File
 
@@ -130,18 +126,10 @@ fun Application.module() {
 
     routing {
         UrlShort(redirectionMap)
-
+        BillSplit()
         get("/") {
-            call.respondHtml {
-                this.head {
-                    link(href="http://fonts.googleapis.com/css?family=Roboto", rel="stylesheet", type="text/css")
-                }
-                this.body {
-                    getStyle()
-                    div("tab") {
-                        button(classes="tablinks") { +"smry" }
-                    }
-                }
+            call.respondHtmlDefault("blog.", 0) {
+                    + "Welcome to londogard."
             }
         }
 
