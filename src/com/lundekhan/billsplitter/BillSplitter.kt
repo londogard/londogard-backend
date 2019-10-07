@@ -8,6 +8,8 @@ fun MutableMap<String, Double>.addOrPut(key: String, value: Double) {
     this[key] = this.getOrDefault(key, 0.0) + value
 }
 
+
+// TODO bug: [(thomas, 50.0), (hampus, 50.0), (hans, 100.0), (dennis, 25.0), (isak, 0.0)]
 fun splitBills(personAmounts: List<Pair<String, Double>>): List<PersonPayment> {
     val mutableMap = mutableMapOf<String, Double>()
     personAmounts.forEach { (person, amount) -> mutableMap.addOrPut(person, amount) }
@@ -41,8 +43,4 @@ fun makePayment(leftToPay: Double, name: String, mutableOwing: MutableList<Pair<
     else mutableOwing[0] = Pair(payer, cash + amountPaid)
 
     return PersonPayment(payer, name, amountPaid)
-}
-
-fun main(args: Array<String>) {
-    println(splitBills(listOf("h" to 0.0, "d" to 10.0, "c" to 15.0, "e" to 0.0)))
 }
