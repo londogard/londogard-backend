@@ -33,22 +33,10 @@ fun Route.BillSplit() {
             }
         }
         post {
-            println("HER")
             val personAmount = call
                 .receiveParameters()["text"]
                 ?.split(',')
-                ?.mapNotNull { personAmount ->
-                    personAmount
-                        .trim()
-                        .split(' ')
-                        .take(2)
-                        .map { it.trim() }
-                        .zipWithNext()
-                        .firstOrNull()
-                }
-                ?.mapNotNull { (name, amount) ->
-                    amount.toDoubleOrNull()?.let { notNullAmt -> Pair(name, notNullAmt) }
-                }
+                ?.mapNotNull { getPersonAmount(it) }
                 ?: listOf()
             return@post if (personAmount.isEmpty())
                 call.respond(HttpStatusCode.BadRequest, "Persons & amount must be supplied (<NAME> <AMOUNT>, ...).")
@@ -63,3 +51,13 @@ fun Route.BillSplit() {
         }
     }
 }
+
+fun getPersonAmount(personSlot: String): Pair<String, Double>? {
+    val (person, amount) =  personSlot.trim().split(' ').getHeadPair() ?: return null
+
+    return amount.toDoubleOrNull()?.let { Pair(person, it) }
+}
+
+// TODO perhaps throw error instead and visualize issue with input
+fun <T> List<T>.getHeadPair(): Pair<T, T>? =
+    if (this.size >= 2) Pair(this[0], this[1]) else null
