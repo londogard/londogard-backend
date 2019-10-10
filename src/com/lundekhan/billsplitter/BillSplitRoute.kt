@@ -10,12 +10,10 @@ import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.route
 import kotlinx.html.*
-import org.koin.ext.isFloat
 
 fun Route.BillSplit() {
     route("/billsplit") {
         get {
-
             call.respondHtmlDefault("billsplit.", 4) {
                 p { +"Bill Splitter. Format: <NAME> <AMOUNT>" }
                 p { +"Split by comma" }
@@ -43,6 +41,7 @@ fun Route.BillSplit() {
             else {
                 val result = splitBills(personAmount)
                 call.respondHtmlDefault("billsplit.", 4) {
+                    // TODO remove index and compare str
                     result.forEach { payment ->
                         p { +"${payment.payer} pays ${payment.owed} ${payment.amount}" }
                     }
@@ -52,11 +51,12 @@ fun Route.BillSplit() {
     }
 }
 
-fun getPersonAmount(personSlot: String): Pair<String, Double>? {
-    val (person, amount) =  personSlot.trim().split(' ').getHeadPair() ?: return null
-
-    return amount.toDoubleOrNull()?.let { Pair(person, it) }
-}
+fun getPersonAmount(personSlot: String): Pair<String, Double>? =
+    personSlot
+        .trim()
+        .split(' ')
+        .getHeadPair()
+        ?.let { (person, amount) -> amount.toDoubleOrNull()?.let { Pair(person, it) } }
 
 // TODO perhaps throw error instead and visualize issue with input
 fun <T> List<T>.getHeadPair(): Pair<T, T>? =
