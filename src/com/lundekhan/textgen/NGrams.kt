@@ -32,7 +32,7 @@ fun ngrams(tokens: List<String>, n: Int, padStart: Char? = null, padEnd: Char? =
 
 typealias InternalLanguageModel = Map<String, Map<String, Double>>
 
-private fun List<String>.createKey(): String = this.joinToString("-")
+private fun List<String>.createKey(): String = this.joinToString("")
 private fun List<String>.groupByAverageTotal(): Map<String, Double> {
     val incr = 1.0 / this.size
     val unsafeGroupMap = mutableMapOf<String, Double>()
@@ -99,8 +99,9 @@ class LanguageModel(val n: Int, val fileName: String) {
 
     fun generateTextByChar(history: String, size: Int = 250, temperature: Double = 0.0): String {
         val hist = history.toCharArray().map { it.toString() }
+        val existingHistory = if (internalLanguageModel.keys.contains(hist.takeLast(n - 1).createKey())) hist else internalLanguageModel.keys.shuffled().find { it.contains(hist.takeLast(n - 1).createKey()) }?.toCharArray()?.map { it.toString() } ?: hist
         return (0..size)
-            .fold(hist) { acc, _ -> acc + generateOneGram(acc, temperature) }
+            .fold(existingHistory) { acc, _ -> acc + generateOneGram(acc, temperature) }
             .joinToString("")
     }
 
@@ -109,12 +110,8 @@ class LanguageModel(val n: Int, val fileName: String) {
     object Hej {
         @JvmStatic
         fun main(args: Array<String>) {
-            val lm = LanguageModel(8, "/texts/shakespeare.txt")
-            println("Avg time")
-            print(measureTimeMillis {
-                println(lm.generateTextByChar("who is the", temperature = 0.5))
-            } / (11))
-            println(" ms")
+            val lm = LanguageModel(15, "/texts/shakespeare.txt")
+            println(lm.generateTextByChar("who", temperature = 0.5))
         }
     }
 }
