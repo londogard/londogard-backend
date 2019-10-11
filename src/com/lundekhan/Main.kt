@@ -3,6 +3,7 @@ package com.lundekhan
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.lundekhan.billsplitter.BillSplit
 import com.lundekhan.htmltemplates.respondHtmlDefault
+import com.lundekhan.summarizer.SummarizerRoute
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.auth.jwt.jwt
@@ -15,6 +16,7 @@ import io.ktor.locations.Location
 import io.ktor.locations.Locations
 import io.ktor.request.receive
 import io.ktor.response.respond
+import io.ktor.response.respondRedirect
 import io.ktor.routing.*
 import io.ktor.sessions.*
 import io.ktor.util.InternalAPI
@@ -127,10 +129,17 @@ fun Application.module() {
     routing {
         UrlShort(redirectionMap)
         BillSplit()
+        SummarizerRoute()
         get("/") {
             call.respondHtmlDefault("blog.", 0) {
-                    + "Welcome to londogard."
+                +"Welcome to londogard."
             }
+        }
+        get("/github") {
+            call.respondRedirect("https://github.com/Lundez/")
+        }
+        get("/apps") {
+            call.respondRedirect("https://play.google.com/store/apps/developer?id=LundeKhan")
         }
 
         get("/snippets") {
