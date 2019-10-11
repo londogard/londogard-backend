@@ -50,12 +50,15 @@ dependencies {
 
     implementation "org.koin:koin-ktor:2.0.1"
 
-    implementation "org.nd4j:nd4j-native-platform:1.0.0-beta4"
-
-    implementation 'edu.stanford.nlp:stanford-corenlp:3.9.2'
+    //implementation 'edu.stanford.nlp:stanford-corenlp:3.9.2'
 
     implementation 'com.github.haifengl:smile-nlp:1.5.3'
     //implementation 'com.github.haifengl:smile-netlib:1.5.3'
+
+    // https://mvnrepository.com/artifact/com.johnsnowlabs.nlp/spark-nlp
+//    implementation group: 'com.johnsnowlabs.nlp', name: 'spark-nlp_2.11', version: '2.2.2'
+
+
 
     testImplementation "io.ktor:ktor-server-test-host:$ktor_version"
 }

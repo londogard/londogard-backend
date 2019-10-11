@@ -1,5 +1,5 @@
 package com.lundekhan.summarizer
-
+/**
 import edu.stanford.nlp.ling.CoreLabel
 import edu.stanford.nlp.pipeline.CoreDocument
 import edu.stanford.nlp.pipeline.CoreSentence
@@ -40,3 +40,4 @@ object StanfordHelper {
                 .map { word -> if (miniStem) getMiniStem(word) else getStem(word) }
             }
 }
+ **/
