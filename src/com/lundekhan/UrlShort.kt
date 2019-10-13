@@ -19,6 +19,15 @@ import org.koin.ktor.ext.inject
 fun Route.UrlShort(redirections: MutableMap<String, String>) {
     val db by inject<Database>()
 
+    post("/url") {
+        val url = call.receiveParameters()["url"] ?: return@post call.respond(HttpStatusCode.BadRequest, "URL must be supplied.")
+        val hash = url.hashHexify()
+        redirections.putIfAbsent(hash, url)
+        launch(Dispatchers.IO) { db.urlQueries.select(url).executeAsOneOrNull() ?: db.urlQueries.insert(url, hash) }
+
+        call.respond(resultResponse(hash))
+    }
+
     get("/url/{short}") {
         val shortened = call.parameters["short"] ?: ""
         val fullUrl = redirections[shortened]

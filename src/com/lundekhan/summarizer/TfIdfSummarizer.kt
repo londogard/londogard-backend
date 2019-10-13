@@ -1,6 +1,6 @@
 package com.lundekhan.summarizer
 
-import edu.stanford.nlp.pipeline.CoreDocument
+//import edu.stanford.nlp.pipeline.CoreDocument
 import java.nio.file.Files
 import java.nio.file.Paths
 
@@ -9,11 +9,6 @@ class TfIdfSummarizer : SmileOperators {
         Files.readAllLines(Paths.get(javaClass.getResource(filename).path)).joinToString("\n")
 
     fun parse(document: String, lines: Int = 10): String {
-        //val corpus = document.map { it.bag() }
-        // Skipping cleaning as old clean only removed multiple whitespace.
-        //val doc = CoreDocument(document)
-        //StanfordHelper.pipeline.annotate(doc)
-
         val text = document.normalize()
         val sentences = text.sentences()
         val corpus = sentences.map { it.bag() } // bag includes stemming

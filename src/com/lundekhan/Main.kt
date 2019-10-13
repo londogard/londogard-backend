@@ -17,6 +17,7 @@ import io.ktor.locations.Locations
 import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.response.respondRedirect
+import io.ktor.response.respondText
 import io.ktor.routing.*
 import io.ktor.sessions.*
 import io.ktor.util.InternalAPI
@@ -56,14 +57,16 @@ data class UrlRedirect(val shortener: String)
  */
 data class LundeNetSession(val userId: String)
 
+
+
 @InternalAPI
 @Suppress("unused") // Referenced in application.conf
 fun Application.module() {
     // This adds automatically Date and Server headers to each response, and would allow you to configure
     // additional headers served to each response.
-    DefaultHeaders
+    install(DefaultHeaders)
     // This uses use the logger to log every call (request/response)
-    CallLogging
+    install(CallLogging)
     // Allows to use classes annotated with @Location to represent URLs.
     // They are typed, can be constructed to generate URLs, and can be used to register routes.
     Locations
@@ -102,11 +105,13 @@ fun Application.module() {
         allowCredentials = true
         anyHost()
     }
+
     install(StatusPages) {
         exception<InvalidCredentialsException> { exception ->
             call.respond(HttpStatusCode.Unauthorized, mapOf("OK" to false, "error" to (exception.message ?: "")))
         }
     }
+
     install(Authentication) {
         basic(name = "fileauth") {
             skipWhen { call -> call.sessions.get<UserIdPrincipal>() != null }
@@ -120,6 +125,7 @@ fun Application.module() {
             }
         }
     }
+
     install(ContentNegotiation) {
         jackson {
             enable(SerializationFeature.INDENT_OUTPUT) // Pretty Prints the JSON
@@ -145,6 +151,11 @@ fun Application.module() {
         get("/snippets") {
             call.respond(mapOf("OK" to true))
         }
+
+        get("/hello") {
+            call.respond(mapOf("result" to "hello"))
+        }
+
         route("files2") {
             listing(root)
         }
@@ -155,7 +166,6 @@ fun Application.module() {
             if (user.password != post.password) throw InvalidCredentialsException("Invalid credentials")
             call.respond(mapOf("token" to simpleJwt.sign(user.name)))
         }
-
     }
 }
 

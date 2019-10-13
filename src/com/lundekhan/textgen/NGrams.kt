@@ -1,9 +1,9 @@
 package com.lundekhan.textgen
 
-import edu.stanford.nlp.process.PTBTokenizer
+//import edu.stanford.nlp.process.PTBTokenizer
 import java.io.BufferedReader
 import kotlin.random.Random
-import edu.stanford.nlp.process.CoreLabelTokenFactory
+//import edu.stanford.nlp.process.CoreLabelTokenFactory
 import java.io.FileReader
 import java.io.Reader
 import java.nio.file.Files
@@ -16,11 +16,11 @@ enum class NGramType {
     CHARACTER
 }
 
-fun tokenizeWords(reader: Reader): Sequence<String> {
-    return PTBTokenizer(reader, CoreLabelTokenFactory(), "tokenizeNLs=true")
-        .asSequence()
-        .map { it.value() }
-}
+//fun tokenizeWords(reader: Reader): Sequence<String> {
+//    return PTBTokenizer(reader, CoreLabelTokenFactory(), "tokenizeNLs=true")
+//        .asSequence()
+//        .map { it.value() }
+//}
 // Performance between Stanford & Smile etc
 
 fun ngrams(tokens: List<String>, n: Int, padStart: Char? = null, padEnd: Char? = null): List<List<String>> {
@@ -47,15 +47,15 @@ class LanguageModel(val n: Int, val fileName: String) {
     private val random = Random
     private val missingMap = mapOf("<UNK>" to 1.0)
     private val internalLanguageModel: InternalLanguageModel by lazy { createLanguageModel() }
-    private val internalWordLanguageModel: InternalLanguageModel by lazy { createWordLanguageModel() }
+   // private val internalWordLanguageModel: InternalLanguageModel by lazy { createWordLanguageModel() }
 
-    private fun createWordLanguageModel(): InternalLanguageModel =
-        ngrams(tokenizeWords(FileReader(javaClass.getResource(fileName).path)).toList(), n)
-            .groupBy(
-                keySelector = { it.dropLast(1).createKey() },
-                valueTransform = { it.last() }
-            )
-            .mapValues { (_, value) -> value.groupByAverageTotal() }
+   // private fun createWordLanguageModel(): InternalLanguageModel =
+   //     ngrams(tokenizeWords(FileReader(javaClass.getResource(fileName).path)).toList(), n)
+   //         .groupBy(
+   //             keySelector = { it.dropLast(1).createKey() },
+   //             valueTransform = { it.last() }
+   //         )
+   //         .mapValues { (_, value) -> value.groupByAverageTotal() }
 
     private fun createLanguageModel(): InternalLanguageModel {
         return Files.lines(Paths.get(javaClass.getResource(fileName).path))

@@ -1,8 +1,10 @@
 package com.lundekhan.billsplitter
 
 import com.lundekhan.htmltemplates.respondHtmlDefault
+import com.lundekhan.resultResponse
 import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
+import io.ktor.request.receive
 import io.ktor.request.receiveParameters
 import io.ktor.response.respond
 import io.ktor.routing.Route
@@ -47,6 +49,13 @@ fun Route.BillSplit() {
                     }
                 }
             }
+        }
+
+        data class PostPayments(val person: String, val amount: Double = 0.0)
+        data class PostPersonPayments(val payments: List<PostPayments>)
+        post("/api") {
+            val post = call.receive<PostPersonPayments>()
+            call.respond(splitBills(post.payments.map { Pair(it.person, it.amount) }))
         }
     }
 }
