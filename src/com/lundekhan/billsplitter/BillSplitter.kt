@@ -4,7 +4,7 @@ import kotlin.math.min
 
 data class PersonPayment(val payer: String, val owed: String, val amount: Double)
 
-fun MutableMap<String, Double>.addOrPut(key: String, value: Double) {
+private fun MutableMap<String, Double>.addOrPut(key: String, value: Double) {
     this[key] = this.getOrDefault(key, 0.0) + value
 }
 
@@ -31,7 +31,7 @@ fun splitBills(personAmounts: List<Pair<String, Double>>): List<PersonPayment> {
     }
 }
 
-fun makePayment(leftToPay: Double, name: String, mutableOwing: MutableList<Pair<String, Double>>): PersonPayment {
+private fun makePayment(leftToPay: Double, name: String, mutableOwing: MutableList<Pair<String, Double>>): PersonPayment {
     val (payer, cash) = mutableOwing.first()
     val amountPaid = min(leftToPay, -cash)
 

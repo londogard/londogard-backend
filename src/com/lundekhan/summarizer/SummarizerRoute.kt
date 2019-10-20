@@ -1,8 +1,10 @@
 package com.lundekhan.summarizer
 
+import com.lundekhan.InvalidInputException
 import com.lundekhan.htmltemplates.respondHtmlDefault
+import com.lundekhan.resultResponse
 import io.ktor.application.call
-import io.ktor.http.HttpStatusCode
+import io.ktor.request.receive
 import io.ktor.request.receiveParameters
 import io.ktor.response.respond
 import io.ktor.routing.Route
@@ -10,11 +12,17 @@ import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.route
 import kotlinx.html.*
+import org.koin.ktor.ext.inject
 
-fun Route.SummarizerRoute() {
-    val summarizer = TfIdfSummarizer()
+fun Route.summarizerRoute(): Route = route("/smry") {
+    val summarizer by inject<TfIdfSummarizer>()
 
-    route("/smry") {
+    post {
+        val articleText = call.receive<PostText>()
+        call.respond(resultResponse(summarizer.parse(articleText.text)))
+    }
+
+    route("/ui") {
         get {
             call.respondHtmlDefault("smry.", 2) {
                 p { +"Smry. Summarize your text here (currently only support simple-version of smry)" }
@@ -32,15 +40,14 @@ fun Route.SummarizerRoute() {
             }
         }
         post {
-            val personAmount = call
-                .receiveParameters()["text"] ?: return@post call.respond(
-                HttpStatusCode.BadRequest,
-                "Need to supply text."
-            )
-            val result = summarizer.parse(personAmount)
+            val articleText = call
+                .receiveParameters()["text"] ?: throw InvalidInputException("POST /smry/ui requires text in parameters.")
+            val result = summarizer.parse(articleText)
             return@post call.respondHtmlDefault("smry.", 2) {
                 p { +result }
             }
         }
+
     }
 }
+data class PostText(val text: String)

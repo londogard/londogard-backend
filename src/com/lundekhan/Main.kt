@@ -1,9 +1,9 @@
 package com.lundekhan
 
 import com.fasterxml.jackson.databind.SerializationFeature
-import com.lundekhan.billsplitter.BillSplit
+import com.lundekhan.billsplitter.billsplit
 import com.lundekhan.htmltemplates.respondHtmlDefault
-import com.lundekhan.summarizer.SummarizerRoute
+import com.lundekhan.summarizer.summarizerRoute
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.auth.jwt.jwt
@@ -12,17 +12,16 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.jackson.jackson
+import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.locations.Location
 import io.ktor.locations.Locations
 import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.response.respondRedirect
-import io.ktor.response.respondText
 import io.ktor.routing.*
 import io.ktor.sessions.*
 import io.ktor.util.InternalAPI
 import org.koin.ktor.ext.Koin
-//import org.apache.http.auth.InvalidCredentialsException
 import java.io.File
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
@@ -30,6 +29,12 @@ fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 /*
  * Typed routes using the [Locations] feature.
  */
+
+/**
+ * Location for bill spitter
+ */
+@Location("/billsplit")
+class BillSplit
 
 /**
  * Location for file browsing using [path].
@@ -59,6 +64,7 @@ data class LundeNetSession(val userId: String)
 
 
 
+@KtorExperimentalLocationsAPI
 @InternalAPI
 @Suppress("unused") // Referenced in application.conf
 fun Application.module() {
@@ -69,7 +75,7 @@ fun Application.module() {
     install(CallLogging)
     // Allows to use classes annotated with @Location to represent URLs.
     // They are typed, can be constructed to generate URLs, and can be used to register routes.
-    Locations
+    install(Locations)
     // Automatic '304 Not Modified' Responses
     install(ConditionalHeaders)
     // Supports for Range, Accept-Range and Content-Range headers
@@ -110,6 +116,9 @@ fun Application.module() {
         exception<InvalidCredentialsException> { exception ->
             call.respond(HttpStatusCode.Unauthorized, mapOf("OK" to false, "error" to (exception.message ?: "")))
         }
+        exception<InvalidInputException> { exception ->
+            call.respond(HttpStatusCode.Unauthorized, mapOf("OK" to false, "error" to (exception.message ?: "")))
+        }
     }
 
     install(Authentication) {
@@ -133,9 +142,10 @@ fun Application.module() {
     }
 
     routing {
-        UrlShort(redirectionMap)
-        BillSplit()
-        SummarizerRoute()
+        billsplit()
+        urlShort(redirectionMap)
+        summarizerRoute()
+
         get("/") {
             call.respondHtmlDefault("blog.", 0) {
                 +"Welcome to londogard."
@@ -150,10 +160,6 @@ fun Application.module() {
 
         get("/snippets") {
             call.respond(mapOf("OK" to true))
-        }
-
-        get("/hello") {
-            call.respond(mapOf("result" to "hello"))
         }
 
         route("files2") {

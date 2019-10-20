@@ -22,8 +22,7 @@ fun BODY.bodyHeader(selectedIdx: Int) {
         listOf("londogard", "url", "smry", "textgen", "billsplit", "apps", "github").forEachIndexed { index, tab ->
             val href = when (tab) {
                 "londogard" -> "/"
-                "url" -> "/url-short"
-                else -> "/$tab"
+                else -> "/$tab/ui"
             }
             a(href) { +(if (index == selectedIdx) ">$tab." else "$tab.") }
             + " "

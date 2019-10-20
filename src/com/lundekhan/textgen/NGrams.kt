@@ -107,6 +107,8 @@ class LanguageModel(val n: Int, val fileName: String) {
 
     fun generateTextByWord(history: String, size: Int = 250, temperature: Double = 0.0): String = ""
 
+
+
     object Hej {
         @JvmStatic
         fun main(args: Array<String>) {
