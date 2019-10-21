@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import com.lundekhan.billsplitter.billsplit
 import com.lundekhan.htmltemplates.respondHtmlDefault
 import com.lundekhan.summarizer.summarizerRoute
+import com.lundekhan.textgen.textgenRoute
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.auth.jwt.jwt
@@ -21,6 +22,8 @@ import io.ktor.response.respondRedirect
 import io.ktor.routing.*
 import io.ktor.sessions.*
 import io.ktor.util.InternalAPI
+import io.ktor.util.KtorExperimentalAPI
+import kotlinx.serialization.ImplicitReflectionSerializer
 import org.koin.ktor.ext.Koin
 import java.io.File
 
@@ -30,32 +33,32 @@ fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
  * Typed routes using the [Locations] feature.
  */
 
-/**
- * Location for bill spitter
- */
-@Location("/billsplit")
-class BillSplit
-
-/**
- * Location for file browsing using [path].
- */
-@Location("/files/{path}")
-data class FileBrowser(val path: String)
-
-/**
- * Location for login a [userName] with a [password].
- */
-@Location("/login")
-data class Login(val userName: String = "", val password: String = "")
-
-/**
- * Location for uploading files.
- */
-@Location("/upload")
-class Upload()
-
-@Location("/url/{shortener}")
-data class UrlRedirect(val shortener: String)
+///**
+// * Location for bill spitter
+// */
+//@Location("/billsplit")
+//class BillSplit
+//
+///**
+// * Location for file browsing using [path].
+// */
+//@Location("/files/{path}")
+//data class FileBrowser(val path: String)
+//
+///**
+// * Location for login a [userName] with a [password].
+// */
+//@Location("/login")
+//data class Login(val userName: String = "", val password: String = "")
+//
+///**
+// * Location for uploading files.
+// */
+//@Location("/upload")
+//class Upload()
+//
+//@Location("/url/{shortener}")
+//data class UrlRedirect(val shortener: String)
 
 /**
  * Session of this site, that just contains the [userId].
@@ -64,6 +67,8 @@ data class LundeNetSession(val userId: String)
 
 
 
+@KtorExperimentalAPI
+@ImplicitReflectionSerializer
 @KtorExperimentalLocationsAPI
 @InternalAPI
 @Suppress("unused") // Referenced in application.conf
@@ -145,6 +150,7 @@ fun Application.module() {
         billsplit()
         urlShort(redirectionMap)
         summarizerRoute()
+        textgenRoute()
 
         get("/") {
             call.respondHtmlDefault("blog.", 0) {
@@ -175,7 +181,7 @@ fun Application.module() {
     }
 }
 
-/**
- * Utility for performing non-permanent redirections using a typed [location] whose class is annotated with [Location].
- */
-//suspend fun ApplicationCall.respondRedirect(location: Any) = respondRedirect(url(location), permanent = false)
+///**
+// * Utility for performing non-permanent redirections using a typed [location] whose class is annotated with [Location].
+// */
+////suspend fun ApplicationCall.respondRedirect(location: Any) = respondRedirect(url(location), permanent = false)

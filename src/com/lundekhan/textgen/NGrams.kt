@@ -1,6 +1,10 @@
 package com.lundekhan.textgen
 
 //import edu.stanford.nlp.process.PTBTokenizer
+import com.lundekhan.utils.readFromFile
+import com.lundekhan.utils.writeToFile
+import kotlinx.serialization.*
+import kotlinx.serialization.cbor.*
 import java.io.BufferedReader
 import kotlin.random.Random
 //import edu.stanford.nlp.process.CoreLabelTokenFactory
@@ -41,6 +45,7 @@ private fun List<String>.groupByAverageTotal(): Map<String, Double> {
     return unsafeGroupMap
 }
 
+@ImplicitReflectionSerializer
 class LanguageModel(val n: Int, val fileName: String) {
     private val paddingStart = '\u0002'
     private val paddingEnd = '\u0003'
@@ -58,7 +63,9 @@ class LanguageModel(val n: Int, val fileName: String) {
    //         .mapValues { (_, value) -> value.groupByAverageTotal() }
 
     private fun createLanguageModel(): InternalLanguageModel {
-        return Files.lines(Paths.get(javaClass.getResource(fileName).path))
+        //val bytes = readFromFile("lm.lm") ?: throw Exception("")
+        //val d = Cbor.plain.load<Map<String, Map<String, Double>>>(bytes)
+        val lm: Map<String, Map<String, Double>> = Files.lines(Paths.get(javaClass.getResource(fileName).path))
             .parallel()
             .flatMap { (it + "\n").tokenizeChars().stream() }
             .toList()
@@ -68,6 +75,9 @@ class LanguageModel(val n: Int, val fileName: String) {
                 valueTransform = { it.last() }
             )
             .mapValues { (_, value) -> value.groupByAverageTotal() }
+        //Cbor.plain.dump(lm).writeToFile("lm.lm")
+
+        return lm
 
         //return readFileAsLinesUsingGetResourceAsStream(fileName)
         //    .useLines { lines -> // Lines are not merged with eachother.. That ruins A LOT.

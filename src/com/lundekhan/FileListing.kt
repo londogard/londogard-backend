@@ -8,6 +8,7 @@ import io.ktor.http.fromFilePath
 import io.ktor.request.path
 import io.ktor.routing.Route
 import io.ktor.routing.get
+import io.ktor.util.KtorExperimentalAPI
 import io.ktor.util.combineSafe
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -17,6 +18,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.Comparator
 
+@KtorExperimentalAPI
 fun Route.listing(folder: File) {
     val dir = staticRootFolder.combine(folder)
     val pathParameterName = "static-content-path-parameter"

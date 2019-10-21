@@ -9,10 +9,14 @@ import io.ktor.response.respond
 import kotlin.test.*
 import io.ktor.server.testing.*
 import io.ktor.util.InternalAPI
+import io.ktor.util.KtorExperimentalAPI
+import kotlinx.serialization.ImplicitReflectionSerializer
 import kotlinx.serialization.parseList
 import org.eclipse.jetty.http.HttpStatus
 import org.koin.dsl.module
 
+@KtorExperimentalAPI
+@ImplicitReflectionSerializer
 @KtorExperimentalLocationsAPI
 @InternalAPI
 class ApplicationTest {
@@ -21,7 +25,6 @@ class ApplicationTest {
         withTestApplication({ module() }) {
             handleRequest(HttpMethod.Get, "/").apply {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals("Hello World!", response.content)
             }
         }
     }
@@ -55,11 +58,11 @@ class ApplicationTest {
     @Test
     fun testSummarizer() {
         withTestApplication({ module() }) {
-            assert(handleRequest(HttpMethod.Get, "/smry").response.status() == HttpStatusCode.OK)
-            handleRequest(HttpMethod.Post, "/smry") {
-                addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
-                //setBody()
-            }
+            assert(handleRequest(HttpMethod.Get, "/smry/ui").response.status() == HttpStatusCode.OK)
+            //handleRequest(HttpMethod.Post, "/smry") {
+            //    addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+            //    //setBody()
+            //}
         }
     }
 

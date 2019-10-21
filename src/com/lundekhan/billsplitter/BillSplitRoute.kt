@@ -1,6 +1,5 @@
 package com.lundekhan.billsplitter
 
-import com.lundekhan.BillSplit
 import com.lundekhan.InvalidInputException
 import com.lundekhan.htmltemplates.respondHtmlDefault
 import com.lundekhan.resultResponse
@@ -36,7 +35,7 @@ fun Route.billsplit(): Route = route("/billsplit") {
             call.respondHtmlDefault("billsplit.", 4) { billsplitBody() }
         }
         /**
-         * A POST reuqest to the [BillSplit], respond with
+         * A POST reuqest to the BillSplit, respond with
          */
         post {
             val personAmount = call
