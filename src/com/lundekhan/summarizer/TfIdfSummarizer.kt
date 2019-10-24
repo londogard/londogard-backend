@@ -1,6 +1,5 @@
 package com.lundekhan.summarizer
 
-//import edu.stanford.nlp.pipeline.CoreDocument
 import java.nio.file.Files
 import java.nio.file.Paths
 
