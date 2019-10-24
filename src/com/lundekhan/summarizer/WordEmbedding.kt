@@ -1,6 +1,5 @@
 package com.lundekhan.summarizer
 
-import com.lundekhan.textgen.getFileStream
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
