@@ -1,19 +1,35 @@
 package com.lundekhan.textgen
 
 import com.lundekhan.summarizer.words
+import com.lundekhan.utils.readFromFile
 import kotlinx.serialization.*
+import kotlinx.serialization.cbor.Cbor
+import kotlinx.serialization.internal.DoubleSerializer
+import kotlinx.serialization.internal.StringSerializer
 import java.io.File
-import java.math.BigInteger
 import kotlin.random.Random
+
+fun languageModelSerializer(): KSerializer<Map<String, Map<String, Double>>> =
+    (StringSerializer to (StringSerializer to DoubleSerializer).map).map
 
 enum class NGramType {
     STRING,
     CHARACTER
 }
 
+//object NGrams {
+//    fun fileToNgrams(fileName: String): List<List<String>> {
+//        File(fileName).useLines { lines ->
+//            lines.fold(emptyMap<String, Int>()) { acc, line ->
+//                "$line\n"
+//            }
+//        }
+//    }
+//}
+
 fun ngrams(tokens: List<String>, n: Int, padStart: Char? = null, padEnd: Char? = null): List<List<String>> {
-    val padLeft = if (padStart != null) List(n) { padStart.toString() } else listOf()
-    val padRight = if (padEnd != null) listOf(padEnd.toString()) else listOf()
+    val padLeft = if (padStart != null) List(n) { padStart.toString() } else emptyList()
+    val padRight = if (padEnd != null) List(n) { padEnd.toString() } else emptyList()
 
     return (padLeft + tokens + padRight).windowed(n)
 }
@@ -37,7 +53,7 @@ private fun List<String>.groupByAverageTotal(): Map<String, Double> {
 class LanguageModel(private val n: Int, private val fileName: String) {
     private val paddingStart = '\u0002'
     private val paddingEnd = '\u0003'
-    private val random = Random
+    private val modelPath = "/languagemodels/lm.lm"
     private val missingMap = mapOf("<UNK>" to 1.0)
     private val internalLanguageModel: InternalLanguageModel = createLanguageModel()
     private val internalWordLanguageModel: InternalLanguageModel by lazy { createWordLanguageModel() }
@@ -45,7 +61,7 @@ class LanguageModel(private val n: Int, private val fileName: String) {
     fun generateOneGram(history: List<String>, temperature: Double): String { // This one is the same..!
         val hist = history.takeLast(n - 1).createKey()
         val distr = internalLanguageModel.getOrDefault(hist, missingMap) // perhaps we should shuffle a few times?
-        var x = random.nextDouble()
+        var x = Random.nextDouble()
         return distr
             .entries
             .dropWhile { (_, value) -> x -= value; return@dropWhile x > 0 }
@@ -90,25 +106,20 @@ class LanguageModel(private val n: Int, private val fileName: String) {
         }
 
     private fun createLanguageModel(): InternalLanguageModel {
-        //val bytes = readFromFile("lm.lm") ?: throw Exception("")
-        //val lm = Cbor.plain.load((StringSerializer to (StringSerializer to DoubleSerializer).map).map, bytes)
-        //Cbor.plain.dump(lm).writeToFile("lm.lm")
-        val lm = File(javaClass.getResource(fileName).path)
-            .useLines { lines ->
-                // Lines are not merged with eachother.. That ruins A LOT.
-                lines
-                    .toList()
-                    .flatMap { "$it\n".tokenizeChars() }
-                    .let { ngrams(it, n) }
-                    .groupBy(
-                        keySelector = { it.dropLast(1).createKey() },
-                        valueTransform = { it.last() }
-                    )
-                    .mapValues { (_, value) -> value.groupByAverageTotal() }
-            }
-        //val serializer = (StringSerializer to (StringSerializer to DoubleSerializer).map).map
-        //Cbor.plain.dump(serializer, lm).writeToFile("lm.lm")
-        return lm
+        return readFromFile(javaClass.getResource(modelPath).path)
+            ?.let { bytes -> Cbor.plain.load(languageModelSerializer(), bytes) }
+            ?: File(javaClass.getResource(fileName).path)
+                .useLines { lines ->
+                    lines
+                        .toList()
+                        .flatMap { "$it\n".tokenizeChars() }
+                        .let { ngrams(it, n) }
+                        .groupBy(
+                            keySelector = { it.dropLast(1).createKey() },
+                            valueTransform = { it.last() }
+                        )
+                        .mapValues { (_, value) -> value.groupByAverageTotal() }
+                }
     }
 
     object Hej {

@@ -27,8 +27,8 @@ fun Route.summarizerRoute(): Route = route("/smry") {
             call.respondHtmlDefault("smry.", 2) {
                 p { +"Smry. Summarize your text here (currently only support simple-version of smry)" }
                 form(encType = FormEncType.applicationXWwwFormUrlEncoded, method = FormMethod.post) {
-                    input {
-                        type = InputType.text
+                    hardTextArea {
+                        //type = InputType.text
                         name = "text"
                     }
                     br
@@ -44,7 +44,7 @@ fun Route.summarizerRoute(): Route = route("/smry") {
                 .receiveParameters()["text"] ?: throw InvalidInputException("POST /smry/ui requires text in parameters.")
             val result = summarizer.parse(articleText)
             return@post call.respondHtmlDefault("smry.", 2) {
-                p { +result }
+                pre { +result }
             }
         }
 

@@ -38,7 +38,7 @@ fun Route.textgenRoute(): Route = route("/textgen") {
                 .receiveParameters()["text"] ?: throw InvalidInputException("POST /textgen/ui requires text in parameters.")
             val result = languageModel.generateTextByChar(articleText)
             return@post call.respondHtmlDefault("textgen.", 3) {
-                p { +result }
+                pre { +result }
             }
         }
     }
