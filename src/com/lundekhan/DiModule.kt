@@ -12,6 +12,6 @@ val groceryModule = module {
     single<SqlDriver> { JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY) }
     single<Database> { createDatabase(get()) }
     single<TfIdfSummarizer> { TfIdfSummarizer() }
-    single<LanguageModel> { LanguageModel(15, "/texts/shakespeare.txt") }
+    single<LanguageModel> { LanguageModel(12, "/texts/shakespeare.txt") }
     //single<Cache> { get() }
 }
