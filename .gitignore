@@ -34,3 +34,5 @@ hs_err_pid*
 # Custom
 resources/embeddings
 resources/texts
+resources/languagemodels
+

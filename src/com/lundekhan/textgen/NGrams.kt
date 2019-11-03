@@ -7,6 +7,7 @@ import kotlinx.serialization.cbor.Cbor
 import kotlinx.serialization.internal.DoubleSerializer
 import kotlinx.serialization.internal.StringSerializer
 import java.io.File
+import java.util.*
 import kotlin.math.max
 import kotlin.random.Random
 
@@ -16,6 +17,19 @@ fun languageModelSerializer(): KSerializer<Map<String, Map<String, Double>>> =
 enum class NGramType {
     STRING,
     CHARACTER
+}
+
+class Ngram<T>(private val n: Int) {
+    private val list = LinkedList<T>()
+    fun addAll(collection: Collection<T>) = list.apply {
+        addAll(collection)
+        for (i in 0..size-n) pop()
+    }
+    fun add(element: T) {
+        if (list.size == n) list.pop()
+        list.add(element)
+    }
+    fun getNgrams(): List<T> = list.toList()
 }
 
 object NGrams {
@@ -48,7 +62,6 @@ fun ngrams(tokens: List<String>, n: Int, padStart: Char? = null, padEnd: Char? =
 }
 
 typealias WordMapping = Map<String, Int>
-
 typealias LanguageModelMap = Map<String, List<Map<Int, Double>>>
 
 typealias InternalLanguageModel = Map<String, Map<String, Double>>
@@ -141,8 +154,8 @@ class LanguageModel(private val n: Int, private val fileName: String) {
     object Hej {
         @JvmStatic
         fun main(args: Array<String>) {
-            val lm = LanguageModel(15, "/texts/shakespeare.txt")
-            println(lm.generateTextByChar("ROMEO:", temperature = 0.5, size = 500))
+            val lm = LanguageModel(8, "/texts/cardsagainst_black")
+            println(lm.generateTextByChar("", temperature = 0.5, size = 500))
         }
     }
 }

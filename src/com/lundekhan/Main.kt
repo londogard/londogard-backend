@@ -85,6 +85,10 @@ fun Application.module() {
     install(ConditionalHeaders)
     // Supports for Range, Accept-Range and Content-Range headers
     install(PartialContent)
+    install(HttpsRedirect) {
+        sslPort = 8890
+        permanentRedirect = true
+    }
 
     val redirectionMap = mutableMapOf<String, String>()
     install(Koin) {
@@ -147,6 +151,7 @@ fun Application.module() {
     }
 
     routing {
+        // TODO update CSS to https://getskeleton.com/ ? ?
         billsplit()
         urlShort(redirectionMap)
         summarizerRoute()
