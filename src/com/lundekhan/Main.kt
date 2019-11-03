@@ -14,9 +14,6 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.jackson.jackson
 import io.ktor.locations.KtorExperimentalLocationsAPI
-import io.ktor.locations.Location
-import io.ktor.locations.Locations
-import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.response.respondRedirect
 import io.ktor.routing.*
@@ -25,46 +22,13 @@ import io.ktor.util.InternalAPI
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.serialization.ImplicitReflectionSerializer
 import org.koin.ktor.ext.Koin
-import java.io.File
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
-
-/*
- * Typed routes using the [Locations] feature.
- */
-
-///**
-// * Location for bill spitter
-// */
-//@Location("/billsplit")
-//class BillSplit
-//
-///**
-// * Location for file browsing using [path].
-// */
-//@Location("/files/{path}")
-//data class FileBrowser(val path: String)
-//
-///**
-// * Location for login a [userName] with a [password].
-// */
-//@Location("/login")
-//data class Login(val userName: String = "", val password: String = "")
-//
-///**
-// * Location for uploading files.
-// */
-//@Location("/upload")
-//class Upload()
-//
-//@Location("/url/{shortener}")
-//data class UrlRedirect(val shortener: String)
 
 /**
  * Session of this site, that just contains the [userId].
  */
 data class LundeNetSession(val userId: String)
-
 
 
 @KtorExperimentalAPI
@@ -78,17 +42,15 @@ fun Application.module() {
     install(DefaultHeaders)
     // This uses use the logger to log every call (request/response)
     install(CallLogging)
-    // Allows to use classes annotated with @Location to represent URLs.
-    // They are typed, can be constructed to generate URLs, and can be used to register routes.
-    install(Locations)
     // Automatic '304 Not Modified' Responses
     install(ConditionalHeaders)
     // Supports for Range, Accept-Range and Content-Range headers
     install(PartialContent)
     install(HttpsRedirect) {
-        sslPort = 8890
         permanentRedirect = true
     }
+    install(XForwardedHeaderSupport)
+    install(ForwardedHeaderSupport)
 
     val redirectionMap = mutableMapOf<String, String>()
     install(Koin) {
@@ -104,8 +66,8 @@ fun Application.module() {
     }
      */
 
-    val root = File("files").takeIf { it.exists() }
-        ?: error("Can't locate files folder")
+    //val root = File(javaClass.getResource("/files").path).takeIf { it.exists() }
+    //    ?: error("Can't locate files folder")
 
     val simpleJwt = SimpleJWT("grocery-list-secret")
 
@@ -169,20 +131,16 @@ fun Application.module() {
             call.respondRedirect("https://play.google.com/store/apps/developer?id=LundeKhan")
         }
 
-        get("/snippets") {
-            call.respond(mapOf("OK" to true))
-        }
-
-        route("files2") {
-            listing(root)
-        }
-
-        post("/login") {
-            val post = call.receive<LoginRegister>()
-            val user = users.getOrPut(post.user) { User(post.user, post.password) }
-            if (user.password != post.password) throw InvalidCredentialsException("Invalid credentials")
-            call.respond(mapOf("token" to simpleJwt.sign(user.name)))
-        }
+        //route("files2") {
+        //    listing(root)
+        //}
+//
+        //post("/login") {
+        //    val post = call.receive<LoginRegister>()
+        //    val user = users.getOrPut(post.user) { User(post.user, post.password) }
+        //    if (user.password != post.password) throw InvalidCredentialsException("Invalid credentials")
+        //    call.respond(mapOf("token" to simpleJwt.sign(user.name)))
+        //}
     }
 }
 
