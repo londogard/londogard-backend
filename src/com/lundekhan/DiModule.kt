@@ -9,7 +9,7 @@ import org.koin.dsl.module
 
 @ImplicitReflectionSerializer
 val groceryModule = module {
-    single<SqlDriver> { JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY) }
+    single<SqlDriver> { JdbcSqliteDriver(url = "${JdbcSqliteDriver.IN_MEMORY}londogard.db") }
     single<Database> { createDatabase(get()) }
     single<TfIdfSummarizer> { TfIdfSummarizer() }
     single<LanguageModel> { LanguageModel(12, "/texts/shakespeare.txt") }

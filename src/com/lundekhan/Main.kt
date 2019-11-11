@@ -46,11 +46,6 @@ fun Application.module() {
     install(ConditionalHeaders)
     // Supports for Range, Accept-Range and Content-Range headers
     install(PartialContent)
-    install(HttpsRedirect) {
-        permanentRedirect = true
-    }
-    install(XForwardedHeaderSupport)
-    install(ForwardedHeaderSupport)
 
     val redirectionMap = mutableMapOf<String, String>()
     install(Koin) {
@@ -58,13 +53,6 @@ fun Application.module() {
         modules(groceryModule)
     }
     //val db by inject<Database>()
-    /**
-    // This feature enables compression automatically when accepted by the client.
-    install(Compression) {
-    default()
-    excludeContentType(ContentType.)
-    }
-     */
 
     //val root = File(javaClass.getResource("/files").path).takeIf { it.exists() }
     //    ?: error("Can't locate files folder")
