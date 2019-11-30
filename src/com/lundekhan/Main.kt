@@ -76,7 +76,7 @@ fun Application.module() {
             call.respond(HttpStatusCode.Unauthorized, mapOf("OK" to false, "error" to (exception.message ?: "")))
         }
         exception<InvalidInputException> { exception ->
-            call.respond(HttpStatusCode.Unauthorized, mapOf("OK" to false, "error" to (exception.message ?: "")))
+            call.respond(HttpStatusCode.BadRequest, mapOf("OK" to false, "error" to (exception.message ?: "")))
         }
     }
 
@@ -113,10 +113,10 @@ fun Application.module() {
             }
         }
         get("/github") {
-            call.respondRedirect("https://github.com/Lundez/")
+            call.respondRedirect("https://github.com/londogard/")
         }
         get("/apps") {
-            call.respondRedirect("https://play.google.com/store/apps/developer?id=LundeKhan")
+            call.respondRedirect("https://play.google.com/store/apps/developer?id=Londogard")
         }
 
         //route("files2") {

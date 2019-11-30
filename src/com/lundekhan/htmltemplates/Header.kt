@@ -10,6 +10,7 @@ suspend fun ApplicationCall.respondHtmlDefault(title: String, index: Int, conten
             title("Londogard: $title")
             link(href = "http://fonts.googleapis.com/css?family=Roboto", rel = "stylesheet")
             getStyle()
+            addAdSense()
         }
         body {
             bodyHeader(index)

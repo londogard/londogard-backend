@@ -1,6 +1,6 @@
 package com.lundekhan
 
-import com.lundekhan.summarizer.TfIdfSummarizer
+import com.londogard.summarize.summarizers.TfIdfSummarizer
 import com.lundekhan.textgen.LanguageModel
 import com.squareup.sqldelight.db.SqlDriver
 import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver

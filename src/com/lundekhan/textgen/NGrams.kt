@@ -1,6 +1,6 @@
 package com.lundekhan.textgen
 
-import com.lundekhan.summarizer.words
+import com.londogard.smile.extensions.words
 import com.lundekhan.utils.readFromFile
 import kotlinx.serialization.*
 import kotlinx.serialization.cbor.Cbor
