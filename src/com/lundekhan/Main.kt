@@ -12,6 +12,10 @@ import io.ktor.features.*
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.content.default
+import io.ktor.http.content.resource
+import io.ktor.http.content.resources
+import io.ktor.http.content.static
 import io.ktor.jackson.jackson
 import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.response.respond
@@ -107,17 +111,33 @@ fun Application.module() {
         summarizerRoute()
         textgenRoute()
 
-        get("/") {
-            call.respondHtmlDefault("blog.", 0) {
-                +"Welcome to londogard."
-            }
+        resource("","londogard-frontend/build/index.html")
+        static("/static") {
+            resources("londogard-frontend/build/static")
         }
+        static("/") {
+            resources("londogard-frontend/build/")
+            default("londogard-frontend/build/index.html")
+        }
+
+
+        //get("/") {
+        //    call.respondHtmlDefault("blog.", 0) {
+        //        +"Welcome to londogard."
+        //    }
+        //}
         get("/github") {
             call.respondRedirect("https://github.com/londogard/")
         }
         get("/apps") {
             call.respondRedirect("https://play.google.com/store/apps/developer?id=Londogard")
         }
+
+        //get("/markdown") {
+        //    call.respondHtmlDefault("textgen.", 3) {
+//
+        //    }
+        //}
 
         //route("files2") {
         //    listing(root)

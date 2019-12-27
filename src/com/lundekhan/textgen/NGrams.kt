@@ -1,13 +1,17 @@
 package com.lundekhan.textgen
 
 import com.londogard.smile.extensions.words
-import com.lundekhan.utils.readFromFile
-import kotlinx.serialization.*
-import kotlinx.serialization.cbor.Cbor
+import kotlinx.serialization.ImplicitReflectionSerializer
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.internal.DoubleSerializer
 import kotlinx.serialization.internal.StringSerializer
+import kotlinx.serialization.map
+import smile.nlp.NGram
 import java.io.File
 import java.util.*
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.set
 import kotlin.math.max
 import kotlin.random.Random
 
@@ -19,17 +23,23 @@ enum class NGramType {
     CHARACTER
 }
 
-class Ngram<T>(private val n: Int) {
+class Ngram<T>(private val n: Int): Comparable<NGram> {
     private val list = LinkedList<T>()
-    fun addAll(collection: Collection<T>) = list.apply {
+
+    fun addAll(collection: Collection<T>): LinkedList<T> = list.apply {
         addAll(collection)
         for (i in 0..size-n) pop()
     }
-    fun add(element: T) {
-        if (list.size == n) list.pop()
-        list.add(element)
+
+    fun add(element: T): LinkedList<T> = list.apply {
+        if (size == n) pop()
+        add(element)
     }
     fun getNgrams(): List<T> = list.toList()
+
+    override fun compareTo(other: NGram): Int {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
 }
 
 object NGrams {
