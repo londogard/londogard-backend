@@ -56,10 +56,6 @@ fun Application.module() {
         //        sl4jlogger()
         modules(groceryModule)
     }
-    //val db by inject<Database>()
-
-    //val root = File(javaClass.getResource("/files").path).takeIf { it.exists() }
-    //    ?: error("Can't locate files folder")
 
     val simpleJwt = SimpleJWT("grocery-list-secret")
 
@@ -99,13 +95,10 @@ fun Application.module() {
     }
 
     install(ContentNegotiation) {
-        jackson {
-            enable(SerializationFeature.INDENT_OUTPUT) // Pretty Prints the JSON
-        }
+        jackson { enable(SerializationFeature.INDENT_OUTPUT) }
     }
 
     routing {
-        // TODO update CSS to https://getskeleton.com/ ? ?
         billsplit()
         urlShort(redirectionMap)
         summarizerRoute()
@@ -120,29 +113,12 @@ fun Application.module() {
             default("londogard-frontend/build/index.html")
         }
 
-
-        //get("/") {
-        //    call.respondHtmlDefault("blog.", 0) {
-        //        +"Welcome to londogard."
-        //    }
-        //}
         get("/github") {
             call.respondRedirect("https://github.com/londogard/")
         }
         get("/apps") {
             call.respondRedirect("https://play.google.com/store/apps/developer?id=Londogard")
         }
-
-        //get("/markdown") {
-        //    call.respondHtmlDefault("textgen.", 3) {
-//
-        //    }
-        //}
-
-        //route("files2") {
-        //    listing(root)
-        //}
-//
         //post("/login") {
         //    val post = call.receive<LoginRegister>()
         //    val user = users.getOrPut(post.user) { User(post.user, post.password) }

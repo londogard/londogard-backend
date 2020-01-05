@@ -1,20 +1,34 @@
 package com.lundekhan.textgen
 
-import com.lundekhan.InvalidInputException
+import com.londogard.textgen.LanguageModel
 import com.lundekhan.htmltemplates.respondHtmlDefault
+import com.lundekhan.resultResponse
 import io.ktor.application.call
-import io.ktor.request.receiveParameters
+import io.ktor.request.receive
+import io.ktor.response.respond
 import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.route
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.html.*
 import kotlinx.serialization.ImplicitReflectionSerializer
 import org.koin.ktor.ext.inject
+import kotlin.system.measureTimeMillis
 
 @ImplicitReflectionSerializer
 fun Route.textgenRoute(): Route = route("/textgen") {
     val languageModel by inject<LanguageModel>()
+
+    post {
+        val seedText = call.receive<TextGenInput>().text
+        val genText = withContext(Dispatchers.Default) {
+            languageModel.generateText(seedText, 150, 0.3)
+        }
+
+        call.respond(resultResponse(genText))
+    }
 
     route("/ui"){
         get {
@@ -34,12 +48,13 @@ fun Route.textgenRoute(): Route = route("/textgen") {
             }
         }
         post {
-            val articleText = call
-                .receiveParameters()["text"] ?: throw InvalidInputException("POST /textgen/ui requires text in parameters.")
-            val result = languageModel.generateTextByChar(articleText)
+            val articleText = call.receive<TextGenInput>().text
+            val result = languageModel.generateText(articleText, 150)
             return@post call.respondHtmlDefault("textgen.", 3) {
                 pre { +result }
             }
         }
     }
 }
+
+data class TextGenInput(val text: String)

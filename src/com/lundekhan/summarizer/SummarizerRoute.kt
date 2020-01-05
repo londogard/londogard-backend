@@ -51,4 +51,4 @@ fun Route.summarizerRoute(): Route = route("/smry") {
 
     }
 }
-data class PostText(val text: String)
+data class PostText(val text: String) // TODO add ratio or sentences to this!

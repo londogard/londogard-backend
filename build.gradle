@@ -24,10 +24,15 @@ group 'com.lundekhan'
 version '0.0.1'
 mainClassName = "io.ktor.server.netty.EngineMain"
 
+task buildJs {
+
+}
+
 sourceSets {
     main.kotlin.srcDirs = main.java.srcDirs = ['src']
     test.kotlin.srcDirs = test.java.srcDirs = ['test']
     main.resources.srcDirs = ['resources']
+    main.resources.includes = ['londogard-frontend/build/**', 'application.conf', 'logback.xml']
     test.resources.srcDirs = ['testresources']
 }
 
@@ -46,6 +51,7 @@ dependencies {
     implementation "ch.qos.logback:logback-classic:$logback_version"
     //implementation("com.github.haifengl:smile-nlp:1.5.3")
     implementation "com.londogard:summarize-kt:1.0.1-beta"
+    implementation "com.londogard:text-gen-kt:1.0.1-beta"
 
 
     implementation "com.squareup.sqldelight:sqlite-driver:1.1.4"
@@ -60,19 +66,14 @@ dependencies {
     implementation "io.ktor:ktor-locations:$ktor_version"
 
     implementation "org.koin:koin-ktor:2.0.1"
-
-    //implementation 'edu.stanford.nlp:stanford-corenlp:3.9.2'
-
     implementation 'com.github.haifengl:smile-nlp:1.5.3'
-    //implementation 'com.github.haifengl:smile-netlib:1.5.3'
 
     // https://mvnrepository.com/artifact/com.johnsnowlabs.nlp/spark-nlp
 //    implementation group: 'com.johnsnowlabs.nlp', name: 'spark-nlp_2.11', version: '2.2.2'
 
-
-
     testImplementation "io.ktor:ktor-server-test-host:$ktor_version"
 }
+
 sqldelight {
     Database {
         packageName = "com.lundekhan"
