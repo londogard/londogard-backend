@@ -1,0 +1,3 @@
+[submodule "resources/londogard-frontend"]
+	path = resources/londogard-frontend
+	url = git@github.com:londogard/londogard-frontend.git

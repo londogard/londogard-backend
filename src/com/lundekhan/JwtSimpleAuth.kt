@@ -3,11 +3,16 @@ package com.lundekhan
 import com.auth0.jwt.JWT
 import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
+import com.auth0.jwt.interfaces.Payload
+import com.lundekhan.jwtauth.User
+import io.ktor.auth.Credential
+import io.ktor.auth.Principal
 import java.util.*
 
 object JwtConfig {
+
     private const val secret = "zAP5MBA4B4Ijz0MZaS48"
-    private const val issuer = "ktor.io"
+    private const val issuer = "londogard.com"
     private const val validityInMs = 36_000_00 * 10 // 10 hours
     private val algorithm = Algorithm.HMAC512(secret)
 
@@ -22,7 +27,8 @@ object JwtConfig {
     fun makeToken(user: User): String = JWT.create()
         .withSubject("Authentication")
         .withIssuer(issuer)
-        .withClaim("name", user.name)
+        .withClaim("id", user.id)
+        .withArrayClaim("countries", user.countries.toTypedArray())
         .withExpiresAt(getExpiration())
         .sign(algorithm)
 
@@ -32,19 +38,15 @@ object JwtConfig {
     private fun getExpiration() = Date(System.currentTimeMillis() + validityInMs)
 
 }
-
 open class SimpleJWT(val secret: String) {
     private val algorithm = Algorithm.HMAC256(secret)
-    val verifier = JWT.require(algorithm).build()
+    val verifier: JWTVerifier = JWT.require(algorithm).build()
     fun sign(name: String): String = JWT.create().withClaim("name", name).sign(algorithm)
 }
 
-class User(val name: String, val password: String)
 
-val users = Collections.synchronizedMap(
-    listOf(User("test", "test"))
-        .associateBy { it.name }
-        .toMutableMap()
-)
 class LoginRegister(val user: String, val password: String)
+
+class JWTCredential(val payload: Payload) : Credential
+class JWTPrincipal(val payload: Payload) : Principal
 

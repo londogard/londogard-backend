@@ -2,7 +2,7 @@ package com.lundekhan
 
 import com.lundekhan.htmltemplates.respondHtmlDefault
 import io.ktor.application.call
-import io.ktor.http.HttpStatusCode
+import io.ktor.request.receive
 import io.ktor.request.receiveParameters
 import io.ktor.response.respond
 import io.ktor.response.respondRedirect
@@ -10,7 +10,6 @@ import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.route
-import io.ktor.util.InternalAPI
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.html.*
@@ -21,7 +20,7 @@ fun Route.urlShort(redirections: MutableMap<String, String>): Route = route("/ur
     val db by inject<Database>()
 
     post {
-        val url = call.receiveParameters()["url"] ?: throw InvalidInputException("POST /url - URL must be supplied")
+        val url = call.receive<UrlInput>().url
         val hash = url.hashHexify()
         redirections.putIfAbsent(hash, url)
         launch(Dispatchers.IO) { db.urlQueries.select(url).executeAsOneOrNull() ?: db.urlQueries.insert(url, hash) }
@@ -33,8 +32,9 @@ fun Route.urlShort(redirections: MutableMap<String, String>): Route = route("/ur
         val shortened = call.parameters["short"] ?: ""
         val fullUrl = redirections[shortened]
 
-        call.respondRedirect(fullUrl ?: "/url-short")
+        call.respondRedirect(fullUrl ?: "/#/url")
     }
+
     route("/ui") {
         get {
             call.respondHtmlDefault("Url-Short", 1) {
@@ -65,7 +65,7 @@ fun Route.urlShort(redirections: MutableMap<String, String>): Route = route("/ur
                 input {
                     type = InputType.url
                     name = "shortened-url"
-                    value = "londogard.hopto.org/url/$hash"
+                    value = "https://londogard.com/url/$hash"
                 }
                 br()
                 p { +hash }
@@ -73,3 +73,5 @@ fun Route.urlShort(redirections: MutableMap<String, String>): Route = route("/ur
         }
     }
 }
+
+data class UrlInput(val url: String)

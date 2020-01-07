@@ -1,5 +1,6 @@
 package com.lundekhan
 
+import com.lundekhan.htmltemplates.respondHtmlDefault
 import io.ktor.application.call
 import io.ktor.html.respondHtml
 import io.ktor.http.ContentType
@@ -30,50 +31,48 @@ fun Route.listing(folder: File) {
             val isRoot = relativePath.trim('/').isEmpty()
             val files = file.listSuspend(includeParent = !isRoot)
             val base = call.request.path().trimEnd('/')
-            call.respondHtml {
-                body {
-                    h1 { +"Index of $base/" }
-                    hr {  }
-                    table {
-                        style = "width: 100%;"
-                        thead {
-                            tr {
-                                for (column in listOf("Name", "Last Modified", "Size", "MimeType")) {
-                                    th {
-                                        style = "width: 25%; text-align: left;"
-                                        +column
-                                    }
-                                }
-                            }
-                        }
-                        tbody {
-                            for (finfo in files) {
-                                val rname = if (finfo.directory) "${finfo.name}/" else finfo.name
-                                tr {
-                                    td {
-                                        if (finfo.name == "..") {
-                                            a(File(base).parent) { +rname }
-                                        } else if(finfo.directory) {
-                                            a("$base/$rname") { +rname }
-                                        } else {
-                                            +rname
-                                        }
-                                    }
-                                    td {
-                                        +dateFormat.format(finfo.date)
-                                    }
-                                    td {
-                                        +(if (finfo.directory) "-" else "${finfo.size}")
-                                    }
-                                    td {
-                                        +(ContentType.fromFilePath(finfo.name).firstOrNull()?.toString() ?: "-")
-                                    }
+            call.respondHtmlDefault("Files", 0) {
+                h1 { +"Index of $base/" }
+                hr { }
+                table {
+                    style = "width: 100%;"
+                    thead {
+                        tr {
+                            for (column in listOf("Name", "Last Modified", "Size", "MimeType")) {
+                                th {
+                                    style = "width: 25%; text-align: left;"
+                                    +column
                                 }
                             }
                         }
                     }
-                    hr {  }
+                    tbody {
+                        for (finfo in files) {
+                            val rname = if (finfo.directory) "${finfo.name}/" else finfo.name
+                            tr {
+                                td {
+                                    if (finfo.name == "..") {
+                                        a(File(base).parent) { +rname }
+                                    } else if (finfo.directory) {
+                                        a("$base/$rname") { +rname }
+                                    } else {
+                                        +rname
+                                    }
+                                }
+                                td {
+                                    +dateFormat.format(finfo.date)
+                                }
+                                td {
+                                    +(if (finfo.directory) "-" else "${finfo.size}")
+                                }
+                                td {
+                                    +(ContentType.fromFilePath(finfo.name).firstOrNull()?.toString() ?: "-")
+                                }
+                            }
+                        }
+                    }
                 }
+                hr { }
             }
         }
     }
@@ -89,7 +88,8 @@ data class FileInfo(val name: String, val date: Date, val directory: Boolean, va
 suspend fun File.listSuspend(includeParent: Boolean = false): List<FileInfo> {
     val file = this
     return withContext(Dispatchers.IO) {
-        listOfNotNull(if (includeParent) FileInfo("..", Date(), true, 0L) else null) + (file.listFiles() ?: arrayOf()).toList().map {
+        listOfNotNull(if (includeParent) FileInfo("..", Date(), true, 0L) else null) + (file.listFiles()
+            ?: arrayOf()).toList().map {
             FileInfo(it.name, Date(it.lastModified()), it.isDirectory, it.length())
         }.sortedWith(comparators(
             Comparator { a, b -> -a.directory.compareTo(b.directory) },

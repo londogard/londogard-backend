@@ -3,6 +3,9 @@ package com.lundekhan
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.lundekhan.billsplitter.billsplit
 import com.lundekhan.htmltemplates.respondHtmlDefault
+import com.lundekhan.jwtauth.UserSource
+import com.lundekhan.jwtauth.UserSourceImpl
+import com.lundekhan.jwtauth.user
 import com.lundekhan.summarizer.summarizerRoute
 import com.lundekhan.textgen.textgenRoute
 import io.ktor.application.*
@@ -12,59 +15,29 @@ import io.ktor.features.*
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.content.default
+import io.ktor.http.content.resource
+import io.ktor.http.content.resources
+import io.ktor.http.content.static
 import io.ktor.jackson.jackson
 import io.ktor.locations.KtorExperimentalLocationsAPI
-import io.ktor.locations.Location
-import io.ktor.locations.Locations
 import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.response.respondRedirect
+import io.ktor.response.respondText
 import io.ktor.routing.*
 import io.ktor.sessions.*
 import io.ktor.util.InternalAPI
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.serialization.ImplicitReflectionSerializer
 import org.koin.ktor.ext.Koin
-import java.io.File
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
-
-/*
- * Typed routes using the [Locations] feature.
- */
-
-///**
-// * Location for bill spitter
-// */
-//@Location("/billsplit")
-//class BillSplit
-//
-///**
-// * Location for file browsing using [path].
-// */
-//@Location("/files/{path}")
-//data class FileBrowser(val path: String)
-//
-///**
-// * Location for login a [userName] with a [password].
-// */
-//@Location("/login")
-//data class Login(val userName: String = "", val password: String = "")
-//
-///**
-// * Location for uploading files.
-// */
-//@Location("/upload")
-//class Upload()
-//
-//@Location("/url/{shortener}")
-//data class UrlRedirect(val shortener: String)
 
 /**
  * Session of this site, that just contains the [userId].
  */
 data class LundeNetSession(val userId: String)
-
 
 
 @KtorExperimentalAPI
@@ -78,9 +51,6 @@ fun Application.module() {
     install(DefaultHeaders)
     // This uses use the logger to log every call (request/response)
     install(CallLogging)
-    // Allows to use classes annotated with @Location to represent URLs.
-    // They are typed, can be constructed to generate URLs, and can be used to register routes.
-    install(Locations)
     // Automatic '304 Not Modified' Responses
     install(ConditionalHeaders)
     // Supports for Range, Accept-Range and Content-Range headers
@@ -91,19 +61,8 @@ fun Application.module() {
         //        sl4jlogger()
         modules(groceryModule)
     }
-    //val db by inject<Database>()
-    /**
-    // This feature enables compression automatically when accepted by the client.
-    install(Compression) {
-    default()
-    excludeContentType(ContentType.)
-    }
-     */
 
-    val root = File("files").takeIf { it.exists() }
-        ?: error("Can't locate files folder")
-
-    val simpleJwt = SimpleJWT("grocery-list-secret")
+    val simpleJwt = SimpleJWT("londogard-backend-secret")
 
     install(CORS) {
         method(HttpMethod.Options)
@@ -122,9 +81,14 @@ fun Application.module() {
             call.respond(HttpStatusCode.Unauthorized, mapOf("OK" to false, "error" to (exception.message ?: "")))
         }
         exception<InvalidInputException> { exception ->
-            call.respond(HttpStatusCode.Unauthorized, mapOf("OK" to false, "error" to (exception.message ?: "")))
+            call.respond(HttpStatusCode.BadRequest, mapOf("OK" to false, "error" to (exception.message ?: "")))
         }
     }
+
+    val jwtIssuer = environment.config.property("jwt.domain").getString()
+    val jwtAudience = environment.config.property("jwt.audience").getString()
+    val jwtRealm = environment.config.property("jwt.realm").getString()
+    val userSource: UserSource = UserSourceImpl()
 
     install(Authentication) {
         basic(name = "fileauth") {
@@ -132,51 +96,95 @@ fun Application.module() {
             realm = "Ktor Server"
             validate { if (it.name == "londogard" && it.password == "") UserIdPrincipal("user") else null }
         }
-        jwt("jwt") {
-            verifier(simpleJwt.verifier) // TODO swap to JwtConfig
+
+        /**
+         * Setup the JWT authentication to be used in [Routing].
+         * If the token is valid, the corresponding [User] is fetched from the database.
+         * The [User] can then be accessed in each [ApplicationCall].
+         */
+        jwt {
+            verifier(JwtConfig.verifier)
+            realm = "ktor.io"
             validate {
-                UserIdPrincipal(it.payload.getClaim("name").asString())
+                it.payload.getClaim("id").asInt()?.let(userSource::findUserById)
             }
         }
+        //jwt("jwt") {
+        //    verifier(simpleJwt.verifier) // TODO swap to JwtConfig
+        //    validate {
+        //        UserIdPrincipal(it.payload.getClaim("name").asString())
+        //    }
+        //}
     }
 
     install(ContentNegotiation) {
-        jackson {
-            enable(SerializationFeature.INDENT_OUTPUT) // Pretty Prints the JSON
-        }
+        jackson { enable(SerializationFeature.INDENT_OUTPUT) }
+    }
+
+    if (environment.config.propertyOrNull("ktor.deployment.sslPort") != null) {
+        install(HttpsRedirect)
     }
 
     routing {
+        reactStaticRoute()
         billsplit()
         urlShort(redirectionMap)
         summarizerRoute()
         textgenRoute()
 
-        get("/") {
-            call.respondHtmlDefault("blog.", 0) {
-                +"Welcome to londogard."
-            }
-        }
         get("/github") {
-            call.respondRedirect("https://github.com/Lundez/")
+            call.respondRedirect("https://github.com/londogard/")
         }
         get("/apps") {
-            call.respondRedirect("https://play.google.com/store/apps/developer?id=LundeKhan")
+            call.respondRedirect("https://play.google.com/store/apps/developer?id=Londogard")
+        }
+        authenticate {
+            route("/who") {
+                handle {
+                    val principal = call.authentication.principal<JWTPrincipal>()
+                    val subjectString = principal!!.payload.subject.removePrefix("auth0|")
+                    call.respondText("Success, $subjectString")
+                }
+            }
         }
 
-        get("/snippets") {
-            call.respond(mapOf("OK" to true))
+        /**
+         * A public login [Route] used to obtain JWTs
+         */
+        post("login") {
+            val credentials = call.receive<UserPasswordCredential>()
+            val user = userSource.findUserByCredentials(credentials)
+            val token = JwtConfig.makeToken(user)
+            call.respondText(token)
         }
 
-        route("files2") {
-            listing(root)
+        /**
+         * All [Route]s in the authentication block are secured.
+         */
+        authenticate {
+            route("secret") {
+
+                get {
+                    val user = call.user!!
+                    call.respond(user.countries)
+                }
+
+                put {
+                    TODO("All your secret routes can follow here")
+                }
+
+            }
         }
 
-        post("/login") {
-            val post = call.receive<LoginRegister>()
-            val user = users.getOrPut(post.user) { User(post.user, post.password) }
-            if (user.password != post.password) throw InvalidCredentialsException("Invalid credentials")
-            call.respond(mapOf("token" to simpleJwt.sign(user.name)))
+        /**
+         * Routes with optional authentication
+         */
+        authenticate(optional = true) {
+            get("optional") {
+                val user = call.user
+                val response = if (user != null) "authenticated!" else "optional"
+                call.respond(response)
+            }
         }
     }
 }
