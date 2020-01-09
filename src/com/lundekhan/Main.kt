@@ -2,23 +2,25 @@ package com.lundekhan
 
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.lundekhan.billsplitter.billsplit
-import com.lundekhan.htmltemplates.respondHtmlDefault
+import com.lundekhan.data.Blog
 import com.lundekhan.jwtauth.UserSource
 import com.lundekhan.jwtauth.UserSourceImpl
 import com.lundekhan.jwtauth.user
 import com.lundekhan.summarizer.summarizerRoute
 import com.lundekhan.textgen.textgenRoute
-import io.ktor.application.*
-import io.ktor.auth.*
+import io.ktor.application.Application
+import io.ktor.application.ApplicationCall
+import io.ktor.application.call
+import io.ktor.application.install
+import io.ktor.auth.Authentication
+import io.ktor.auth.UserPasswordCredential
+import io.ktor.auth.authenticate
+import io.ktor.auth.authentication
 import io.ktor.auth.jwt.jwt
 import io.ktor.features.*
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.content.default
-import io.ktor.http.content.resource
-import io.ktor.http.content.resources
-import io.ktor.http.content.static
 import io.ktor.jackson.jackson
 import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.request.receive
@@ -26,11 +28,14 @@ import io.ktor.response.respond
 import io.ktor.response.respondRedirect
 import io.ktor.response.respondText
 import io.ktor.routing.*
-import io.ktor.sessions.*
 import io.ktor.util.InternalAPI
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.serialization.ImplicitReflectionSerializer
 import org.koin.ktor.ext.Koin
+import org.koin.ktor.ext.inject
+import org.mindrot.jbcrypt.BCrypt
+import java.sql.SQLException
+
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -57,12 +62,14 @@ fun Application.module() {
     install(PartialContent)
 
     val redirectionMap = mutableMapOf<String, String>()
+
     install(Koin) {
         //        sl4jlogger()
-        modules(groceryModule)
+        if (this@module.environment.config.property("ktor.deployment.environment").getString() == "test")
+            modules(testModule)
+        else
+            modules(backendModule)
     }
-
-    val simpleJwt = SimpleJWT("londogard-backend-secret")
 
     install(CORS) {
         method(HttpMethod.Options)
@@ -78,25 +85,18 @@ fun Application.module() {
 
     install(StatusPages) {
         exception<InvalidCredentialsException> { exception ->
-            call.respond(HttpStatusCode.Unauthorized, mapOf("OK" to false, "error" to (exception.message ?: "")))
+            call.respond(HttpStatusCode.Unauthorized, resultResponse(exception.message ?: unknownError))
         }
         exception<InvalidInputException> { exception ->
-            call.respond(HttpStatusCode.BadRequest, mapOf("OK" to false, "error" to (exception.message ?: "")))
+            call.respond(HttpStatusCode.BadRequest, resultResponse(exception.message ?: unknownError))
         }
+        exception<UserCreationException> { call.respond(HttpStatusCode.BadRequest, resultResponse(it.message ?: unknownError)) }
     }
 
-    val jwtIssuer = environment.config.property("jwt.domain").getString()
-    val jwtAudience = environment.config.property("jwt.audience").getString()
-    val jwtRealm = environment.config.property("jwt.realm").getString()
-    val userSource: UserSource = UserSourceImpl()
+    val db by inject<Database>()
+    val userSource: UserSource = UserSourceImpl(db.userQueries)
 
     install(Authentication) {
-        basic(name = "fileauth") {
-            skipWhen { call -> call.sessions.get<UserIdPrincipal>() != null }
-            realm = "Ktor Server"
-            validate { if (it.name == "londogard" && it.password == "") UserIdPrincipal("user") else null }
-        }
-
         /**
          * Setup the JWT authentication to be used in [Routing].
          * If the token is valid, the corresponding [User] is fetched from the database.
@@ -106,15 +106,9 @@ fun Application.module() {
             verifier(JwtConfig.verifier)
             realm = "ktor.io"
             validate {
-                it.payload.getClaim("id").asInt()?.let(userSource::findUserById)
+                it.payload.getClaim("id").asLong()?.let(userSource::findUserById)
             }
         }
-        //jwt("jwt") {
-        //    verifier(simpleJwt.verifier) // TODO swap to JwtConfig
-        //    validate {
-        //        UserIdPrincipal(it.payload.getClaim("name").asString())
-        //    }
-        //}
     }
 
     install(ContentNegotiation) {
@@ -123,6 +117,7 @@ fun Application.module() {
 
     if (environment.config.propertyOrNull("ktor.deployment.sslPort") != null) {
         install(HttpsRedirect)
+        install(HSTS)
     }
 
     routing {
@@ -153,9 +148,27 @@ fun Application.module() {
          */
         post("login") {
             val credentials = call.receive<UserPasswordCredential>()
-            val user = userSource.findUserByCredentials(credentials)
-            val token = JwtConfig.makeToken(user)
-            call.respondText(token)
+            val token = userSource
+                .findUserByCredentials(credentials)
+                ?.let { JwtConfig.makeToken(it) }
+                ?: throw InvalidCredentialsException("Either user does not exist or user and password does not match")
+            call.respond(ResultResponse(token))
+        }
+
+        /**
+         * A public createuser [Route] used to create users
+         */
+        post("createuser") {
+            val credentials = call.receive<UserPasswordCredential>()
+            val pw = BCrypt.hashpw(credentials.password, BCrypt.gensalt())
+
+            try {
+                db.userQueries.insert(credentials.name, pw)
+                userSource
+                    .findUserByCredentials(credentials)
+                    ?.let { call.respond(HttpStatusCode.Created, ResultResponse("User created")) }
+                    ?: throw UserCreationException()
+            } catch (exception: SQLException) { throw UserCreationException() }
         }
 
         /**
@@ -163,10 +176,9 @@ fun Application.module() {
          */
         authenticate {
             route("secret") {
-
                 get {
                     val user = call.user!!
-                    call.respond(user.countries)
+                    call.respond(user.name)
                 }
 
                 put {

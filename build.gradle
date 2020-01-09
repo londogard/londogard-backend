@@ -39,6 +39,7 @@ sourceSets {
 repositories {
     mavenLocal()
     jcenter()
+    maven { url 'https://mvnrepository.com/artifact/org.mindrot/jbcrypt' }
     maven { url 'https://kotlin.bintray.com/ktor' }
     maven { url 'https://dl.bintray.com/jetbrains/markdown' }
     maven { url "https://jitpack.io" }
@@ -67,6 +68,7 @@ dependencies {
 
     implementation "org.koin:koin-ktor:2.0.1"
     implementation 'com.github.haifengl:smile-nlp:1.5.3'
+    implementation 'org.mindrot:jbcrypt:0.4'
 
     // https://mvnrepository.com/artifact/com.johnsnowlabs.nlp/spark-nlp
 //    implementation group: 'com.johnsnowlabs.nlp', name: 'spark-nlp_2.11', version: '2.2.2'

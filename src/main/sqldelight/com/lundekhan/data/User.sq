@@ -1,0 +1,28 @@
+CREATE TABLE user (
+    userid INTEGER PRIMARY KEY,
+    username TEXT NOT NULL UNIQUE,
+    hashpw TEXT NOT NULL
+);
+
+selectAll:
+SELECT * FROM user;
+
+insert:
+INSERT INTO user (username, hashpw)
+VALUES (?, ?);
+
+insertFull:
+INSERT INTO user (username, hashpw)
+VALUES ?;
+
+select:
+SELECT * FROM user WHERE username == ?;
+
+selectById:
+SELECT * FROM user WHERE userid == ?;
+
+selectByHash:
+SELECT * FROM user WHERE hashpw == ?;
+
+selectByCredentials:
+SELECT * FROM user WHERE hashpw == ? AND username == ?;

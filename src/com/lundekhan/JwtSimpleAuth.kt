@@ -10,11 +10,10 @@ import io.ktor.auth.Principal
 import java.util.*
 
 object JwtConfig {
-
-    private const val secret = "zAP5MBA4B4Ijz0MZaS48"
+    private const val secret = "zAP5MBA4B4Ijz0MZaS48" // TODO move this to env variable & update it
     private const val issuer = "londogard.com"
     private const val validityInMs = 36_000_00 * 10 // 10 hours
-    private val algorithm = Algorithm.HMAC512(secret)
+    private val algorithm = Algorithm.HMAC256(secret)
 
     val verifier: JWTVerifier = JWT
         .require(algorithm)
@@ -28,7 +27,6 @@ object JwtConfig {
         .withSubject("Authentication")
         .withIssuer(issuer)
         .withClaim("id", user.id)
-        .withArrayClaim("countries", user.countries.toTypedArray())
         .withExpiresAt(getExpiration())
         .sign(algorithm)
 
@@ -38,12 +36,6 @@ object JwtConfig {
     private fun getExpiration() = Date(System.currentTimeMillis() + validityInMs)
 
 }
-open class SimpleJWT(val secret: String) {
-    private val algorithm = Algorithm.HMAC256(secret)
-    val verifier: JWTVerifier = JWT.require(algorithm).build()
-    fun sign(name: String): String = JWT.create().withClaim("name", name).sign(algorithm)
-}
-
 
 class LoginRegister(val user: String, val password: String)
 

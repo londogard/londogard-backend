@@ -2,33 +2,101 @@ package com.lundekhan
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.londogard.summarize.summarizers.TfIdfSummarizer
+import com.londogard.textgen.GenerationLevel
+import com.londogard.textgen.LanguageModel
+import com.londogard.textgen.LanguageModelImpl
+import com.londogard.textgen.PretrainedModels
 import com.lundekhan.billsplitter.PersonPayment
-import com.lundekhan.summarizer.PostText
+import com.squareup.sqldelight.Transacter
+import com.squareup.sqldelight.db.SqlDriver
+import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver
 import io.ktor.http.*
 import io.ktor.locations.KtorExperimentalLocationsAPI
-import io.ktor.response.respond
-import kotlin.test.*
-import io.ktor.server.testing.*
+import io.ktor.server.testing.handleRequest
+import io.ktor.server.testing.setBody
+import io.ktor.server.testing.withTestApplication
 import io.ktor.util.InternalAPI
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.serialization.ImplicitReflectionSerializer
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.parse
-import kotlinx.serialization.parseList
-import org.eclipse.jetty.http.HttpStatus
+import org.junit.Before
+import org.koin.core.context.loadKoinModules
 import org.koin.dsl.module
+import org.koin.ktor.ext.inject
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 @KtorExperimentalAPI
 @ImplicitReflectionSerializer
 @KtorExperimentalLocationsAPI
 @InternalAPI
 class ApplicationTest {
+    private val testUser = """{"name":  "lunde", "password": "123abc"}"""
+    private val testUserTwo = """{"name":  "lunde", "password": "123"}"""
+
+    @BeforeTest
+    fun cleanup() {
+        withTestApplication ({ module() }){
+            this.application.inject<Database>().value.utilsQueries.dropAll()
+        }
+    }
+
     @Test
     fun testRoot() {
         withTestApplication({ module() }) {
             handleRequest(HttpMethod.Get, "/").apply {
                 assertEquals(HttpStatusCode.OK, response.status())
             }
+        }
+    }
+
+    @Test
+    fun testJwtAuth() {
+        withTestApplication({ module() }) {
+            handleRequest(HttpMethod.Post, "/createuser") {
+                addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                setBody(testUser)
+            }.apply {
+                assertEquals(HttpStatusCode.Created, response.status())
+                assertTrue(response.content != null)
+
+                val responseJson = jacksonObjectMapper().readValue<ResultResponse>(response.content!!)
+                assertEquals(ResultResponse("User created"), responseJson)
+            }
+            handleRequest(HttpMethod.Post, "/login") {
+                addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                setBody(testUser)
+            }.apply {
+                assertEquals(HttpStatusCode.OK, response.status())
+                assertTrue(response.content != null)
+
+                val responseJson = jacksonObjectMapper().readValue<ResultResponse>(response.content!!)
+                assertTrue(responseJson.result.isNotEmpty())
+            }
+            handleRequest(HttpMethod.Post, "/login") {
+                addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                setBody(testUserTwo)
+            }.apply {
+                assertEquals(HttpStatusCode.Unauthorized, response.status())
+                assertTrue(response.content != null)
+
+                val responseJson = jacksonObjectMapper().readValue<ResultResponse>(response.content!!)
+                assertTrue(responseJson.result.isNotEmpty())
+            }
+            handleRequest(HttpMethod.Post, "/createuser") {
+                addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                setBody(testUser)
+            }.apply {
+                assertEquals(HttpStatusCode.BadRequest, response.status())
+            }
+            // handleRequest(HttpMethod.Get, "/secret") {
+            //     addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+            //     addHeader(HttpHeaders.Authorization, )
+            // }.apply {
+            //     assertEquals(HttpStatusCode.OK, response.status())
+            // }
         }
     }
 

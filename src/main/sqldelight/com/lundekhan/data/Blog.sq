@@ -1,21 +1,28 @@
---import java.time.LocalDateTime;
---
---CREATE TABLE blog (
---    blog_id INTEGER PRIMARY KEY AUTOINCREMENT,
---    title TEXT,
---    date TEXT as LocalDateTime,
---    blog_body TEXT
---);
---
---selectAll:
---SELECT * FROM category;
---
---insert:
---INSERT INTO category(category_name)
---VALUES(?);
---
---insertFull:
---INSERT INTO category(category_name)
---VALUES ?;
---
---
+import java.time.LocalDateTime;
+import kotlin.collections.List;
+
+CREATE TABLE blog (
+    blog_id INTEGER PRIMARY KEY,
+    title TEXT,
+    summary TEXT,
+    date TEXT as LocalDateTime,
+    blog_body TEXT,
+    category TEXT as List<String> NOT NULL
+);
+
+selectAll:
+SELECT * FROM blog;
+
+insert:
+INSERT INTO blog(title, summary, date, blog_body, category)
+VALUES(?, ?, ?, ?, ?);
+
+insertFull:
+INSERT INTO blog(title, summary, date, blog_body, category)
+VALUES ?;
+
+selectById:
+SELECT * FROM blog WHERE blog_id == ?;
+
+selectByCategory:
+SELECT * FROM blog WHERE category LIKE '%'+?+'%';

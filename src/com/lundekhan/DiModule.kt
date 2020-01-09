@@ -12,8 +12,16 @@ import org.koin.dsl.module
 
 
 @ImplicitReflectionSerializer
-val groceryModule = module {
+val backendModule = module {
     single<SqlDriver> { JdbcSqliteDriver(url = "${JdbcSqliteDriver.IN_MEMORY}londogard.db") }
+    single { createDatabase(get()) }
+    single { TfIdfSummarizer() }
+    single<LanguageModel> { LanguageModelImpl(PretrainedModels.SHAKESPEARE, GenerationLevel.WORD) }
+}
+
+@ImplicitReflectionSerializer
+val testModule = module {
+    single<SqlDriver> { JdbcSqliteDriver(url = "${JdbcSqliteDriver.IN_MEMORY}londogard-test.db") }
     single { createDatabase(get()) }
     single { TfIdfSummarizer() }
     single<LanguageModel> { LanguageModelImpl(PretrainedModels.SHAKESPEARE, GenerationLevel.WORD) }
