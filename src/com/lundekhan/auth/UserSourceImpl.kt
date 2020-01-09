@@ -14,6 +14,4 @@ class UserSourceImpl(private val userQueries: UserQueries) : UserSource {
         .select(credential.name).executeAsOneOrNull()
         ?.takeIf { BCrypt.checkpw(credential.password, it.hashpw) }
         ?.let { User(it.userid, it.username) }
-
-
 }

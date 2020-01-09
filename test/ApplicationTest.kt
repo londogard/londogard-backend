@@ -55,7 +55,7 @@ class ApplicationTest {
     @Test
     fun testJwtAuth() {
         withTestApplication({ module() }) {
-            handleRequest(HttpMethod.Post, "/createuser") {
+            handleRequest(HttpMethod.Post, "/user/create") {
                 addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
                 setBody(testUser)
             }.apply {
@@ -65,7 +65,7 @@ class ApplicationTest {
                 val responseJson = jacksonObjectMapper().readValue<ResultResponse>(response.content!!)
                 assertEquals(ResultResponse("User created"), responseJson)
             }
-            handleRequest(HttpMethod.Post, "/login") {
+            handleRequest(HttpMethod.Post, "/user/login") {
                 addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
                 setBody(testUser)
             }.apply {
@@ -75,7 +75,7 @@ class ApplicationTest {
                 val responseJson = jacksonObjectMapper().readValue<ResultResponse>(response.content!!)
                 assertTrue(responseJson.result.isNotEmpty())
             }
-            handleRequest(HttpMethod.Post, "/login") {
+            handleRequest(HttpMethod.Post, "/user/login") {
                 addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
                 setBody(testUserTwo)
             }.apply {
@@ -85,7 +85,7 @@ class ApplicationTest {
                 val responseJson = jacksonObjectMapper().readValue<ResultResponse>(response.content!!)
                 assertTrue(responseJson.result.isNotEmpty())
             }
-            handleRequest(HttpMethod.Post, "/createuser") {
+            handleRequest(HttpMethod.Post, "/user/create") {
                 addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
                 setBody(testUser)
             }.apply {
