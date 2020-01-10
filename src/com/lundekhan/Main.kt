@@ -13,8 +13,7 @@ import io.ktor.application.Application
 import io.ktor.application.ApplicationCall
 import io.ktor.application.call
 import io.ktor.application.install
-import io.ktor.auth.Authentication
-import io.ktor.auth.authenticate
+import io.ktor.auth.*
 import io.ktor.auth.jwt.JWTPrincipal
 import io.ktor.auth.jwt.jwt
 import io.ktor.features.*
@@ -106,17 +105,18 @@ fun Application.module() {
     install(Authentication) {
         /**
          * Setup the JWT authentication to be used in [Routing].
-         * If the token is valid, the corresponding [User] is fetched from the database.
-         * The [User] can then be accessed in each [ApplicationCall].
+         * If the token is valid, the corresponding [JWTPrincipal] is fetched from the database.
+         * The [JWTPrincipal] can then be accessed in each [ApplicationCall].
          */
+        JwtConfig.initAlgo(this@module.environment.config.propertyOrNull("security.secret")?.getString() ?: "testingSecret1234")
         jwt {
             verifier(JwtConfig.verifier)
-            realm = "ktor.io"
+            realm = "londogard.com"
             validate { credential ->
                 val isValid = LocalDateTime.now().isBefore(credential.payload.expiresAt.toLocalDateTime())
 
                 if (isValid && credential.payload.claims["id"]?.asLong()?.let(userSource::findUserById) != null)
-                    JWTPrincipal(credential.payload)
+                    JWTPrincipal(credential.payload) // TODO perhaps we'd prefer to use User or something
                 else null
             }
         }
@@ -138,22 +138,8 @@ fun Application.module() {
         summarizerRoute()
         textgenRoute()
         authRoute(userSource)
-
-        get("/github") {
-            call.respondRedirect("https://github.com/londogard/")
-        }
-        get("/apps") {
-            call.respondRedirect("https://play.google.com/store/apps/developer?id=Londogard")
-        }
-        authenticate {
-            route("/who") {
-                handle {
-                    val principal = call.principal
-                    val subjectString = principal!!.payload.subject.removePrefix("auth0|")
-                    call.respondText("Success, $subjectString")
-                }
-            }
-        }
+        get("/github") { call.respondRedirect("https://github.com/londogard/") }
+        get("/apps") { call.respondRedirect("https://play.google.com/store/apps/developer?id=Londogard") }
 
         /**
          * All [Route]s in the authentication block are secured.
@@ -162,7 +148,7 @@ fun Application.module() {
             route("secret") {
                 get {
                     val user = call.principal
-                    call.respond(userSource.findUserById(user?.payload?.getClaim("id")?.asLong() ?: -1)?.name ?: "FUCK")
+                    call.respond(userSource.findUserById(user?.payload?.getClaim("id")?.asLong() ?: -1)?.name ?: "User Not Found")
                 }
             }
         }

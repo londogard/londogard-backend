@@ -33,6 +33,8 @@ import kotlin.test.assertTrue
 @KtorExperimentalLocationsAPI
 @InternalAPI
 class ApplicationTest {
+    // https://github.com/AndreasVolkmann/ktor-auth-jwt-sample/blob/master/src/test/kotlin/me/avo/io/ktor/auth/jwt/sample/ServerTest.kt
+    // private fun TestApplicationRequest.addJwtHeader() = addHeader("Authorization", "Bearer ${getToken()}")
     private val testUser = """{"name":  "lunde", "password": "123abc"}"""
     private val testUserTwo = """{"name":  "lunde", "password": "123"}"""
 
