@@ -1,6 +1,6 @@
 CREATE TABLE url (
     full_url TEXT PRIMARY KEY,
-    shortened TEXT
+    shortened TEXT NOT NULL
 );
 
 selectAll:
@@ -17,8 +17,11 @@ VALUES ?;
 select:
 SELECT * FROM url WHERE full_url == ?;
 
-selectWildcard:
-SELECT * FROM url WHERE full_url LIKE ? + '%';
+-- selectWildcard:
+-- SELECT * FROM url WHERE full_url LIKE ? + '%';
 
 selectByHash:
 SELECT * FROM url WHERE shortened == ?;
+
+drop:
+DELETE FROM url;

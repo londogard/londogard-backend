@@ -12,6 +12,7 @@ import io.ktor.routing.post
 import io.ktor.routing.route
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.html.*
 import org.koin.ktor.ext.inject
 
@@ -22,15 +23,20 @@ fun Route.urlShort(redirections: MutableMap<String, String>): Route = route("/ur
     post {
         val url = call.receive<UrlInput>().url
         val hash = url.hashHexify()
+
         redirections.putIfAbsent(hash, url)
-        launch(Dispatchers.IO) { db.urlQueries.select(url).executeAsOneOrNull() ?: db.urlQueries.insert(url, hash) }
+        launch(Dispatchers.IO) {
+            db.urlQueries.select(url).executeAsOneOrNull() ?: db.urlQueries.insert(url, hash)
+        }
 
         call.respond(resultResponse(hash))
     }
 
     get("/{short}") {
         val shortened = call.parameters["short"] ?: ""
-        val fullUrl = redirections[shortened]
+        val fullUrl = withContext(Dispatchers.IO) {
+            redirections[shortened] ?: db.urlQueries.selectByHash(shortened).executeAsOneOrNull()?.full_url
+        }
 
         call.respondRedirect(fullUrl ?: "/#/url")
     }
