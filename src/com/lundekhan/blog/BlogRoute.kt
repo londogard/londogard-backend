@@ -2,11 +2,9 @@ package com.lundekhan.blog
 
 import com.lundekhan.Database
 import com.lundekhan.InvalidRouteException
-import com.lundekhan.data.Blog
 import com.lundekhan.resultResponse
 import io.ktor.application.call
 import io.ktor.auth.authenticate
-import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.routing.Route
@@ -14,7 +12,6 @@ import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.route
 import org.koin.ktor.ext.inject
-import java.sql.SQLException
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -23,7 +20,7 @@ fun Route.blogRoute(): Route = route("/blog") {
     get {
         db
             .blogQueries
-            .selectN(5)
+            .selectAll()
             .executeAsList()
             .map { blog -> FullBlog(blog.title, blog.summary, blog.blog_body, blog.category,
                 blog.date.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME), blog.blog_id) }
