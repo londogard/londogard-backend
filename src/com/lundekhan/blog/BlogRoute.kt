@@ -20,10 +20,10 @@ fun Route.blogRoute(): Route = route("/blog") {
     get {
         db
             .blogQueries
-            .selectAll()
+            .selectAll() // TODO we should rework this to a parameterized get where we fetch N with offset M (when required).
             .executeAsList()
             .map { blog -> FullBlog(blog.title, blog.summary, blog.blog_body, blog.category,
-                blog.date.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME), blog.blog_id) }
+                                    blog.date.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME), blog.blog_id) }
             .let { blogList -> call.respond(blogList) }
     }
     get("/{id}") {

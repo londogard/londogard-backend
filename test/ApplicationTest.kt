@@ -2,31 +2,20 @@ package com.lundekhan
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.londogard.summarize.summarizers.TfIdfSummarizer
-import com.londogard.textgen.GenerationLevel
-import com.londogard.textgen.LanguageModel
-import com.londogard.textgen.LanguageModelImpl
-import com.londogard.textgen.PretrainedModels
-import com.lundekhan.auth.JwtConfig
 import com.lundekhan.billsplitter.PersonPayment
 import com.lundekhan.blog.BlogPost
 import com.lundekhan.blog.FullBlog
-import com.lundekhan.jwtauth.User
-import com.squareup.sqldelight.Transacter
-import com.squareup.sqldelight.db.SqlDriver
-import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver
-import io.ktor.http.*
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpMethod
+import io.ktor.http.HttpStatusCode
 import io.ktor.locations.KtorExperimentalLocationsAPI
-import io.ktor.request.receive
-import io.ktor.server.testing.*
+import io.ktor.server.testing.handleRequest
+import io.ktor.server.testing.setBody
 import io.ktor.util.InternalAPI
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.serialization.ImplicitReflectionSerializer
 import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldBeEqualTo
-import org.junit.Before
-import org.koin.core.context.loadKoinModules
-import org.koin.dsl.module
 import org.koin.ktor.ext.inject
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -38,9 +27,6 @@ import kotlin.test.assertTrue
 @KtorExperimentalLocationsAPI
 @InternalAPI
 class ApplicationTest {
-    // https://github.com/AndreasVolkmann/ktor-auth-jwt-sample/blob/master/src/test/kotlin/me/avo/io/ktor/auth/jwt/sample/ServerTest.kt
-    // private fun TestApplicationRequest.addJwtHeader() = addHeader("Authorization", "Bearer ${getToken()}")
-
     @BeforeTest
     fun cleanup() {
         withServer {
