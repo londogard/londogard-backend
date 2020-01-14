@@ -1,36 +1,39 @@
 package com.lundekhan
 
 import com.fasterxml.jackson.databind.SerializationFeature
+import com.lundekhan.auth.JwtConfig
+import com.lundekhan.auth.authRoute
 import com.lundekhan.billsplitter.billsplit
-import com.lundekhan.htmltemplates.respondHtmlDefault
 import com.lundekhan.jwtauth.UserSource
 import com.lundekhan.jwtauth.UserSourceImpl
-import com.lundekhan.jwtauth.user
+import com.lundekhan.jwtauth.principal
 import com.lundekhan.summarizer.summarizerRoute
 import com.lundekhan.textgen.textgenRoute
-import io.ktor.application.*
+import io.ktor.application.Application
+import io.ktor.application.ApplicationCall
+import io.ktor.application.call
+import io.ktor.application.install
 import io.ktor.auth.*
+import io.ktor.auth.jwt.JWTPrincipal
 import io.ktor.auth.jwt.jwt
 import io.ktor.features.*
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.content.default
-import io.ktor.http.content.resource
-import io.ktor.http.content.resources
-import io.ktor.http.content.static
 import io.ktor.jackson.jackson
 import io.ktor.locations.KtorExperimentalLocationsAPI
-import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.response.respondRedirect
 import io.ktor.response.respondText
 import io.ktor.routing.*
-import io.ktor.sessions.*
 import io.ktor.util.InternalAPI
 import io.ktor.util.KtorExperimentalAPI
+import io.ktor.util.toLocalDateTime
 import kotlinx.serialization.ImplicitReflectionSerializer
 import org.koin.ktor.ext.Koin
+import org.koin.ktor.ext.inject
+import java.time.LocalDateTime
+
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -57,12 +60,14 @@ fun Application.module() {
     install(PartialContent)
 
     val redirectionMap = mutableMapOf<String, String>()
+
     install(Koin) {
         //        sl4jlogger()
-        modules(groceryModule)
+        if (this@module.environment.config.propertyOrNull("ktor.deployment.environment")?.getString() == "test")
+            modules(testModule)
+        else
+            modules(backendModule)
     }
-
-    val simpleJwt = SimpleJWT("londogard-backend-secret")
 
     install(CORS) {
         method(HttpMethod.Options)
@@ -77,44 +82,44 @@ fun Application.module() {
     }
 
     install(StatusPages) {
+        status(HttpStatusCode.Unauthorized) {
+            call.respond(HttpStatusCode.Unauthorized, "UNAUTHORIZED")
+        }
         exception<InvalidCredentialsException> { exception ->
-            call.respond(HttpStatusCode.Unauthorized, mapOf("OK" to false, "error" to (exception.message ?: "")))
+            call.respond(HttpStatusCode.Unauthorized, resultResponse(exception.message ?: unknownError))
         }
         exception<InvalidInputException> { exception ->
-            call.respond(HttpStatusCode.BadRequest, mapOf("OK" to false, "error" to (exception.message ?: "")))
+            call.respond(HttpStatusCode.BadRequest, resultResponse(exception.message ?: unknownError))
+        }
+        exception<UserCreationException> {
+            call.respond(
+                HttpStatusCode.BadRequest,
+                resultResponse(it.message ?: unknownError)
+            )
         }
     }
 
-    val jwtIssuer = environment.config.property("jwt.domain").getString()
-    val jwtAudience = environment.config.property("jwt.audience").getString()
-    val jwtRealm = environment.config.property("jwt.realm").getString()
-    val userSource: UserSource = UserSourceImpl()
+    val db by inject<Database>()
+    val userSource: UserSource = UserSourceImpl(db.userQueries)
 
     install(Authentication) {
-        basic(name = "fileauth") {
-            skipWhen { call -> call.sessions.get<UserIdPrincipal>() != null }
-            realm = "Ktor Server"
-            validate { if (it.name == "londogard" && it.password == "") UserIdPrincipal("user") else null }
-        }
-
         /**
          * Setup the JWT authentication to be used in [Routing].
-         * If the token is valid, the corresponding [User] is fetched from the database.
-         * The [User] can then be accessed in each [ApplicationCall].
+         * If the token is valid, the corresponding [JWTPrincipal] is fetched from the database.
+         * The [JWTPrincipal] can then be accessed in each [ApplicationCall].
          */
+        JwtConfig.initAlgo(this@module.environment.config.propertyOrNull("security.secret")?.getString() ?: "testingSecret1234")
         jwt {
             verifier(JwtConfig.verifier)
-            realm = "ktor.io"
-            validate {
-                it.payload.getClaim("id").asInt()?.let(userSource::findUserById)
+            realm = "londogard.com"
+            validate { credential ->
+                val isValid = LocalDateTime.now().isBefore(credential.payload.expiresAt.toLocalDateTime())
+
+                if (isValid && credential.payload.claims["id"]?.asLong()?.let(userSource::findUserById) != null)
+                    JWTPrincipal(credential.payload) // TODO perhaps we'd prefer to use User or something
+                else null
             }
         }
-        //jwt("jwt") {
-        //    verifier(simpleJwt.verifier) // TODO swap to JwtConfig
-        //    validate {
-        //        UserIdPrincipal(it.payload.getClaim("name").asString())
-        //    }
-        //}
     }
 
     install(ContentNegotiation) {
@@ -123,6 +128,7 @@ fun Application.module() {
 
     if (environment.config.propertyOrNull("ktor.deployment.sslPort") != null) {
         install(HttpsRedirect)
+        install(HSTS)
     }
 
     routing {
@@ -131,65 +137,20 @@ fun Application.module() {
         urlShort(redirectionMap)
         summarizerRoute()
         textgenRoute()
-
-        get("/github") {
-            call.respondRedirect("https://github.com/londogard/")
-        }
-        get("/apps") {
-            call.respondRedirect("https://play.google.com/store/apps/developer?id=Londogard")
-        }
-        authenticate {
-            route("/who") {
-                handle {
-                    val principal = call.authentication.principal<JWTPrincipal>()
-                    val subjectString = principal!!.payload.subject.removePrefix("auth0|")
-                    call.respondText("Success, $subjectString")
-                }
-            }
-        }
-
-        /**
-         * A public login [Route] used to obtain JWTs
-         */
-        post("login") {
-            val credentials = call.receive<UserPasswordCredential>()
-            val user = userSource.findUserByCredentials(credentials)
-            val token = JwtConfig.makeToken(user)
-            call.respondText(token)
-        }
+        authRoute(userSource)
+        get("/github") { call.respondRedirect("https://github.com/londogard/") }
+        get("/apps") { call.respondRedirect("https://play.google.com/store/apps/developer?id=Londogard") }
 
         /**
          * All [Route]s in the authentication block are secured.
          */
         authenticate {
             route("secret") {
-
                 get {
-                    val user = call.user!!
-                    call.respond(user.countries)
+                    val user = call.principal
+                    call.respond(userSource.findUserById(user?.payload?.getClaim("id")?.asLong() ?: -1)?.name ?: "User Not Found")
                 }
-
-                put {
-                    TODO("All your secret routes can follow here")
-                }
-
-            }
-        }
-
-        /**
-         * Routes with optional authentication
-         */
-        authenticate(optional = true) {
-            get("optional") {
-                val user = call.user
-                val response = if (user != null) "authenticated!" else "optional"
-                call.respond(response)
             }
         }
     }
 }
-
-///**
-// * Utility for performing non-permanent redirections using a typed [location] whose class is annotated with [Location].
-// */
-////suspend fun ApplicationCall.respondRedirect(location: Any) = respondRedirect(url(location), permanent = false)
