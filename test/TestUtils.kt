@@ -6,6 +6,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.escapeIfNeeded
+import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.server.testing.*
 import io.ktor.util.InternalAPI
 import io.ktor.util.KtorExperimentalAPI
@@ -22,6 +23,7 @@ internal fun TestApplicationRequest.addJwtHeader(): Unit = addHeader("Authorizat
 
 internal fun getToken() = JwtConfig.makeToken(User(1, "lol"))
 
+@KtorExperimentalLocationsAPI
 @KtorExperimentalAPI
 @InternalAPI
 @ImplicitReflectionSerializer
