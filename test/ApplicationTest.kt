@@ -148,7 +148,6 @@ class ApplicationTest {
             assertEquals(HttpStatusCode.OK, it.status())
             val blogList = jacksonObjectMapper()
                 .readValue<List<FullBlog>>(it.content!!)
-            println(blogList)
             assertTrue(blogList.size == 1)
         }
     }

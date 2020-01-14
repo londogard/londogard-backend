@@ -1,4 +1,0 @@
-dropAll:
-DELETE FROM user;
-DELETE FROM url;
-

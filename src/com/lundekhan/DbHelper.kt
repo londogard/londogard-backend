@@ -14,8 +14,7 @@ fun createDatabase(driver: SqlDriver): Database {
         override fun decode(databaseValue: String): LocalDateTime = LocalDateTime.parse(databaseValue)
         override fun encode(value: LocalDateTime): String = value.toString()
     }
-
+    
     try { Database.Schema.create(driver) } catch (exception: Exception) { println(exception.message) }
-
     return Database(driver, blogAdapter = Blog.Adapter(dateTimeAdapter, listOfStringsAdapter))
 }

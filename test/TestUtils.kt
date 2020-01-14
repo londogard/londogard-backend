@@ -8,6 +8,7 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.escapeIfNeeded
 import io.ktor.server.testing.*
 import io.ktor.util.InternalAPI
+import io.ktor.util.KtorExperimentalAPI
 import kotlinx.serialization.ImplicitReflectionSerializer
 
 
@@ -21,6 +22,7 @@ internal fun TestApplicationRequest.addJwtHeader(): Unit = addHeader("Authorizat
 
 internal fun getToken() = JwtConfig.makeToken(User(1, "lol"))
 
+@KtorExperimentalAPI
 @InternalAPI
 @ImplicitReflectionSerializer
 internal fun withServer(block: TestApplicationEngine.() -> Unit) {
