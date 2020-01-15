@@ -18,4 +18,4 @@ fun Route.summarizerRoute(): Route = route("/smry") {
         call.respond(resultResponse(summarizer.summarize(articleText.text, 0.2)))
     }
 }
-data class PostText(val text: String) // TODO add ratio or sentences to this!
+data class PostText(val text: String)
