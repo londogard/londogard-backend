@@ -9,7 +9,7 @@ buildscript {
         classpath 'com.android.tools.build:gradle:3.4.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
-        classpath 'com.squareup.sqldelight:gradle-plugin:1.1.4'
+        classpath "com.squareup.sqldelight:gradle-plugin:$sqldelight_version"
         classpath 'com.github.jengelman.gradle.plugins:shadow:5.1.0'
     }
 }
@@ -55,8 +55,8 @@ dependencies {
     implementation "com.londogard:text-gen-kt:1.0.1-beta"
 
 
-    implementation "com.squareup.sqldelight:sqlite-driver:1.1.4"
-    implementation "com.squareup.sqldelight:runtime-jvm:1.1.4"
+    implementation "com.squareup.sqldelight:sqlite-driver:$sqldelight_version"
+    implementation "com.squareup.sqldelight:runtime-jvm:$sqldelight_version"
 
     implementation "io.ktor:ktor-server-netty:$ktor_version"
     implementation "io.ktor:ktor-server-core:$ktor_version"
@@ -74,11 +74,13 @@ dependencies {
 //    implementation group: 'com.johnsnowlabs.nlp', name: 'spark-nlp_2.11', version: '2.2.2'
 
     testImplementation "io.ktor:ktor-server-test-host:$ktor_version"
+    testImplementation "org.amshove.kluent:kluent:$kluent_version"
 }
 
 sqldelight {
     Database {
         packageName = "com.lundekhan"
+
     }
 }
 compileKotlin {

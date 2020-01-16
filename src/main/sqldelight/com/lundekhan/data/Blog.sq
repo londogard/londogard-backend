@@ -3,15 +3,19 @@ import kotlin.collections.List;
 
 CREATE TABLE blog (
     blog_id INTEGER PRIMARY KEY,
-    title TEXT,
-    summary TEXT,
-    date TEXT as LocalDateTime,
-    blog_body TEXT,
+    title TEXT NOT NULL UNIQUE,
+    summary TEXT NOT NULL,
+    date TEXT as LocalDateTime NOT NULL,
+    blog_body TEXT NOT NULL,
     category TEXT as List<String> NOT NULL
 );
 
 selectAll:
 SELECT * FROM blog;
+
+selectN:
+SELECT * FROM blog
+LIMIT ?;
 
 insert:
 INSERT INTO blog(title, summary, date, blog_body, category)
@@ -26,3 +30,6 @@ SELECT * FROM blog WHERE blog_id == ?;
 
 selectByCategory:
 SELECT * FROM blog WHERE category LIKE '%'+?+'%';
+
+drop:
+DELETE FROM blog;

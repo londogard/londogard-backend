@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import com.lundekhan.auth.JwtConfig
 import com.lundekhan.auth.authRoute
 import com.lundekhan.billsplitter.billsplit
+import com.lundekhan.blog.blogRoute
 import com.lundekhan.jwtauth.UserSource
 import com.lundekhan.jwtauth.UserSourceImpl
 import com.lundekhan.jwtauth.principal
@@ -32,6 +33,7 @@ import io.ktor.util.toLocalDateTime
 import kotlinx.serialization.ImplicitReflectionSerializer
 import org.koin.ktor.ext.Koin
 import org.koin.ktor.ext.inject
+import java.sql.SQLException
 import java.time.LocalDateTime
 
 
@@ -92,15 +94,16 @@ fun Application.module() {
             call.respond(HttpStatusCode.BadRequest, resultResponse(exception.message ?: unknownError))
         }
         exception<UserCreationException> {
-            call.respond(
-                HttpStatusCode.BadRequest,
-                resultResponse(it.message ?: unknownError)
-            )
+            call.respond(HttpStatusCode.BadRequest, resultResponse(it.message ?: unknownError))
+        }
+        exception<SQLException> {
+            call.respond(HttpStatusCode.BadRequest, resultResponse("Something went wrong with request."))
         }
     }
 
     val db by inject<Database>()
     val userSource: UserSource = UserSourceImpl(db.userQueries)
+    this@module.environment.config.propertyOrNull("security.secret")?.getString()?.let(JwtConfig::initAlgo)
 
     install(Authentication) {
         /**
@@ -108,7 +111,6 @@ fun Application.module() {
          * If the token is valid, the corresponding [JWTPrincipal] is fetched from the database.
          * The [JWTPrincipal] can then be accessed in each [ApplicationCall].
          */
-        JwtConfig.initAlgo(this@module.environment.config.propertyOrNull("security.secret")?.getString() ?: "testingSecret1234")
         jwt {
             verifier(JwtConfig.verifier)
             realm = "londogard.com"
@@ -137,7 +139,9 @@ fun Application.module() {
         urlShort(redirectionMap)
         summarizerRoute()
         textgenRoute()
+        blogRoute()
         authRoute(userSource)
+
         get("/github") { call.respondRedirect("https://github.com/londogard/") }
         get("/apps") { call.respondRedirect("https://play.google.com/store/apps/developer?id=Londogard") }
 

@@ -10,10 +10,10 @@ import java.util.*
 object JwtConfig {
     private const val issuer = "londogard.com"
     private const val validityInMs = 36_000_00 // 1 hour
-    private lateinit var algorithm: Algorithm// = Algorithm.HMAC256(secret)
+    private var algorithm: Algorithm = Algorithm.HMAC256("londogard-test-secret")
 
     fun initAlgo(secret: String) {
-        if (!::algorithm.isInitialized) algorithm = Algorithm.HMAC256(secret)
+        algorithm = Algorithm.HMAC256(secret)
     }
 
     val verifier = JWT

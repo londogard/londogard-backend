@@ -26,3 +26,6 @@ SELECT * FROM user WHERE hashpw == ?;
 
 selectByCredentials:
 SELECT * FROM user WHERE hashpw == ? AND username == ?;
+
+drop:
+DELETE FROM user;
