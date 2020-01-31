@@ -5,6 +5,7 @@ import com.lundekhan.auth.JwtConfig
 import com.lundekhan.auth.authRoute
 import com.lundekhan.billsplitter.billsplit
 import com.lundekhan.blog.blogRoute
+import com.lundekhan.files.filesRoute
 import com.lundekhan.jwtauth.UserSource
 import com.lundekhan.jwtauth.UserSourceImpl
 import com.lundekhan.jwtauth.principal
@@ -61,10 +62,10 @@ fun Application.module() {
     // Supports for Range, Accept-Range and Content-Range headers
     install(PartialContent)
 
-    val redirectionMap = mutableMapOf<String, String>()
+    val redirectionMap = mutableMapOf<String, String>() // Something like cache really
+    val lines = javaClass.getResourceAsStream("/fuzzy-filenames.txt").bufferedReader().readLines()
 
     install(Koin) {
-        //        sl4jlogger()
         if (this@module.environment.config.propertyOrNull("ktor.deployment.environment")?.getString() == "test")
             modules(testModule)
         else
@@ -72,12 +73,6 @@ fun Application.module() {
     }
 
     install(CORS) {
-        method(HttpMethod.Options)
-        method(HttpMethod.Get)
-        method(HttpMethod.Post)
-        method(HttpMethod.Put)
-        method(HttpMethod.Delete)
-        method(HttpMethod.Patch)
         header(HttpHeaders.Authorization)
         allowCredentials = true
         anyHost()
@@ -93,8 +88,8 @@ fun Application.module() {
         exception<InvalidInputException> { exception ->
             call.respond(HttpStatusCode.BadRequest, resultResponse(exception.message ?: unknownError))
         }
-        exception<UserCreationException> {
-            call.respond(HttpStatusCode.BadRequest, resultResponse(it.message ?: unknownError))
+        exception<UserCreationException> { exception ->
+            call.respond(HttpStatusCode.BadRequest, resultResponse(exception.message ?: unknownError))
         }
         exception<SQLException> {
             call.respond(HttpStatusCode.BadRequest, resultResponse("Something went wrong with request."))
@@ -124,9 +119,8 @@ fun Application.module() {
         }
     }
 
-    install(ContentNegotiation) {
-        jackson { enable(SerializationFeature.INDENT_OUTPUT) }
-    }
+    // TODO perhaps when in prod we shouldn't indent output (saving minor CPU)
+    install(ContentNegotiation) { jackson { enable(SerializationFeature.INDENT_OUTPUT) } }
 
     if (environment.config.propertyOrNull("ktor.deployment.sslPort") != null) {
         install(HttpsRedirect)
@@ -140,6 +134,7 @@ fun Application.module() {
         summarizerRoute()
         textgenRoute()
         blogRoute()
+        fuzzyRoute(lines)
         authRoute(userSource)
 
         get("/github") { call.respondRedirect("https://github.com/londogard/") }
@@ -149,10 +144,14 @@ fun Application.module() {
          * All [Route]s in the authentication block are secured.
          */
         authenticate {
+            filesRoute()
+
             route("secret") {
                 get {
                     val user = call.principal
-                    call.respond(userSource.findUserById(user?.payload?.getClaim("id")?.asLong() ?: -1)?.name ?: "User Not Found")
+                    call.respond(
+                        userSource.findUserById(user?.payload?.getClaim("id")?.asLong() ?: -1)?.name ?: "User Not Found"
+                    )
                 }
             }
         }

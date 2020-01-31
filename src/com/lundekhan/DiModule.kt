@@ -1,5 +1,7 @@
 package com.lundekhan
 
+import com.londogard.fuzzymatch.FuzzyMatcher
+import com.londogard.fuzzymatch.ScoreConfig
 import com.londogard.summarize.summarizers.TfIdfSummarizer
 import com.londogard.textgen.GenerationLevel
 import com.londogard.textgen.LanguageModel
@@ -16,6 +18,7 @@ val backendModule = module {
     single<SqlDriver> { JdbcSqliteDriver(url = "${JdbcSqliteDriver.IN_MEMORY}londogard.db") }
     single { createDatabase(get()) }
     single { TfIdfSummarizer() }
+    single { FuzzyMatcher(ScoreConfig()) }
     single<LanguageModel> { LanguageModelImpl(PretrainedModels.SHAKESPEARE, GenerationLevel.WORD) }
 }
 
@@ -24,5 +27,6 @@ val testModule = module {
     single<SqlDriver> { JdbcSqliteDriver(url = "${JdbcSqliteDriver.IN_MEMORY}londogard-test.db") }
     single { createDatabase(get()) }
     single { TfIdfSummarizer() }
+    single { FuzzyMatcher(ScoreConfig()) }
     single<LanguageModel> { LanguageModelImpl(PretrainedModels.SHAKESPEARE, GenerationLevel.WORD) }
 }
