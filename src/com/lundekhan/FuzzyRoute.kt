@@ -16,7 +16,6 @@ fun Route.fuzzyRoute(lines: List<String>): Route = route("/fuzzy") {
         val keyword = call.receive<SearchPost>().keyword
         val fuzzyMatches = fuzzyMatcher
             .fuzzyMatch(lines, keyword)
-            .sortedByDescending { it.score }
             .mapNotNull { it.text }
 
         call.respond(ResultResponseArray(fuzzyMatches))

@@ -37,7 +37,6 @@ repositories {
     jcenter()
     maven { url 'https://mvnrepository.com/artifact/org.mindrot/jbcrypt' }
     maven { url 'https://kotlin.bintray.com/ktor' }
-    maven { url 'https://dl.bintray.com/jetbrains/markdown' }
     maven { url "https://jitpack.io" }
 }
 
@@ -46,9 +45,9 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.13.0" // JVM dependency
     implementation "ch.qos.logback:logback-classic:$logback_version"
     //implementation("com.github.haifengl:smile-nlp:1.5.3")
-    implementation "com.londogard:summarize-kt:1.0.1-beta"
+    implementation 'com.londogard:summarize-kt:1.1.1'
     implementation "com.londogard:text-gen-kt:1.0.1-beta"
-    implementation "com.londogard:fuzzy-match-kt:1.0.1-beta"
+    implementation "com.londogard:fuzzy-match-kt:1.0.1"
 
     implementation "com.squareup.sqldelight:sqlite-driver:$sqldelight_version"
     implementation "com.squareup.sqldelight:runtime-jvm:$sqldelight_version"
