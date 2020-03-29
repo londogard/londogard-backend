@@ -48,6 +48,7 @@ dependencies {
     implementation 'com.londogard:summarize-kt:1.1.1'
     implementation "com.londogard:text-gen-kt:1.0.1-beta"
     implementation "com.londogard:fuzzy-match-kt:1.0.1"
+    implementation "com.londogard:stokk:0.1.0"
 
     implementation "com.squareup.sqldelight:sqlite-driver:$sqldelight_version"
     implementation "com.squareup.sqldelight:runtime-jvm:$sqldelight_version"

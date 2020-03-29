@@ -136,6 +136,7 @@ fun Application.module() {
         blogRoute()
         fuzzyRoute(lines)
         authRoute(userSource)
+        stockRoute()
 
         get("/github") { call.respondRedirect("https://github.com/londogard/") }
         get("/apps") { call.respondRedirect("https://play.google.com/store/apps/developer?id=Londogard") }
