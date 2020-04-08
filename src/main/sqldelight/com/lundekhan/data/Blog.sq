@@ -11,10 +11,12 @@ CREATE TABLE blog (
 );
 
 selectAll:
-SELECT * FROM blog;
+SELECT * FROM blog
+ORDER BY blog_id DESC;
 
 selectN:
 SELECT * FROM blog
+ORDER BY blog_id DESC
 LIMIT ?;
 
 insert:

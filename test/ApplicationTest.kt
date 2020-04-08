@@ -39,15 +39,6 @@ class ApplicationTest {
     }
 
     @Test
-    fun testRoot() {
-        withServer {
-            handleRequest(HttpMethod.Get, "/").apply {
-                assertEquals(HttpStatusCode.OK, response.status())
-            }
-        }
-    }
-
-    @Test
     fun testJwtAuth() {
         withServer {
             makeUserRequest()
