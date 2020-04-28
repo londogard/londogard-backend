@@ -24,6 +24,7 @@ fun Route.blogRoute(): Route = route("/blog") {
             .blogQueries
             .selectAll() // TODO we should rework this to a parameterized get where we fetch N with offset M (when required).
             .executeAsList()
+            .asReversed()
             .map { blog -> FullBlog(blog.title, blog.summary, blog.blog_body, blog.category,
                                     blog.date.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME), blog.blog_id) }
             .let { blogList -> call.respond(blogList) }
