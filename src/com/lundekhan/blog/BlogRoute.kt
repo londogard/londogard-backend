@@ -2,10 +2,11 @@ package com.lundekhan.blog
 
 import com.lundekhan.Database
 import com.lundekhan.InvalidRouteException
-import com.lundekhan.data.Blog
+import com.lundekhan.gui.HtmlTemplates.Shell
 import com.lundekhan.resultResponse
 import io.ktor.application.call
 import io.ktor.auth.authenticate
+import io.ktor.html.respondHtml
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
 import io.ktor.response.respond
@@ -13,50 +14,59 @@ import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.route
+import kotlinx.html.h2
+import kotlinx.html.unsafe
+import org.intellij.markdown.flavours.MarkdownFlavourDescriptor
+import org.intellij.markdown.flavours.gfm.GFMFlavourDescriptor
+import org.intellij.markdown.html.HtmlGenerator
+import org.intellij.markdown.parser.MarkdownParser
 import org.koin.ktor.ext.inject
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
+// TODO add all as /blog
+// TODO add as /api/blog too
 fun Route.blogRoute(): Route = route("/blog") {
     val db by inject<Database>()
+    val flavor = GFMFlavourDescriptor()
+    val parser = MarkdownParser(flavor)
+
+    // Pro-tip, use https://andybrewer.github.io/mvp/#docs to learn syntax (inspect element is good also)
     get {
-        db
-            .blogQueries
-            .selectAll() // TODO we should rework this to a parameterized get where we fetch N with offset M (when required).
-            .executeAsList()
-            .asReversed()
-            .map { blog -> FullBlog(blog.title, blog.summary, blog.blog_body, blog.category,
-                                    blog.date.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME), blog.blog_id) }
-            .let { blogList -> call.respond(blogList) }
+        call.respond(BlogHelper.getAllBlogs(db))
     }
     get("/{id}") {
         val id = call.parameters["id"]?.toLong() ?: throw InvalidRouteException()
+        BlogHelper.getById(id, db)
+            ?.let { call.respondHtml { Shell(true) {
+                h2 { +it.title }
+                val parsedTree = parser.buildMarkdownTreeFromString(it.blogBody)
+                val html = HtmlGenerator(it.blogBody, parsedTree, flavor).generateHtml()
 
-        db.blogQueries
-            .selectById(id)
-            .executeAsOneOrNull()
-            ?.let { blog -> FullBlog(blog.title, blog.summary, blog.blog_body, blog.category,
-                                     blog.date.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME), blog.blog_id) }
-            ?.let { call.respond(it) }
+                unsafe { raw(html) }
+            } } }
             ?: throw InvalidRouteException("Blog $id does not exist")
     }
-    authenticate {
-        post("/update") {
-            val blog = call.receive<BlogPostOpt>()
-            val oldBlog = db.blogQueries.selectById(blog.id).executeAsOneOrNull() as Blog.Impl? ?: return@post call.respond(HttpStatusCode.NotFound)
-            val updatedBlog = oldBlog.copy(
-                title = blog.title ?: oldBlog.title,
-                summary = blog.summary ?: oldBlog.summary,
-                blog_body = blog.blogBody ?: oldBlog.blog_body,
-                category = blog.category ?: oldBlog.category
-                )
-            db.blogQueries.insertOrReplace(updatedBlog)
-            call.respond(resultResponse("Blog successfully updated"))
+
+    route("/api") {
+        get {
+            call.respond(BlogHelper.getAllBlogs(db))
         }
-        post("/create") {
-            val blog = call.receive<BlogPost>()
-            db.blogQueries.insert(blog.title, blog.summary, LocalDateTime.now(), blog.blogBody, blog.category) // We catch exception in StatusPage
-            call.respond(resultResponse("Blog successfully created"))
+        get("/{id}") {
+            val id = call.parameters["id"]?.toLong() ?: throw InvalidRouteException()
+            BlogHelper.getById(id, db)
+                ?.let { call.respond(it) }
+                ?: throw InvalidRouteException("Blog $id does not exist")
+        }
+        authenticate {
+            post("/update") {
+                if (BlogHelper.updateBlog(call.receive<BlogPostOpt>(), db))
+                    call.respond(resultResponse("Blog successfully updated"))
+                else
+                    call.respond(HttpStatusCode.NotFound)
+            }
+            post("/create") {
+                BlogHelper.createBlog(call.receive<BlogPost>(), db)
+                call.respond(resultResponse("Blog successfully created"))
+            }
         }
     }
 }

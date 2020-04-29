@@ -5,17 +5,30 @@ import kotlinx.html.*
 data class Header(val title: String, val href: String)
 
 object HtmlTemplates {
-    private val titles = listOf<Header>(
+    private val titles = listOf(
+        Header("blog.", "/blog"),
         Header("smry.", "/smry"),
         Header("textgen.", "/textgen"),
         Header("billsplit.", "/billsplit"),
         Header("urlshort.", "/url"),
-        Header("fuzsearch.", "/fuzsearch"),
-        Header("github.", "/github"),
-        Header("apps.", "/apps")
+        Header("fuzsearch.", "/fuzsearch")
     )
 
-    fun HTML.Shell(markdownSupport: Boolean = false): Unit {
+    fun SECTION.Card(
+        title: String,
+        body: ASIDE.() -> Unit,
+        date: String,
+        image: String? = null,
+        url: String? = null
+    ): Unit = aside {
+        style = "width:var(--width-card-wide)"
+        image?.let { img(src=it) { height = "150" } }
+        h3 { +title }
+        body()
+        url?.let { p { a(href=it){ em { +"More↗" } } } }
+    }
+
+    fun HTML.Shell(markdownSupport: Boolean = false, body: MAIN.() -> Unit) {
         head {
             link(rel = "stylesheet", href = "https://andybrewer.github.io/mvp/mvp.css")
             meta(name = "description", content = "Londogard. Our landing page with a few of the products.")
@@ -35,25 +48,27 @@ object HtmlTemplates {
         body {
             header {
                 nav {
-                    a(href = "https://londogard.com") {
-                        img(alt = "londogard.com", src = ":D") { height = "70" }
+                    a(href = "/") {
+                        img(alt = "londogard.com", src = "https://lh3.googleusercontent.com/proxy/XGbt6Sko-VTnnftF4ZUno7E7cNOzNSaVDLVQpTR6g4k0wgR4aoAg8JfQCoAFEVlW5FSR_TqIVRMCIJcABbU4Je7i00cTjTZMTMxZ") { height = "70" }
                         ul {
                             titles.forEach { header ->
                                 li { a(href=header.href) { +header.title } } // TODO add blank target if Apps/GH.
                             }
+                            li { a(href="https://play.google.com/store/apps/developer?id=Londogard", target = "_blank") { +"apps↗️" } }
                         }
                     }
                 }
             }
 
             main {
+                body()
                 // hr {  } TODO insert each section here!
             }
             footer {
                 hr {  }
                 p {
                     +"Made by "
-                    a(href="https://github.com/londogard/", target="_blank"){ + "Londogard &nearr;" }
+                    a(href="https://github.com/londogard/", target="_blank"){ + "Londogard↗️" }
                     br {  }
                 }
             }
