@@ -6,6 +6,7 @@ import com.lundekhan.auth.authRoute
 import com.lundekhan.billsplitter.billsplit
 import com.lundekhan.blog.blogRoute
 import com.lundekhan.files.filesRoute
+import com.lundekhan.gui.routing
 import com.lundekhan.jwtauth.UserSource
 import com.lundekhan.jwtauth.UserSourceImpl
 import com.lundekhan.jwtauth.principal
@@ -128,7 +129,8 @@ fun Application.module() {
     }
 
     routing {
-        reactStaticRoute()
+        routing()
+        //reactStaticRoute()
         billsplit()
         urlShort(redirectionMap)
         summarizerRoute()
