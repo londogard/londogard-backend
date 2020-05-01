@@ -2,6 +2,7 @@ package com.lundekhan.gui
 
 import com.lundekhan.Database
 import com.lundekhan.blog.BlogHelper
+import com.lundekhan.blog.blogOverview
 import com.lundekhan.gui.HtmlTemplates.Card
 import com.lundekhan.gui.HtmlTemplates.Shell
 import io.ktor.application.call
@@ -19,17 +20,7 @@ import org.koin.ktor.ext.inject
 fun Routing.routing(): Route = route("") {
     val db by inject<Database>()
     get {
-        fun mainBody(): MAIN.() -> Unit = {
-            section {
-                header { h2 { +"\uD83D\uDCDD Blogs" } }
-                BlogHelper
-                    .getAllBlogs(db)
-                    .forEach { Card(it.title, {+it.summary}, it.date, url="/blog/${it.id}") }
-            }
-        }
-        call.respondHtml{
-            Shell(body = mainBody())
-        }
+        call.respondHtml{ Shell(true, body = blogOverview(db)) }
     }
 
     get("/smry") {

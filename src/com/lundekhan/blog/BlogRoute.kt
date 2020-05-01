@@ -2,6 +2,8 @@ package com.lundekhan.blog
 
 import com.lundekhan.Database
 import com.lundekhan.InvalidRouteException
+import com.lundekhan.gui.HtmlTemplates
+import com.lundekhan.gui.HtmlTemplates.Card
 import com.lundekhan.gui.HtmlTemplates.Shell
 import com.lundekhan.resultResponse
 import io.ktor.application.call
@@ -14,8 +16,7 @@ import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.route
-import kotlinx.html.h2
-import kotlinx.html.unsafe
+import kotlinx.html.*
 import org.intellij.markdown.flavours.MarkdownFlavourDescriptor
 import org.intellij.markdown.flavours.gfm.GFMFlavourDescriptor
 import org.intellij.markdown.html.HtmlGenerator
@@ -31,7 +32,7 @@ fun Route.blogRoute(): Route = route("/blog") {
 
     // Pro-tip, use https://andybrewer.github.io/mvp/#docs to learn syntax (inspect element is good also)
     get {
-        call.respond(BlogHelper.getAllBlogs(db))
+        call.respondHtml { Shell(body = blogOverview(db)) }
     }
     get("/{id}") {
         val id = call.parameters["id"]?.toLong() ?: throw InvalidRouteException()
@@ -68,6 +69,15 @@ fun Route.blogRoute(): Route = route("/blog") {
                 call.respond(resultResponse("Blog successfully created"))
             }
         }
+    }
+}
+
+fun blogOverview(db: Database): MAIN.() -> Unit = {
+    section {
+        header { h2 { +"\uD83D\uDCDD Blogs" } }
+        BlogHelper
+            .getAllBlogs(db)
+            .forEach { Card(it.title, {+it.summary}, it.date, url="/blog/${it.id}") }
     }
 }
 

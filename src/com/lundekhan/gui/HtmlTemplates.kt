@@ -15,18 +15,17 @@ object HtmlTemplates {
     )
 
     fun SECTION.Card(
-        title: String,
-        body: ASIDE.() -> Unit,
-        date: String,
-        image: String? = null,
-        url: String? = null
+        title: String, body: ASIDE.() -> Unit, date: String,
+        image: String? = null, url: String? = null
     ): Unit = aside {
         style = "width:var(--width-card-wide)"
-        image?.let { img(src=it) { height = "150" } }
+        image?.let { img(src = it) { height = "150" } }
         h3 { +title }
         body()
-        url?.let { p { a(href=it){ em { +"More↗" } } } }
+        url?.let { p { a(href = it) { em { +"More↗" } } } }
     }
+
+    // fun SECTION.Form(title: String, items: )
 
     fun HTML.Shell(markdownSupport: Boolean = false, body: MAIN.() -> Unit) {
         head {
@@ -47,14 +46,24 @@ object HtmlTemplates {
         }
         body {
             header {
+                style = "padding:1rem"
                 nav {
+                    style = "margin-bottom:0"
                     a(href = "/") {
-                        img(alt = "londogard.com", src = "https://lh3.googleusercontent.com/proxy/XGbt6Sko-VTnnftF4ZUno7E7cNOzNSaVDLVQpTR6g4k0wgR4aoAg8JfQCoAFEVlW5FSR_TqIVRMCIJcABbU4Je7i00cTjTZMTMxZ") { height = "70" }
+                        img(
+                            alt = "londogard.com",
+                            src = "http://icon-library.com/images/l-icon/l-icon-22.jpg"
+                        ) { height = "70" }
                         ul {
                             titles.forEach { header ->
-                                li { a(href=header.href) { +header.title } } // TODO add blank target if Apps/GH.
+                                li { a(href = header.href) { +header.title } } // TODO add blank target if Apps/GH.
                             }
-                            li { a(href="https://play.google.com/store/apps/developer?id=Londogard", target = "_blank") { +"apps↗️" } }
+                            li {
+                                a(
+                                    href = "https://play.google.com/store/apps/developer?id=Londogard",
+                                    target = "_blank"
+                                ) { +"apps↗️" }
+                            }
                         }
                     }
                 }
@@ -65,11 +74,11 @@ object HtmlTemplates {
                 // hr {  } TODO insert each section here!
             }
             footer {
-                hr {  }
+                hr { }
                 p {
                     +"Made by "
-                    a(href="https://github.com/londogard/", target="_blank"){ + "Londogard↗️" }
-                    br {  }
+                    a(href = "https://github.com/londogard/", target = "_blank") { +"Londogard↗️" }
+                    br { }
                 }
             }
         }
