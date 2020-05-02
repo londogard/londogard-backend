@@ -36,7 +36,7 @@ fun Route.summarizerRoute(): Route = route("/smry") {
         else -> summarizeModel.summarize(summarizeReq.text, 0.2)
     }
     // TODO make reduction & model be on one line if possible (FLEX / section)
-    fun SECTION.summarizeForm(selectedItem: String?, currentText: String?) {
+    fun SECTION.summarizeForm(selectedItem: String, currentText: String, reduction: String) {
         form(method = FormMethod.post) {
             acceptCharset = "utf-8"
             header {
@@ -44,41 +44,49 @@ fun Route.summarizerRoute(): Route = route("/smry") {
                 h3 { +"smry." }
                 p { +"Summarize your articles" }
             }
-            label { +"Model:" }
-            select {
-                name = "model"
-                models.forEach {
-                    option {
-                        value = it
-                        +it
+            section {
+                label { +"Model:" }
+                label { +"Reduction (X = lines, 0.Y = percentage)" }
+            }
+            section {
+                select {
+                    name = "model"
+                    (listOf(selectedItem) + models.filterNot { it == selectedItem }).forEach { modelName ->
+                        option {
+                            value = modelName
+                            +modelName
+                        }
                     }
+                }
+
+                numberInput(name="reduction") {
+                    min = "0"
+                    step = "0.05"
+                    value = reduction
                 }
             }
             label { +"Input:" }
-            textArea(rows = "3", cols = "28") {
+            textArea(rows = "3") {
                 name = "text"
-                currentText?.let { +it }
+                +currentText
             }
-            label { +"Reduction (X = lines, 0.Y = percentage)" }
-            numberInput(name="reduction") { min = "0" }
 
             submitInput { value = "Summarize" }
         }
     }
 
-
     get {
         call.respondHtml {
-            Shell() { section { summarizeForm(null, null) } }
+            Shell() { section { summarizeForm(models.first(), "", "0.15") } }
         }
     }
     post {
         val params = call.receiveParameters()
         call.respondHtml { Shell() { section {
-            summarizeForm(params["model"], params["text"])
+            summarizeForm(params["model"]!!, params["text"]!!, params["reduction"]!!)
             aside {
                 style = "width:var(--width-card-wide)"
-                + summarize(SummarizeReq(params["text"]!!, 0.25, null), getModel(params["model"]))
+                + summarize(SummarizeReq(params["text"]!!, params["reduction"]!!.toDouble(), null), getModel(params["model"]))
             }
         } } }
     }

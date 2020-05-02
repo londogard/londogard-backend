@@ -12,13 +12,23 @@ import org.koin.ktor.ext.inject
 fun Route.fuzzyRoute(lines: List<String>): Route = route("/fuzzy") {
     val fuzzyMatcher by inject<FuzzyMatcher>()
 
-    post {
-        val keyword = call.receive<SearchPost>().keyword
-        val fuzzyMatches = fuzzyMatcher
-            .fuzzyMatch(lines, keyword)
-            .mapNotNull { it.text }
+    //get {
+//
+    //}
 
-        call.respond(ResultResponseArray(fuzzyMatches))
+    post {
+
+    }
+
+    route("/api") {
+        post {
+            val keyword = call.receive<SearchPost>().keyword
+            val fuzzyMatches = fuzzyMatcher
+                .fuzzyMatch(lines, keyword)
+                .mapNotNull { it.text }
+
+            call.respond(ResultResponseArray(fuzzyMatches))
+        }
     }
 }
 

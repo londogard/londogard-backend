@@ -27,7 +27,7 @@ object HtmlTemplates {
 
     // fun SECTION.Form(title: String, items: )
 
-    fun HTML.Shell(markdownSupport: Boolean = false, body: MAIN.() -> Unit) {
+    fun HTML.Shell(markdownSupport: Boolean = false, jquerySupport: Boolean = false, body: MAIN.() -> Unit) {
         head {
             link(rel = "stylesheet", href = "https://andybrewer.github.io/mvp/mvp.css")
             meta(name = "description", content = "Londogard. Our landing page with a few of the products.")
@@ -42,6 +42,9 @@ object HtmlTemplates {
                 )
                 script(src = "//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.0.1/build/highlight.min.js") { }
                 script { +"hljs.initHighlightingOnLoad();" }
+            }
+            if (jquerySupport) {
+                script(src = "//code.jquery.com/jquery-1.11.1.min.js") {}
             }
         }
         body {
@@ -81,6 +84,21 @@ object HtmlTemplates {
                     br { }
                 }
             }
+        }
+    }
+
+    fun MAIN.copyScript(inputId: String = "myInput"): Unit = script {
+        unsafe {
+            raw(
+                """
+                                function myFunction() {
+                                  var copyText = document.getElementById("$inputId");
+                                  copyText.select();
+                                  copyText.setSelectionRange(0, 99999)
+                                  document.execCommand("copy");
+                                }
+                                """
+            )
         }
     }
 }
