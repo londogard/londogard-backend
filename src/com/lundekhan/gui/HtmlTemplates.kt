@@ -33,6 +33,7 @@ object HtmlTemplates {
             meta(charset = "utf-8")
             title { +"Londogard - NLP products on a Raspberry Pi" }
 
+            unsafe { raw("""<script data-ad-client="ca-pub-7340600106400694" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>""") }
             if (markdownSupport) {
                 link(
                     rel = "stylesheet",
