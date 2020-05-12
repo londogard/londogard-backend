@@ -1,9 +1,7 @@
 package com.lundekhan.billsplitter
 
 import com.lundekhan.InvalidInputException
-import com.lundekhan.gui.HtmlTemplates
 import com.lundekhan.gui.HtmlTemplates.Shell
-import com.lundekhan.summarizer.SummarizeReq
 import io.ktor.application.call
 import io.ktor.html.respondHtml
 import io.ktor.request.receiveOrNull

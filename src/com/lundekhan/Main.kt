@@ -5,7 +5,6 @@ import com.lundekhan.auth.JwtConfig
 import com.lundekhan.auth.authRoute
 import com.lundekhan.billsplitter.billsplit
 import com.lundekhan.blog.blogRoute
-import com.lundekhan.files.filesRoute
 import com.lundekhan.gui.routing
 import com.lundekhan.jwtauth.UserSource
 import com.lundekhan.jwtauth.UserSourceImpl
@@ -16,18 +15,17 @@ import io.ktor.application.Application
 import io.ktor.application.ApplicationCall
 import io.ktor.application.call
 import io.ktor.application.install
-import io.ktor.auth.*
+import io.ktor.auth.Authentication
+import io.ktor.auth.authenticate
 import io.ktor.auth.jwt.JWTPrincipal
 import io.ktor.auth.jwt.jwt
 import io.ktor.features.*
 import io.ktor.http.HttpHeaders
-import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.jackson.jackson
 import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.response.respond
 import io.ktor.response.respondRedirect
-import io.ktor.response.respondText
 import io.ktor.routing.*
 import io.ktor.util.InternalAPI
 import io.ktor.util.KtorExperimentalAPI
@@ -130,7 +128,6 @@ fun Application.module() {
 
     routing {
         routing()
-        //reactStaticRoute()
         billsplit()
         urlShort(redirectionMap)
         summarizerRoute()
@@ -147,8 +144,6 @@ fun Application.module() {
          * All [Route]s in the authentication block are secured.
          */
         authenticate {
-            filesRoute()
-
             route("secret") {
                 get {
                     val user = call.principal

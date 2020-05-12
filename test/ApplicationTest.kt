@@ -89,7 +89,7 @@ class ApplicationTest {
 
     @Test
     fun testBillSplit(): Unit = withServer {
-        handleRequest(HttpMethod.Post, "/billsplit") {
+        handleRequest(HttpMethod.Post, "/billsplit/api") {
             addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
             setBody(
                 """
@@ -113,7 +113,7 @@ class ApplicationTest {
 
     @Test
     fun testSummarizer(): Unit = withServer {
-        handleRequest(HttpMethod.Post, "/smry") {
+        handleRequest(HttpMethod.Post, "/smry/api") {
             addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
             val body = """{"text": $text}"""
             setBody(body)
@@ -130,7 +130,7 @@ class ApplicationTest {
         makeUserRequest()
         val req = handleRequest {
             method = HttpMethod.Post
-            uri = "/blog/create"
+            uri = "/blog/api/create"
             addJwtHeader()
             addJsonHeader()
             setBody(
@@ -141,7 +141,7 @@ class ApplicationTest {
         req.requestHandled shouldBe true
         req.response.status() shouldBe HttpStatusCode.OK
         val reqTwo = handleRequest {
-            uri = "/blog"
+            uri = "/blog/api"
         }
         reqTwo.requestHandled shouldBe true
         reqTwo.response.let {
@@ -155,7 +155,7 @@ class ApplicationTest {
     @Test
     fun urlRouting(): Unit = withServer {
         val req = handleRequest {
-            uri = "/url"
+            uri = "/url/api"
             method = HttpMethod.Post
             addJsonHeader()
             setBody("""{"url": "https://google.com/s?dead_com_lol_hej_darrrrr"}""")

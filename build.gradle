@@ -28,7 +28,7 @@ sourceSets {
     main.kotlin.srcDirs = main.java.srcDirs = ['src']
     test.kotlin.srcDirs = test.java.srcDirs = ['test']
     main.resources.srcDirs = ['resources']
-    main.resources.includes = ['londogard-frontend/build/**', 'application.conf', 'logback.xml', 'fuzzy-filenames.txt']
+    main.resources.includes = ['favicon.ico', 'application.conf', 'logback.xml', 'fuzzy-filenames.txt']
     test.resources.srcDirs = ['testresources']
 }
 
@@ -75,7 +75,6 @@ dependencies {
 sqldelight {
     Database {
         packageName = "com.lundekhan"
-
     }
 }
 compileKotlin {

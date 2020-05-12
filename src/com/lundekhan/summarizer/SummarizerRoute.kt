@@ -2,7 +2,6 @@ package com.lundekhan.summarizer
 
 import com.londogard.summarize.summarizers.Summarizer
 import com.lundekhan.ResultResponseArray
-import com.lundekhan.gui.HtmlTemplates
 import com.lundekhan.gui.HtmlTemplates.Shell
 import com.lundekhan.resultResponse
 import io.ktor.application.call

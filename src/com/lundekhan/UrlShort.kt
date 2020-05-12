@@ -22,24 +22,16 @@ import org.koin.ktor.ext.inject
 fun Route.urlShort(redirections: MutableMap<String, String>): Route = route("/url") {
     val db by inject<Database>()
 
-    fun SECTION.urlForm(url: String = "", hash: String? = null): Unit = form(method = FormMethod.post) {
+    fun SECTION.urlForm(url: String? = null): Unit = form(method = FormMethod.post) {
         textInput {
             name = "url"
-            if (url.isEmpty()) placeholder = "https://londogard.com"
-            else value = url
+            placeholder = "url (e.g. https://londogard.com)"
+            if (url != null) value = url
         }
         submitInput { }
     }
-    //  // <input type="text" value="Hello World" id="myInput">
-    //                            // <button onclick="myFunction()">Copy text</button>
 
-    get {
-        call.respondHtml {
-            Shell() {
-                section { urlForm() }
-            }
-        }
-    }
+    get { call.respondHtml { Shell() { section { urlForm() } } } }
 
     post {
         val params = call.receiveParameters()
@@ -52,7 +44,7 @@ fun Route.urlShort(redirections: MutableMap<String, String>): Route = route("/ur
         }
         call.respondHtml {
             Shell() {
-                section { urlForm(url, hash) }
+                section { urlForm(url) }
                 br { }
                 section {
                     hash.let { nonNullHash ->

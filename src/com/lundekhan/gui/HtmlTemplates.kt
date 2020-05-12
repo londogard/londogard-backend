@@ -25,8 +25,6 @@ object HtmlTemplates {
         url?.let { p { a(href = it) { em { +"More↗" } } } }
     }
 
-    // fun SECTION.Form(title: String, items: )
-
     fun HTML.Shell(markdownSupport: Boolean = false, jquerySupport: Boolean = false, body: MAIN.() -> Unit) {
         head {
             link(rel = "stylesheet", href = "https://andybrewer.github.io/mvp/mvp.css")
@@ -41,41 +39,15 @@ object HtmlTemplates {
                     href = "//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.0.1/build/styles/default.min.css"
                 )
                 script(src = "//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.0.1/build/highlight.min.js") { }
-                script { +"hljs.initHighlightingOnLoad();" }
+                script { unsafe { +"hljs.initHighlightingOnLoad();" } }
             }
             if (jquerySupport) {
                 script(src = "//code.jquery.com/jquery-1.11.1.min.js") {}
             }
         }
         body {
-            header {
-                style = "padding:1rem"
-                nav {
-                    style = "margin-bottom:0"
-                    a(href = "/") {
-                        img(
-                            alt = "londogard.com",
-                            src = "http://icon-library.com/images/l-icon/l-icon-22.jpg"
-                        ) { height = "70" }
-                        ul {
-                            titles.forEach { header ->
-                                li { a(href = header.href) { +header.title } } // TODO add blank target if Apps/GH.
-                            }
-                            li {
-                                a(
-                                    href = "https://play.google.com/store/apps/developer?id=Londogard",
-                                    target = "_blank"
-                                ) { +"apps↗️" }
-                            }
-                        }
-                    }
-                }
-            }
-
-            main {
-                body()
-                // hr {  } TODO insert each section here!
-            }
+            header()
+            main { body() }
             footer {
                 hr { }
                 p {
@@ -91,15 +63,35 @@ object HtmlTemplates {
         unsafe {
             raw(
                 """
-                                function myFunction() {
-                                  var copyText = document.getElementById("$inputId");
-                                  copyText.select();
-                                  copyText.setSelectionRange(0, 99999)
-                                  document.execCommand("copy");
-                                }
-                                """
+                    function myFunction() {
+                      var copyText = document.getElementById("$inputId");
+                      copyText.select();
+                      copyText.setSelectionRange(0, 99999)
+                      document.execCommand("copy");
+                    }
+                """
             )
         }
     }
-    val HtmlSpace = "&nbsp;"
+
+    private fun BODY.header(): Unit = header {
+        style = "padding:1rem"
+        nav {
+            style = "margin-bottom:0"
+            a(href = "/") {
+                img(alt = "londogard.com", src = "http://icon-library.com/images/l-icon/l-icon-22.jpg") {
+                    height = "70"
+                }
+                ul {
+                    titles.forEach { header -> li { a(href = header.href) { +header.title } } }
+                    li {
+                        a(href = "https://play.google.com/store/apps/developer?id=Londogard", target = "_blank") {
+                            +"apps↗️"
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 }

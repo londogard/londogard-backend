@@ -4,7 +4,6 @@ import com.londogard.textgen.LanguageModel
 import com.londogard.textgen.PretrainedModels
 import com.lundekhan.InvalidRouteException
 import com.lundekhan.ResultResponseArray
-import com.lundekhan.gui.HtmlTemplates.HtmlSpace
 import com.lundekhan.gui.HtmlTemplates.Shell
 import com.lundekhan.resultResponse
 import io.ktor.application.call
@@ -133,10 +132,6 @@ fun Route.textgenRoute(): Route = route("/textgen") {
             call.respond(resultResponse(generatedText))
         }
 
-        get("/models") {
-            call.respond(ResultResponseArray(models))
-        }
+        get("/models") { call.respond(ResultResponseArray(models)) }
     }
 }
-
-data class TextGenInput(val text: String, val temperature: Double = 0.3, val tokens: Int = 150)

@@ -9,7 +9,6 @@ import io.ktor.routing.post
 import io.ktor.routing.route
 
 fun Route.stockRoute(): Route = route("/stock") {
-
     post {
         val compoundInput = call.receive<CompoundInput>()
         val compoundedData = Stokk.compoundInterest(compoundInput.years, compoundInput.startAmount,
