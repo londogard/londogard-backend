@@ -101,4 +101,5 @@ object HtmlTemplates {
             )
         }
     }
+    val HtmlSpace = "&nbsp;"
 }

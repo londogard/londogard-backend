@@ -36,7 +36,7 @@ fun Route.summarizerRoute(): Route = route("/smry") {
         else -> summarizeModel.summarize(summarizeReq.text, 0.2)
     }
     // TODO make reduction & model be on one line if possible (FLEX / section)
-    fun SECTION.summarizeForm(selectedItem: String, currentText: String, reduction: String) {
+    fun SECTION.summarizeForm(selectedItem: String, currentText: String?, reduction: String) {
         form(method = FormMethod.post) {
             acceptCharset = "utf-8"
             header {
@@ -67,8 +67,9 @@ fun Route.summarizerRoute(): Route = route("/smry") {
             }
             label { +"Input:" }
             textArea(rows = "3") {
+                placeholder = "Insert article to summarize"
                 name = "text"
-                +currentText
+                if (currentText != null) +currentText
             }
 
             submitInput { value = "Summarize" }
@@ -77,16 +78,24 @@ fun Route.summarizerRoute(): Route = route("/smry") {
 
     get {
         call.respondHtml {
-            Shell() { section { summarizeForm(models.first(), "", "0.15") } }
+            Shell() { section { summarizeForm(models.first(), null, "0.15") } }
         }
     }
+    fun Double.round(decimals: Int = 2): Double = "%.${decimals}f".format(this).toDouble()
+
     post {
         val params = call.receiveParameters()
+        val summary = summarize(SummarizeReq(params["text"]!!, params["reduction"]!!.toDouble(), null), getModel(params["model"]))
+        val percentage = (summary.length.toDouble() * 100 / params["text"]!!.length).round(1)
         call.respondHtml { Shell() { section {
             summarizeForm(params["model"]!!, params["text"]!!, params["reduction"]!!)
             aside {
                 style = "width:var(--width-card-wide)"
-                + summarize(SummarizeReq(params["text"]!!, params["reduction"]!!.toDouble(), null), getModel(params["model"]))
+                h3 { +"Summarized Article ($percentage %)" }
+                span {
+                    style = "white-space: pre-wrap"
+                    +summary
+                }
             }
         } } }
     }
