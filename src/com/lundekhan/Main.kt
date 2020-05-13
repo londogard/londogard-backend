@@ -51,24 +51,18 @@ data class LundeNetSession(val userId: String)
 @InternalAPI
 @Suppress("unused") // Referenced in application.conf
 fun Application.module() {
-    // This adds automatically Date and Server headers to each response, and would allow you to configure
-    // additional headers served to each response.
-    install(DefaultHeaders)
-    // This uses use the logger to log every call (request/response)
-    install(CallLogging)
-    // Automatic '304 Not Modified' Responses
-    install(ConditionalHeaders)
-    // Supports for Range, Accept-Range and Content-Range headers
-    install(PartialContent)
+    install(DefaultHeaders)     // Automatic Date & Server Head to each response. Possible to config additional headers
+    install(CallLogging)        // This uses use the logger to log every call (request/response)
+    install(ConditionalHeaders) // Automatic '304 Not Modified' Responses
+    install(PartialContent)     // Supports for Range, Accept-Range and Content-Range headers
 
     val redirectionMap = mutableMapOf<String, String>() // Something like cache really
     val lines = javaClass.getResourceAsStream("/fuzzy-filenames.txt").bufferedReader().readLines()
 
     install(Koin) {
-        if (this@module.environment.config.propertyOrNull("ktor.deployment.environment")?.getString() == "test")
+        if (environment.config.propertyOrNull("ktor.deployment.environment")?.getString() == "test")
             modules(testModule)
-        else
-            modules(backendModule)
+        else modules(backendModule)
     }
 
     install(CORS) {
@@ -77,27 +71,13 @@ fun Application.module() {
         anyHost()
     }
 
-    install(StatusPages) {
-        status(HttpStatusCode.Unauthorized) {
-            call.respond(HttpStatusCode.Unauthorized, "UNAUTHORIZED")
-        }
-        exception<InvalidCredentialsException> { exception ->
-            call.respond(HttpStatusCode.Unauthorized, resultResponse(exception.message ?: unknownError))
-        }
-        exception<InvalidInputException> { exception ->
-            call.respond(HttpStatusCode.BadRequest, resultResponse(exception.message ?: unknownError))
-        }
-        exception<UserCreationException> { exception ->
-            call.respond(HttpStatusCode.BadRequest, resultResponse(exception.message ?: unknownError))
-        }
-        exception<SQLException> {
-            call.respond(HttpStatusCode.BadRequest, resultResponse("Something went wrong with request."))
-        }
-    }
+    install(StatusPages) { getExceptionResponses() }
 
     val db by inject<Database>()
     val userSource: UserSource = UserSourceImpl(db.userQueries)
-    this@module.environment.config.propertyOrNull("security.secret")?.getString()?.let(JwtConfig::initAlgo)
+    environment.config.propertyOrNull("security.secret")?.getString()
+        ?.let(JwtConfig::initAlgo)
+        ?: JwtConfig.initAlgo("londogard-test-secret")
 
     install(Authentication) {
         /**
