@@ -70,8 +70,7 @@ fun Route.textgenRoute(): Route = route("/textgen") {
                 placeholder = "Seed (e.g. 'Help the princess')"
                 if (currentText != null) value = currentText
             }
-
-            submitInput { value = "Generate" }
+            postButton { +"Generate" }
         }
     }
 

@@ -23,12 +23,14 @@ fun Route.urlShort(redirections: MutableMap<String, String>): Route = route("/ur
     val db by inject<Database>()
 
     fun SECTION.urlForm(url: String? = null): Unit = form(method = FormMethod.post) {
-        textInput {
-            name = "url"
-            placeholder = "url (e.g. https://londogard.com)"
-            if (url != null) value = url
+        section {
+            textInput {
+                name = "url"
+                placeholder = "url (e.g. https://londogard.com)"
+                if (url != null) value = url
+            }
+            postButton { +"Shorten" }
         }
-        submitInput { }
     }
 
     get { call.respondHtml { Shell() { section { urlForm() } } } }

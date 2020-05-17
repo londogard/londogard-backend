@@ -2,6 +2,7 @@ package com.lundekhan
 
 import com.londogard.fuzzymatch.FuzzyMatcher
 import com.lundekhan.gui.HtmlTemplates.Shell
+import com.lundekhan.gui.HtmlTemplates.respondHtmlShell
 import io.ktor.application.call
 import io.ktor.html.respondHtml
 import io.ktor.request.receive
@@ -23,36 +24,30 @@ fun Route.fuzzyRoute(lines: List<String>): Route = route("/fuzsearch") {
                 style = "padding:0"
                 h3 { +"fuzsearch." }
                 p { +"Fuzzy search C-files." }
+                p { +"Example: 'IDK' would make 'IntenseDeepKnowledge', 'idk' or 'iwedk' & so on." }
             }
             section {
-                textInput(name="keyword") {
+                textInput(name = "keyword") {
                     placeholder = "Search (try IDK out!)"
                     if (text != null) value = text
-
                 }
-                postButton { +"Submit" }
+                postButton { +"Search" }
             }
         }
     }
 
-    get {
-        call.respondHtml {
-            Shell { fuzzyForm(null) }
-        }
-    }
+    get { call.respondHtmlShell { fuzzyForm(null) } }
 
     post {
         val keyword = call.receiveParameters()["keyword"]
         val fuzzyMatches = fuzzyMatcher
             .fuzzyMatch(lines, keyword ?: "")
             .mapNotNull { it.text }
-        call.respondHtml {
-            Shell {
-                fuzzyForm(keyword)
-                section {
-                    aside {
-                        fuzzyMatches.forEach { p { +it } }
-                    }
+        call.respondHtmlShell {
+            fuzzyForm(keyword)
+            section {
+                aside {
+                    fuzzyMatches.forEach { p { +it } }
                 }
             }
         }

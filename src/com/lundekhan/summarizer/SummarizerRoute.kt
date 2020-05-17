@@ -3,6 +3,7 @@ package com.lundekhan.summarizer
 import com.londogard.summarize.summarizers.Summarizer
 import com.lundekhan.ResultResponseArray
 import com.lundekhan.gui.HtmlTemplates.Shell
+import com.lundekhan.gui.HtmlTemplates.respondHtmlShell
 import com.lundekhan.resultResponse
 import io.ktor.application.call
 import io.ktor.html.respondHtml
@@ -34,18 +35,19 @@ fun Route.summarizerRoute(): Route = route("/smry") {
         summarizeReq.lines is Int -> summarizeModel.summarize(summarizeReq.text, summarizeReq.lines)
         else -> summarizeModel.summarize(summarizeReq.text, 0.2)
     }
+
     // TODO make reduction & model be on one line if possible (FLEX / section)
-    fun SECTION.summarizeForm(selectedItem: String, currentText: String?, reduction: String) {
+    fun SECTION.summarizeForm(selectedItem: String, currentText: String?, reduction: String = "25") {
         form(method = FormMethod.post) {
             acceptCharset = "utf-8"
             header {
                 style = "padding:0"
                 h3 { +"smry." }
-                p { +"Summarize your articles" }
+                p { +"Summarize your articles." }
+                p { +"Select model & reduction where reduction is the approximate % you want to keep." }
             }
             section {
-                label { +"Model:" }
-                label { +"Reduction (X = lines, 0.Y = percentage)" }
+                label { +"Model | Reduction (%)" }
             }
             section {
                 select {
@@ -58,9 +60,10 @@ fun Route.summarizerRoute(): Route = route("/smry") {
                     }
                 }
 
-                numberInput(name="reduction") {
+                numberInput(name = "reduction") {
                     min = "0"
-                    step = "0.05"
+                    max = "100"
+                    step = "5"
                     value = reduction
                 }
             }
@@ -71,32 +74,39 @@ fun Route.summarizerRoute(): Route = route("/smry") {
                 if (currentText != null) +currentText
             }
 
-            submitInput { value = "Summarize" }
+            postButton { +"Summarize" }
         }
     }
 
     get {
-        call.respondHtml {
-            Shell() { section { summarizeForm(models.first(), null, "0.15") } }
+        call.respondHtmlShell {
+            section {
+                summarizeForm(models.first(), null)
+            }
         }
     }
     fun Double.round(decimals: Int = 2): Double = "%.${decimals}f".format(this).toDouble()
 
     post {
         val params = call.receiveParameters()
-        val summary = summarize(SummarizeReq(params["text"]!!, params["reduction"]!!.toDouble(), null), getModel(params["model"]))
+        val summary =
+            summarize(SummarizeReq(params["text"]!!, params["reduction"]!!.toDouble(), null), getModel(params["model"]))
         val percentage = (summary.length.toDouble() * 100 / params["text"]!!.length).round(1)
-        call.respondHtml { Shell() { section {
-            summarizeForm(params["model"]!!, params["text"]!!, params["reduction"]!!)
-            aside {
-                style = "width:var(--width-card-wide)"
-                h3 { +"Summarized Article ($percentage %)" }
-                span {
-                    style = "white-space: pre-wrap"
-                    +summary
+        call.respondHtml {
+            Shell() {
+                section {
+                    summarizeForm(params["model"]!!, params["text"]!!, params["reduction"]!!)
+                    aside {
+                        style = "width:var(--width-card-wide)"
+                        h3 { +"Summarized Article ($percentage %)" }
+                        span {
+                            style = "white-space: pre-wrap"
+                            +summary
+                        }
+                    }
                 }
             }
-        } } }
+        }
     }
 
 
@@ -120,4 +130,5 @@ fun Route.summarizerRoute(): Route = route("/smry") {
         }
     }
 }
+
 data class SummarizeReq(val text: String, val ratio: Double?, val lines: Int?)
