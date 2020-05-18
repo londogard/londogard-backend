@@ -16,10 +16,15 @@ import kotlinx.html.*
 
 fun Route.billsplit(): Route = route("/billsplit") {
     fun SECTION.billsplitForm(text: String = ""): Unit = form(method = FormMethod.post) {
+        header {
+            style = "padding:0;"
+            h3 { +"billsplit." }
+            small { +"Split your bills. Add names and amount paid, you can add the same person multiple times." }
+        }
         textArea(rows = (text.count { it == '\n' } + 3).toString()) {
             name = "input"
-            if (text.isEmpty()) placeholder = "hampus 20.5\nhampus 10.0\ndennis 38"
-            else +text
+            placeholder = "hampus 20.5\nhampus 10.0\ndennis 38"
+            if (text.isNotEmpty()) +text
         }
         postButton { +"Submit" }
     }

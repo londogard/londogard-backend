@@ -24,7 +24,7 @@ fun Route.fuzzyRoute(lines: List<String>): Route = route("/fuzsearch") {
                 style = "padding:0"
                 h3 { +"fuzsearch." }
                 p { +"Fuzzy search C-files." }
-                p { +"Example: 'IDK' would make 'IntenseDeepKnowledge', 'idk' or 'iwedk' & so on." }
+                small { +"Example: 'IDK' would find '[I]ntense[D]eep[K]nowledge', '[idk]' or '[i]we[dk]' & so on." }
             }
             section {
                 textInput(name = "keyword") {

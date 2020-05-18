@@ -39,6 +39,7 @@ fun Route.textgenRoute(): Route = route("/textgen") {
                 style = "padding:0"
                 h3 { +"textgen." }
                 p { +"Generate text from pre-built models!" }
+                small { +"Tokens is the number of words to generate. Temperature is how crazy you'd like it (1.0 = maximum)" }
             }
             section {
                 label { +"Model | Tokens | Temperature" }

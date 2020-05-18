@@ -23,6 +23,11 @@ fun Route.urlShort(redirections: MutableMap<String, String>): Route = route("/ur
     val db by inject<Database>()
 
     fun SECTION.urlForm(url: String? = null): Unit = form(method = FormMethod.post) {
+        header {
+            style = "padding:0;"
+            h3 { +"urlshort." }
+            small { +"Shorten urls and use them to send smaller urls to your favorite webpages!" }
+        }
         section {
             textInput {
                 name = "url"

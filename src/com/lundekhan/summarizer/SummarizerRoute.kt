@@ -44,7 +44,7 @@ fun Route.summarizerRoute(): Route = route("/smry") {
                 style = "padding:0"
                 h3 { +"smry." }
                 p { +"Summarize your articles." }
-                p { +"Select model & reduction where reduction is the approximate % you want to keep." }
+                small { +"Select model & reduction where reduction is the approximate % you want to keep." }
             }
             section {
                 label { +"Model | Reduction (%)" }
