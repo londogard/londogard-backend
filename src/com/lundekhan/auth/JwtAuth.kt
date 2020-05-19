@@ -11,8 +11,8 @@ object JwtConfig {
     private const val validityInMs = 36_000_00 // 1 hour
     private lateinit var algorithm: Algorithm
 
-    fun initAlgo(secret: String) {
-        algorithm = Algorithm.HMAC256(secret)
+    fun initAlgo(secret: String?) {
+        algorithm = Algorithm.HMAC256(secret ?: "londogard-test-secret")
     }
 
     val verifier: JWTVerifier by lazy {

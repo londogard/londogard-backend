@@ -22,7 +22,7 @@ fun splitBills(personAmounts: List<Pair<String, Double>>): List<PersonPayment> {
     return owed.fold(listOf()) { acc, (person, amount) ->
         var leftToPay = amount
         val payments = mutableListOf<PersonPayment>()
-        while (leftToPay > 0) {
+        while (leftToPay > 0 && mutableOwing.isNotEmpty()) {
             val payment = makePayment(leftToPay, person, mutableOwing)
             leftToPay -= payment.amount
             payments.add(payment)

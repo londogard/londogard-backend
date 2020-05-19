@@ -1,10 +1,8 @@
 package com.lundekhan.billsplitter
 
 import com.lundekhan.InvalidInputException
-import com.lundekhan.gui.HtmlTemplates.Shell
 import com.lundekhan.gui.HtmlTemplates.respondHtmlShell
 import io.ktor.application.call
-import io.ktor.html.respondHtml
 import io.ktor.request.receiveOrNull
 import io.ktor.request.receiveParameters
 import io.ktor.response.respond
@@ -21,7 +19,7 @@ fun Route.billsplit(): Route = route("/billsplit") {
             h3 { +"billsplit." }
             small { +"Split your bills. Add names and amount paid, you can add the same person multiple times." }
         }
-        textArea(rows = (text.count { it == '\n' } + 3).toString()) {
+        textArea(rows = "${(text.count { it == '\n' } + 3)}") {
             name = "input"
             placeholder = "hampus 20.5\nhampus 10.0\ndennis 38"
             if (text.isNotEmpty()) +text
@@ -52,24 +50,6 @@ fun Route.billsplit(): Route = route("/billsplit") {
                     if (payments.isEmpty()) +"No bills to split!"
                 }
             }
-        }
-    }
-
-    /**
-     * A POST request to /billsplit.
-     * Body: Json [PostPersonPayments] where each payment in list is
-     *
-     * Returns a list of [PersonPayment]
-     */
-    route("/api") {
-        post {
-            val payments = call
-                .receiveOrNull<PostPersonPayments>()
-                ?.payments
-                ?.map { Pair(it.person, it.amount) }
-                ?: throw InvalidInputException("POST /billsplit require json body. Format: {'payments': [{person: 'name', amount: 0.00},...]}")
-
-            call.respond(splitBills(payments))
         }
     }
 }

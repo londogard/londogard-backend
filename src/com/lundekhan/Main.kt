@@ -1,44 +1,40 @@
 package com.lundekhan
 
 import com.fasterxml.jackson.databind.SerializationFeature
+import com.lundekhan.api.apiRoute
 import com.lundekhan.auth.JwtConfig
 import com.lundekhan.auth.authRoute
-import com.lundekhan.billsplitter.billsplit
-import com.lundekhan.blog.blogRoute
-import com.lundekhan.gui.routing
+import com.lundekhan.blog.blogOverview
+import com.lundekhan.gui.HtmlTemplates.respondHtmlShell
+import com.lundekhan.gui.frontendRoute
 import com.lundekhan.jwtauth.UserSource
 import com.lundekhan.jwtauth.UserSourceImpl
-import com.lundekhan.jwtauth.principal
-import com.lundekhan.summarizer.summarizerRoute
-import com.lundekhan.textgen.textgenRoute
 import io.ktor.application.Application
 import io.ktor.application.ApplicationCall
 import io.ktor.application.call
 import io.ktor.application.install
 import io.ktor.auth.Authentication
-import io.ktor.auth.authenticate
 import io.ktor.auth.jwt.JWTPrincipal
 import io.ktor.auth.jwt.jwt
 import io.ktor.features.*
 import io.ktor.http.CacheControl
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
-import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.CachingOptions
-import io.ktor.http.content.files
+import io.ktor.http.content.resource
 import io.ktor.http.content.static
 import io.ktor.jackson.jackson
 import io.ktor.locations.KtorExperimentalLocationsAPI
-import io.ktor.response.respond
 import io.ktor.response.respondRedirect
-import io.ktor.routing.*
+import io.ktor.routing.Routing
+import io.ktor.routing.get
+import io.ktor.routing.routing
 import io.ktor.util.InternalAPI
 import io.ktor.util.KtorExperimentalAPI
 import io.ktor.util.toLocalDateTime
 import kotlinx.serialization.ImplicitReflectionSerializer
 import org.koin.ktor.ext.Koin
 import org.koin.ktor.ext.inject
-import java.sql.SQLException
 import java.time.LocalDateTime
 
 
@@ -80,9 +76,7 @@ fun Application.module() {
 
     val db by inject<Database>()
     val userSource: UserSource = UserSourceImpl(db.userQueries)
-    environment.config.propertyOrNull("security.secret")?.getString()
-        ?.let(JwtConfig::initAlgo)
-        ?: JwtConfig.initAlgo("londogard-test-secret")
+    JwtConfig.initAlgo(environment.config.propertyOrNull("security.secret")?.getString())
 
     install(Authentication) {
         /**
@@ -103,7 +97,6 @@ fun Application.module() {
         }
     }
 
-    // TODO perhaps when in prod we shouldn't indent output (saving minor CPU)
     install(ContentNegotiation) { jackson { enable(SerializationFeature.INDENT_OUTPUT) } }
 
     if (environment.config.propertyOrNull("ktor.deployment.sslPort") != null) {
@@ -121,33 +114,18 @@ fun Application.module() {
         }
     }
 
-
     routing {
-        routing()
-        billsplit()
-        urlShort(redirectionMap)
-        summarizerRoute()
-        textgenRoute()
-        blogRoute()
-        fuzzyRoute(lines)
-        authRoute(userSource)
-        stockRoute()
-
+        get { call.respondHtmlShell(markdownSupport = true) { blogOverview(db) } }
         get("/github") { call.respondRedirect("https://github.com/londogard/") }
         get("/apps") { call.respondRedirect("https://play.google.com/store/apps/developer?id=Londogard") }
 
-        /**
-         * All [Route]s in the authentication block are secured.
-         */
-        authenticate {
-            route("secret") {
-                get {
-                    val user = call.principal
-                    call.respond(
-                        userSource.findUserById(user?.payload?.getClaim("id")?.asLong() ?: -1)?.name ?: "User Not Found"
-                    )
-                }
-            }
+        apiRoute(redirectionMap)
+        frontendRoute(redirectionMap, lines)
+        authRoute(userSource)
+
+        static {
+            resource("/favicon.ico", "favicon.ico")
+            resource("/css", "mvp.css")
         }
     }
 }

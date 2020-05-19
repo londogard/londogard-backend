@@ -1,10 +1,8 @@
 package com.lundekhan
 
 import com.londogard.fuzzymatch.FuzzyMatcher
-import com.lundekhan.gui.HtmlTemplates.Shell
 import com.lundekhan.gui.HtmlTemplates.respondHtmlShell
 import io.ktor.application.call
-import io.ktor.html.respondHtml
 import io.ktor.request.receive
 import io.ktor.request.receiveParameters
 import io.ktor.response.respond
