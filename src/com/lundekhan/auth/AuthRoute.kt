@@ -46,5 +46,4 @@ fun Route.authRoute(userSource: UserSource): Route = route("/user") {
                 ?: throw UserCreationException()
         } catch (exception: SQLException) { throw UserCreationException() }
     }
-
 }

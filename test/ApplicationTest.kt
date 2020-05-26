@@ -78,18 +78,12 @@ class ApplicationTest {
                 .apply {
                     assertEquals(HttpStatusCode.BadRequest, response.status())
                 }
-            handleRequest(HttpMethod.Get, "/secret") {
-                addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
-                addJwtHeader()
-            }.apply {
-                assertEquals(HttpStatusCode.OK, response.status())
-            }
         }
     }
 
     @Test
     fun testBillSplit(): Unit = withServer {
-        handleRequest(HttpMethod.Post, "/billsplit") {
+        handleRequest(HttpMethod.Post, "/api/billsplit") {
             addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
             setBody(
                 """
@@ -113,7 +107,7 @@ class ApplicationTest {
 
     @Test
     fun testSummarizer(): Unit = withServer {
-        handleRequest(HttpMethod.Post, "/smry") {
+        handleRequest(HttpMethod.Post, "/api/smry") {
             addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
             val body = """{"text": $text}"""
             setBody(body)
@@ -130,7 +124,7 @@ class ApplicationTest {
         makeUserRequest()
         val req = handleRequest {
             method = HttpMethod.Post
-            uri = "/blog/create"
+            uri = "/api/blog/create"
             addJwtHeader()
             addJsonHeader()
             setBody(
@@ -141,7 +135,7 @@ class ApplicationTest {
         req.requestHandled shouldBe true
         req.response.status() shouldBe HttpStatusCode.OK
         val reqTwo = handleRequest {
-            uri = "/blog"
+            uri = "/api/blog"
         }
         reqTwo.requestHandled shouldBe true
         reqTwo.response.let {
@@ -155,7 +149,7 @@ class ApplicationTest {
     @Test
     fun urlRouting(): Unit = withServer {
         val req = handleRequest {
-            uri = "/url"
+            uri = "/api/url"
             method = HttpMethod.Post
             addJsonHeader()
             setBody("""{"url": "https://google.com/s?dead_com_lol_hej_darrrrr"}""")
