@@ -61,6 +61,10 @@ object HtmlTemplates {
                 p {
                     +"Made by "
                     a(href = "https://github.com/londogard/", target = "_blank") { +"Londogard↗️" }
+                        a(href = "/rss") {
+                            style = "float:right"
+                            img(src = "Feed-icon.svg", alt = "rss feed") { height = "20" }
+                        }
                     br { }
                 }
             }
@@ -90,20 +94,26 @@ object HtmlTemplates {
                 img(alt = "londogard.com", src = "favicon.ico") {
                     height = "70"
                 }
-                ul {
-                    titles.forEach { header -> li { a(href = header.href) { +header.title } } }
-                    li {
-                        a(href = "https://play.google.com/store/apps/developer?id=Londogard", target = "_blank") {
-                            +"apps↗️"
-                        }
+            }
+            ul {
+                titles.forEach { header -> li { a(href = header.href) { +header.title } } }
+                li {
+                    a(href = "https://play.google.com/store/apps/developer?id=Londogard", target = "_blank") {
+                        +"apps↗️"
                     }
                 }
             }
         }
     }
 
-    fun SECTION.numberInput(min: Int? = null, max: Int? = null, step: Double? = null, value: String? = null, name: String) =
-        numberInput(name=name) {
+    fun SECTION.numberInput(
+        min: Int? = null,
+        max: Int? = null,
+        step: Double? = null,
+        value: String? = null,
+        name: String
+    ) =
+        numberInput(name = name) {
             min?.let { this.min = it.toString() }
             max?.let { this.max = it.toString() }
             step?.let { this.step = it.toString() }

@@ -3,6 +3,7 @@ package com.lundekhan.gui
 import com.lundekhan.billsplitter.billsplit
 import com.lundekhan.blog.blogRoute
 import com.lundekhan.fuzzyRoute
+import com.lundekhan.rssfeed.rssFeedRoute
 import com.lundekhan.stockRoute
 import com.lundekhan.summarizer.summarizerRoute
 import com.lundekhan.textgen.textgenRoute
@@ -24,4 +25,5 @@ fun Routing.frontendRoute(
     blogRoute()
     fuzzyRoute(lines)
     stockRoute()
+    rssFeedRoute()
 }
