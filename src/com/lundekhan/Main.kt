@@ -126,7 +126,7 @@ fun Application.module() {
 
         static {
             resource("/favicon.ico", "favicon.ico")
-            resource("/Feed-icon.svg", "Feed-icon.svg")
+            resource("/rss.svg", "rss.svg")
             resource("/css", "mvp.css")
         }
     }

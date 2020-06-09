@@ -63,7 +63,7 @@ object HtmlTemplates {
                     a(href = "https://github.com/londogard/", target = "_blank") { +"Londogard↗️" }
                         a(href = "/rss") {
                             style = "float:right"
-                            img(src = "Feed-icon.svg", alt = "rss feed") { height = "20" }
+                            img(src = "rss.svg", alt = "rss feed") { height = "20" }
                         }
                     br { }
                 }
