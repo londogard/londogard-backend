@@ -108,6 +108,7 @@ fun Application.module() {
         options { outgoingContent ->
             when (outgoingContent.contentType?.withoutParameters()) {
                 ContentType.Text.CSS -> CachingOptions(CacheControl.MaxAge(maxAgeSeconds = 24 * 60 * 60))
+                ContentType.Application.Rss -> CachingOptions(CacheControl.MaxAge(maxAgeSeconds = 24 * 60 * 60))
                 ContentType.Image.XIcon -> CachingOptions(CacheControl.MaxAge(maxAgeSeconds = 24 * 60 * 60))
                 else -> null
             }
@@ -125,6 +126,7 @@ fun Application.module() {
 
         static {
             resource("/favicon.ico", "favicon.ico")
+            resource("/rss.svg", "rss.svg")
             resource("/css", "mvp.css")
         }
     }
