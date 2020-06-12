@@ -63,7 +63,7 @@ object HtmlTemplates {
                     a(href = "https://github.com/londogard/", target = "_blank") { +"Londogard↗️" }
                         a(href = "/rss") {
                             style = "float:right"
-                            img(src = "rss.svg", alt = "rss feed") { height = "20" }
+                            img(src = "/rss.svg", alt = "rss feed") { height = "20" }
                         }
                     br { }
                 }
@@ -91,7 +91,7 @@ object HtmlTemplates {
         nav {
             style = "margin-bottom:0"
             a(href = "/") {
-                img(alt = "londogard.com", src = "favicon.ico") {
+                img(alt = "londogard.com", src = "/favicon.ico") {
                     height = "70"
                 }
             }
