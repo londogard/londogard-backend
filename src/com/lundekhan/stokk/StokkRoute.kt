@@ -25,38 +25,43 @@ fun Route.stokkRoute(): Route = route("/stokk") {
             small { +"Calculate the compound interest!" }
         }
         section {
-            numberInput(name = "year") {
+            numberInput {
+                name = "year"
                 placeholder = "year"
                 if (year.isNotEmpty()) value = year
             }
-            numberInput(name = "startAmount") {
-                min = "0"
-                step = "500"
-                placeholder = "startAmount"
-                if (startAmount.isNotEmpty()) value = startAmount
+            section {
+                numberInput {
+                    name = "startAmount"
+                    placeholder = "startAmount"
+                    if (startAmount.isNotEmpty()) value = startAmount
+                }
             }
+            section {
+                numberInput {
+                    name = "interest"
+                    placeholder = "interest"
+                    if (interest.isNotEmpty()) value = interest
+                }
+            }
+
+            section {
+                numberInput {
+                    name = "monthlyDeposits"
+                    placeholder = "monthlyDeposits"
+                    if (monthlyDeposit.isNotEmpty()) value = monthlyDeposit
+                }
+            }
+
+            postButton { +"Calculate" }
         }
-        section {
-            numberInput(name = "interest") {
-                min = "0"
-                step = "0.1"
-                placeholder = "interest"
-                if (interest.isNotEmpty()) value = interest
-            }
-            numberInput(name = "monthlyDeposits") {
-                step = "100"
-                placeholder = "monthlyDeposits"
-                if (monthlyDeposit.isNotEmpty()) value = monthlyDeposit
-            }
-        }
-        postButton { +"Calculate" }
     }
     get { call.respondHtmlShell { section { stokkForm() } } }
     post {
         val params = call.receiveParameters()
         val years = params["year"]?.toInt() ?: 0
-        val startAmount = params["startAmount"]?.toDouble() ?: 0.0
-        val interest = params["interest"]?.toDouble() ?: 0.0
+        val startAmount = params["startAmount"]?.toInt()?.toDouble() ?: 0.0
+        val interest = params["interest"]?.toInt()?.toDouble() ?: 0.0
         val monthlyDeposit = params["monthlyDeposits"]?.toInt() ?: 0
         val compoundedData = StokkHelper.compoundInterest(
             years, startAmount,
@@ -74,10 +79,18 @@ fun Route.stokkRoute(): Route = route("/stokk") {
             }
             section {
                 aside {
-                    h3 { +"Result: " }
+                    style = "width:var(--width-card-wide)"
+                    h3 { +"Calculated compound interest" }
                     +compoundedData.roundToInt().toString()
                 }
             }
         }
     }
 }
+
+data class CompoundInput(
+    val years: Int,
+    val startAmount: Double,
+    val interest: Double = 1.0,
+    val monthlyDeposit: Int = 0
+)
