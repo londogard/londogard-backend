@@ -5,8 +5,8 @@ import com.lundekhan.billsplitter.billsplit
 import com.lundekhan.blog.blogRoute
 import com.lundekhan.blog.tilRoute
 import com.lundekhan.fuzzyRoute
+import com.lundekhan.stokkRoute
 import com.lundekhan.rssfeed.rssFeedRoute
-import com.lundekhan.stockRoute
 import com.lundekhan.summarizer.summarizerRoute
 import com.lundekhan.textgen.textgenRoute
 import com.lundekhan.urlShort
@@ -28,6 +28,6 @@ fun Routing.frontendRoute(
     blogRoute()
     tilRoute()
     fuzzyRoute(lines)
-    stockRoute()
+    stokkRoute()
     rssFeedRoute()
 }

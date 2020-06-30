@@ -38,6 +38,7 @@ fun Route.apiRoute(redirections: MutableMap<String, String>): Route = route("/ap
      * {payments: [{person: string, amount: number]} --> {result: [{payer: string, owed: string, amount: double}]}
      */
     post("/billsplit") {
+
         val payments = call.receiveOrNull<PostPersonPayments>()
             ?.payments
             ?.map { Pair(it.person, it.amount) }
@@ -47,10 +48,20 @@ fun Route.apiRoute(redirections: MutableMap<String, String>): Route = route("/ap
     }
 
     /**
+     * POST: /api/stokk
+     */
+    post("/stokk") {
+        val compound = call.receiveOrNull<CompoundInput>()
+            ?: throw InvalidInputException("POST /stokk something went wrong")
+        call.respond((compound))
+    }
+
+    /**
      * POST: /api/url
      *  {url: string} --> {result: string} (result is the hash)
      */
     post("/url") {
+
         val url = call.receive<UrlInput>().url
         val hash = url.hashHexify()
 
