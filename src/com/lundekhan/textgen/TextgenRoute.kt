@@ -13,12 +13,10 @@ import io.ktor.routing.route
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.html.*
-import kotlinx.serialization.ImplicitReflectionSerializer
 import org.koin.ktor.ext.inject
 
 internal data class TextGenInput(val text: String, val temperature: Double = 0.3, val tokens: Int = 150)
 
-@ImplicitReflectionSerializer
 fun Route.textgenRoute(): Route = route("/textgen") {
     val languageModel by inject<LanguageModel>()
     var currentModel: String = PretrainedModels.SHAKESPEARE.name

@@ -128,6 +128,7 @@ fun Application.module() {
             resource("favicon.ico", "favicon.ico")
             resource("rss.svg", "rss.svg")
             resource("css", "mvp.css")
+            resource("hampus", "hampus.jpg")
         }
     }
 }

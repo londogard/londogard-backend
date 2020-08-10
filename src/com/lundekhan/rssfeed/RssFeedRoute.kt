@@ -1,6 +1,5 @@
 package com.lundekhan.rssfeed
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.lundekhan.Database
 import com.lundekhan.data.Blog
 import com.rometools.rome.feed.synd.*
@@ -12,7 +11,6 @@ import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.route
 import org.koin.ktor.ext.inject
-import javax.xml.stream.XMLStreamWriter
 
 fun Route.rssFeedRoute(): Route = route("/rss") {
     val db by inject<Database>()

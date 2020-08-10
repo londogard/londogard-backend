@@ -13,11 +13,12 @@ object HtmlTemplates {
         Header("textgen.", "/textgen"),
         Header("billsplit.", "/billsplit"),
         Header("urlshort.", "/url"),
-        Header("fuzsearch.", "/fuzsearch")
+        Header("fuzsearch.", "/fuzsearch"),
+        Header("about.", "/about")
     )
 
     fun SECTION.Card(
-        title: String, body: ASIDE.() -> Unit, date: String,
+        title: String, body: ASIDE.() -> Unit, date: String? = null,
         image: String? = null, url: String? = null
     ): Unit = aside {
         style = "width:var(--width-card-wide)"
@@ -28,6 +29,7 @@ object HtmlTemplates {
     }
 
     suspend fun ApplicationCall.respondHtmlShell(
+        title: String = "NLP products on a Raspberry Pi",
         markdownSupport: Boolean = false,
         jquerySupport: Boolean = false,
         body: MAIN.() -> Unit
@@ -37,7 +39,7 @@ object HtmlTemplates {
             meta(name = "description", content = "Londogard. Our landing page with a few of the products.")
             meta(name = "viewport", content = "width=device-width, initial-scale=1.0")
             meta(charset = "utf-8")
-            title { +"Londogard - NLP products on a Raspberry Pi" }
+            title { +"$title - Londogard" }
 
             unsafe { raw("""<script data-ad-client="ca-pub-7340600106400694" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>""") }
             if (markdownSupport) {
