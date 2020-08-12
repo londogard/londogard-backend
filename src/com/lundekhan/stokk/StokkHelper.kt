@@ -20,5 +20,4 @@ object StokkHelper {
         }
         return month
     }
-
 }
