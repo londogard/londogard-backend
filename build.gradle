@@ -68,7 +68,7 @@ dependencies {
 
     implementation "org.koin:koin-ktor:$koin_version"
 
-    implementation ("com.github.haifengl:smile-nlp:$smile_version")
+    implementation "com.github.haifengl:smile-nlp:$smile_version"
     implementation "com.github.haifengl:smile-kotlin:$smile_version"
 
     implementation 'org.mindrot:jbcrypt:0.4'
@@ -91,9 +91,12 @@ compileKotlin {
 configurations {
     compileClasspath
 }
-
+jar { duplicatesStrategy = DuplicatesStrategy.EXCLUDE }
 // This task will generate your fat JAR and put it in the ./build/libs/ directory
 shadowJar {
+    //minimize {
+    //    exclude("org.jetbrains.kotlin:.*", "org.koin:.*")
+    //}
     manifest {
         attributes 'Main-Class': mainClassName
     }
