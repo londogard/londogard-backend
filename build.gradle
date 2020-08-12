@@ -6,11 +6,11 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.4.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
         classpath "com.squareup.sqldelight:gradle-plugin:$sqldelight_version"
         classpath 'com.github.jengelman.gradle.plugins:shadow:5.1.0'
+        // classpath 'com.guardsquare:proguard-gradle:7.0.0'
     }
 }
 
@@ -42,7 +42,7 @@ repositories {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:$kotlinx_serialization"
 
@@ -74,6 +74,7 @@ dependencies {
     implementation 'org.mindrot:jbcrypt:0.4'
 
     implementation 'com.rometools:rome:1.13.0'
+
     testImplementation "io.ktor:ktor-server-test-host:$ktor_version"
     testImplementation "org.amshove.kluent:kluent:$kluent_version"
 }
@@ -90,9 +91,12 @@ compileKotlin {
 configurations {
     compileClasspath
 }
-
+jar { duplicatesStrategy = DuplicatesStrategy.EXCLUDE }
 // This task will generate your fat JAR and put it in the ./build/libs/ directory
 shadowJar {
+    //minimize {
+    //    exclude("org.jetbrains.kotlin:.*", "org.koin:.*")
+    //}
     manifest {
         attributes 'Main-Class': mainClassName
     }

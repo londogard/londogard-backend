@@ -20,7 +20,7 @@ object BlogHelper {
             blog.date.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME), blog.blog_id) }
 
     fun updateBlog(blog: BlogPostOpt, db: Database): Boolean {
-        val oldBlog = db.blogQueries.selectById(blog.id).executeAsOneOrNull() as Blog.Impl? ?: return false
+        val oldBlog = db.blogQueries.selectById(blog.id).executeAsOneOrNull() ?: return false
         val updatedBlog = oldBlog.copy(
             title = blog.title ?: oldBlog.title,
             summary = blog.summary ?: oldBlog.summary,
