@@ -37,7 +37,7 @@ fun Route.urlShort(redirections: MutableMap<String, String>): Route = route("/ur
         }
     }
 
-    get { call.respondHtmlShell { section { urlForm() } } }
+    get { call.respondHtmlShell("URL Shortener") { section { urlForm() } } }
 
     post {
         val params = call.receiveParameters()
@@ -48,7 +48,7 @@ fun Route.urlShort(redirections: MutableMap<String, String>): Route = route("/ur
         launch(Dispatchers.IO) {
             db.urlQueries.select(url).executeAsOneOrNull() ?: db.urlQueries.insert(url, hash)
         }
-        call.respondHtmlShell {
+        call.respondHtmlShell("URL Shortener") {
             section { urlForm(url) }
             br { }
             section {

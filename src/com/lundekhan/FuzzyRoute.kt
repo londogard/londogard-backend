@@ -34,14 +34,14 @@ fun Route.fuzzyRoute(lines: List<String>): Route = route("/fuzsearch") {
         }
     }
 
-    get { call.respondHtmlShell { fuzzyForm(null) } }
+    get { call.respondHtmlShell("Fuzzy Search") { fuzzyForm(null) } }
 
     post {
         val keyword = call.receiveParameters()["keyword"]
         val fuzzyMatches = fuzzyMatcher
             .fuzzyMatch(lines, keyword ?: "")
             .mapNotNull { it.text }
-        call.respondHtmlShell {
+        call.respondHtmlShell("") {
             fuzzyForm(keyword)
             section {
                 aside {

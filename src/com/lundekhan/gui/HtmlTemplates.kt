@@ -29,7 +29,7 @@ object HtmlTemplates {
     }
 
     suspend fun ApplicationCall.respondHtmlShell(
-        title: String = "NLP products on a Raspberry Pi",
+        title: String,
         markdownSupport: Boolean = false,
         jquerySupport: Boolean = false,
         body: MAIN.() -> Unit

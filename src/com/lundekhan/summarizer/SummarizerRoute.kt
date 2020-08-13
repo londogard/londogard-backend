@@ -73,7 +73,7 @@ fun Route.summarizerRoute(): Route = route("/smry") {
     }
 
     get {
-        call.respondHtmlShell {
+        call.respondHtmlShell("Summarizer 'Summarize Articles'") {
             section {
                 summarizeForm(models.first(), null)
             }
@@ -86,7 +86,7 @@ fun Route.summarizerRoute(): Route = route("/smry") {
         val summary =
             summarize(SummarizeReq(params["text"]!!, params["reduction"]!!.toDouble(), null), getModel(params["model"]))
         val percentage = (summary.length.toDouble() * 100 / params["text"]!!.length).round(1)
-        call.respondHtmlShell {
+        call.respondHtmlShell("Summarizer 'Summarize Articles'") {
             section {
                 summarizeForm(params["model"]!!, params["text"]!!, params["reduction"]!!)
                 aside {

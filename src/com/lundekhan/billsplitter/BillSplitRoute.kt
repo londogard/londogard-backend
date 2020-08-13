@@ -27,7 +27,7 @@ fun Route.billsplit(): Route = route("/billsplit") {
         postButton { +"Submit" }
     }
 
-    get { call.respondHtmlShell { section { billsplitForm() } } }
+    get { call.respondHtmlShell("Billsplitter 'Split your bills'") { section { billsplitForm() } } }
 
     post {
         val params = call.receiveParameters()
@@ -39,7 +39,7 @@ fun Route.billsplit(): Route = route("/billsplit") {
             ?.map { (name, amount) -> name to (amount.toDoubleOrNull() ?: 0.0) }
             ?.let { personAmounts -> splitBills(personAmounts) } ?: emptyList()
 
-        call.respondHtmlShell {
+        call.respondHtmlShell("Billsplitter 'Split your bills'") {
             section { billsplitForm(params["input"]!!) }
             section {
                 aside {
