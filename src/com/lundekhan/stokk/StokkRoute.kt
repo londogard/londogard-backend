@@ -11,6 +11,7 @@ import io.ktor.routing.route
 import kotlinx.html.*
 import kotlin.math.roundToInt
 
+@ExperimentalStdlibApi
 fun Route.stokkRoute(): Route = route("/stokk") {
 
     fun SECTION.stokkForm(
@@ -26,13 +27,13 @@ fun Route.stokkRoute(): Route = route("/stokk") {
         }
         section {
             numberInput(name = "year") {
-                placeholder = "year"
+                placeholder = "Number of years  "
                 if (year.isNotEmpty()) value = year
             }
             numberInput(name = "startAmount") {
                 min = "0"
                 step = "500"
-                placeholder = "startAmount"
+                placeholder = "Initial deposit"
                 if (startAmount.isNotEmpty()) value = startAmount
             }
         }
@@ -40,12 +41,12 @@ fun Route.stokkRoute(): Route = route("/stokk") {
             numberInput(name = "interest") {
                 min = "0"
                 step = "0.1"
-                placeholder = "interest"
+                placeholder = "Interest (7 = 7%)"
                 if (interest.isNotEmpty()) value = interest
             }
             numberInput(name = "monthlyDeposits") {
                 step = "100"
-                placeholder = "monthlyDeposits"
+                placeholder = "Monthly deposit"
                 if (monthlyDeposit.isNotEmpty()) value = monthlyDeposit
             }
         }
@@ -54,11 +55,11 @@ fun Route.stokkRoute(): Route = route("/stokk") {
     get { call.respondHtmlShell { section { stokkForm() } } }
     post {
         val params = call.receiveParameters()
-        val years = params["year"]?.toInt() ?: 0
-        val startAmount = params["startAmount"]?.toDouble() ?: 0.0
-        val interest = params["interest"]?.toDouble() ?: 0.0
-        val monthlyDeposit = params["monthlyDeposits"]?.toInt() ?: 0
-        val compoundedData = StokkHelper.compoundInterest(
+        val years = params["year"]?.toIntOrNull() ?: 0
+        val startAmount = params["startAmount"]?.toDoubleOrNull() ?: 0.0
+        val interest = params["interest"]?.toDoubleOrNull() ?: 0.0
+        val monthlyDeposit = params["monthlyDeposits"]?.toIntOrNull() ?: 0
+        val compoundedData = StokkHelper.compoundInterestMonthByMonth(
             years, startAmount,
             interest / 100 + 1.0, monthlyDeposit
         )
@@ -66,16 +67,16 @@ fun Route.stokkRoute(): Route = route("/stokk") {
         call.respondHtmlShell {
             section {
                 stokkForm(
-                    params["year"]!!,
-                    params["startAmount"]!!,
-                    params["interest"]!!,
-                    params["monthlyDeposits"]!!
+                        years.toString(),
+                        startAmount.toString(),
+                        interest.toString(),
+                        monthlyDeposit.toString()
                 )
             }
             section {
                 aside {
                     h3 { +"Result: " }
-                    +compoundedData.roundToInt().toString()
+                    +compoundedData.last().roundToInt().toString()
                 }
             }
         }

@@ -47,14 +47,6 @@ fun Route.apiRoute(redirections: MutableMap<String, String>): Route = route("/ap
     }
 
     /**
-     * POST: /api/stokk
-     */
-/*    post("/stokk") {
-        val compound = call.receiveOrNull<CompoundInput>() ?: throw InvalidInputException("POST /stokk something went wrong")
-        call.respond((compound))
-    }*/
-
-    /**
      * POST: /api/url
      *  {url: string} --> {result: string} (result is the hash)
      */
