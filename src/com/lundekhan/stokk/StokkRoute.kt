@@ -76,7 +76,7 @@ fun Route.stokkRoute(): Route = route("/stokk") {
             section {
                 aside {
                     h3 { +"Result: " }
-                    +compoundedData.last().roundToInt().toString()
+                    +compoundedData.lastOrNull()?.roundToInt()?.toString() ?: "0.0"
                 }
             }
         }
