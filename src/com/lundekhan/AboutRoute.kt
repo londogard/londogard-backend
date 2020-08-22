@@ -8,7 +8,7 @@ import io.ktor.routing.get
 import kotlinx.html.*
 
 fun Route.aboutRoute(): Route = get("/about") {
-    call.respondHtmlShell {
+    call.respondHtmlShell("About") {
         header {
             h2 { +"About Londogard" }
             p { +"We aim to have fun and as a starter the goal is to provide Natural Language Processing (NLP) solutions for the Raspberry Pi!" }

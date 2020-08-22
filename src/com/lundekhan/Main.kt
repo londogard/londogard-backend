@@ -116,7 +116,7 @@ fun Application.module() {
     }
 
     routing {
-        get { call.respondHtmlShell(markdownSupport = true) { blogOverview(db) } }
+        get { call.respondHtmlShell("NLP products on a Raspberry Pi", markdownSupport = true) { blogOverview(db) } }
         get("/github") { call.respondRedirect("https://github.com/londogard/") }
         get("/apps") { call.respondRedirect("https://play.google.com/store/apps/developer?id=Londogard") }
 

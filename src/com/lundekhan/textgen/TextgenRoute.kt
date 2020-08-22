@@ -71,7 +71,7 @@ fun Route.textgenRoute(): Route = route("/textgen") {
             }
         }
 
-    get { call.respondHtmlShell { textgenForm(models.first(), null, "0.2") } }
+    get { call.respondHtmlShell("Text Generation") { textgenForm(models.first(), null, "0.2") } }
     post {
         val params = call.receiveParameters()
         val modelName = params["model"]
@@ -87,7 +87,7 @@ fun Route.textgenRoute(): Route = route("/textgen") {
         val generatedText = withContext(Dispatchers.Default) {
             languageModel.generateText(params["seed"]!!, params["tokens"]!!.toInt(), params["temperature"]!!.toDouble())
         }
-        call.respondHtmlShell { // TODO make nullable inputs and default in template
+        call.respondHtmlShell("Text Generation") { // TODO make nullable inputs and default in template
             textgenForm(params["model"]!!, params["seed"]!!, params["temperature"]!!, params["tokens"]!!)
             section {
                 aside {

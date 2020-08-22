@@ -19,14 +19,14 @@ fun Route.blogRoute(): Route = route("/blog") {
     val flavor = GFMFlavourDescriptor()
     val parser = MarkdownParser(flavor)
 
-    get { call.respondHtmlShell { blogOverview(db) } }
+    get { call.respondHtmlShell("Blogs") { blogOverview(db) } }
     get("/{id}") {
         val id = call.parameters["id"]?.toLong() ?: throw InvalidRouteException()
         val blog = BlogHelper.getById(id, db) ?: throw InvalidRouteException("Blog $id does not exist")
         val parsedTree = parser.buildMarkdownTreeFromString(blog.blogBody)
         val html = HtmlGenerator(blog.blogBody, parsedTree, flavor).generateHtml()
 
-        call.respondHtmlShell(markdownSupport = true) {
+        call.respondHtmlShell("Blogs", markdownSupport = true) {
             h2 { +blog.title }
             unsafe { raw(html) }
         }
