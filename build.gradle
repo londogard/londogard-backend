@@ -73,7 +73,7 @@ dependencies {
 
     implementation 'org.mindrot:jbcrypt:0.4'
 
-    implementation 'com.rometools:rome:1.13.0'
+    implementation 'com.rometools:rome:1.15.0'
 
     testImplementation "io.ktor:ktor-server-test-host:$ktor_version"
     testImplementation "org.amshove.kluent:kluent:$kluent_version"
