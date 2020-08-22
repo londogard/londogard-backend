@@ -71,7 +71,7 @@ dependencies {
     implementation "com.github.haifengl:smile-nlp:$smile_version"
     implementation "com.github.haifengl:smile-kotlin:$smile_version"
 
-    implementation 'org.mindrot:jbcrypt:0.4'
+    implementation 'org.mindrot:jbcrypt:0.4-atlassian-1'
 
     implementation 'com.rometools:rome:1.15.0'
 
