@@ -4,7 +4,9 @@ import com.londogard.textgen.languagemodels.LanguageModel
 import kotlinx.serialization.ExperimentalSerializationApi
 import java.nio.file.Paths
 
-
+/**
+ * [[LanguageModelHelper]] is a util to accomodate LanguageModels. Will include timeout etc in the future.
+ */
 @ExperimentalSerializationApi
 object LanguageModelHelper {
     private val modelRootPath = Paths.get(System.getProperty("user.home"), ".languagemodels")
