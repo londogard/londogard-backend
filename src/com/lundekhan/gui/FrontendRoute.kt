@@ -12,8 +12,9 @@ import com.lundekhan.urlShort
 import io.ktor.routing.Route
 import io.ktor.routing.Routing
 import io.ktor.routing.route
-import kotlinx.serialization.ImplicitReflectionSerializer
+import kotlinx.serialization.ExperimentalSerializationApi
 
+@ExperimentalSerializationApi
 fun Routing.frontendRoute(
     redirectionMap: MutableMap<String, String>,
     lines: List<String>

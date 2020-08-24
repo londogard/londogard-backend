@@ -10,8 +10,7 @@ import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.server.testing.*
 import io.ktor.util.InternalAPI
 import io.ktor.util.KtorExperimentalAPI
-import kotlinx.serialization.ImplicitReflectionSerializer
-
+import kotlinx.serialization.ExperimentalSerializationApi
 
 val testUser = """{"name":  "lunde", "password": "123abc"}"""
 val testUserTwo = """{"name":  "lunde", "password": "123"}"""
@@ -23,10 +22,10 @@ internal fun TestApplicationRequest.addJwtHeader(): Unit = addHeader("Authorizat
 
 internal fun getToken() = JwtConfig.makeToken(User(1, "lol"))
 
+@ExperimentalSerializationApi
 @KtorExperimentalLocationsAPI
 @KtorExperimentalAPI
 @InternalAPI
-@ImplicitReflectionSerializer
 internal fun withServer(block: TestApplicationEngine.() -> Unit) {
     withTestApplication({ module() }, block)
 }
@@ -44,6 +43,7 @@ fun TestApplicationEngine.makeLoginRequest(user: String = testUser): TestApplica
     addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
     setBody(user)
 }
+
 @InternalAPI
 val text = """Skip to content
 Pull requests

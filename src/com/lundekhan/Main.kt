@@ -32,7 +32,7 @@ import io.ktor.routing.routing
 import io.ktor.util.InternalAPI
 import io.ktor.util.KtorExperimentalAPI
 import io.ktor.util.toLocalDateTime
-import kotlinx.serialization.ImplicitReflectionSerializer
+import kotlinx.serialization.ExperimentalSerializationApi
 import org.koin.ktor.ext.Koin
 import org.koin.ktor.ext.inject
 import java.time.LocalDateTime
@@ -46,8 +46,8 @@ fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 data class LundeNetSession(val userId: String)
 
 
+@ExperimentalSerializationApi
 @KtorExperimentalAPI
-@ImplicitReflectionSerializer
 @KtorExperimentalLocationsAPI
 @InternalAPI
 @Suppress("unused") // Referenced in application.conf

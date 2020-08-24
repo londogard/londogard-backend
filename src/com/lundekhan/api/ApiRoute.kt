@@ -1,8 +1,7 @@
 package com.lundekhan.api
 
 import com.londogard.summarize.summarizers.Summarizer
-import com.londogard.textgen.LanguageModel
-import com.londogard.textgen.PretrainedModels
+import com.londogard.textgen.SimpleTextGeneration
 import com.lundekhan.*
 import com.lundekhan.billsplitter.PostPersonPayments
 import com.lundekhan.billsplitter.splitBills
@@ -11,6 +10,7 @@ import com.lundekhan.blog.BlogPost
 import com.lundekhan.blog.BlogPostOpt
 import com.lundekhan.summarizer.SummarizeReq
 import com.lundekhan.summarizer.summarize
+import com.lundekhan.textgen.LanguageModelHelper
 import com.lundekhan.textgen.TextGenInput
 import io.ktor.application.call
 import io.ktor.auth.authenticate
@@ -25,9 +25,11 @@ import io.ktor.routing.route
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.ExperimentalSerializationApi
 import org.koin.core.qualifier.named
 import org.koin.ktor.ext.inject
 
+@ExperimentalSerializationApi
 fun Route.apiRoute(redirections: MutableMap<String, String>): Route = route("/api") {
     val db by inject<Database>()
     /**
@@ -59,7 +61,7 @@ fun Route.apiRoute(redirections: MutableMap<String, String>): Route = route("/ap
         call.respond(resultResponse(hash))
     }
 
-    route ("/blog") {
+    route("/blog") {
         get { call.respond(BlogHelper.getAllBlogs(db)) }
         get("/{id}") {
             val id = call.parameters["id"]?.toLong() ?: throw InvalidRouteException()
@@ -112,19 +114,12 @@ fun Route.apiRoute(redirections: MutableMap<String, String>): Route = route("/ap
     }
 
     route("/textgen") {
-        val languageModel by inject<LanguageModel>()
-        var currentModel: String = PretrainedModels.SHAKESPEARE.name
-        val models by lazy {
-            PretrainedModels
-                .values()
-                .filterNot { it == PretrainedModels.CUSTOM }
-                .map { it.name }
-        }
-
         post {
             val seedText = call.receive<TextGenInput>().text
             val genText = withContext(Dispatchers.Default) {
-                languageModel.generateText(seedText, 150, 0.3)
+                SimpleTextGeneration
+                    .generateText(LanguageModelHelper.getRelevantLanguageModel(""), seed = seedText)
+                    .joinToString()
             }
 
             call.respond(resultResponse(genText))
@@ -133,23 +128,24 @@ fun Route.apiRoute(redirections: MutableMap<String, String>): Route = route("/ap
         post("/{model}") {
             val seed = call.receive<TextGenInput>()
             val modelName = call.parameters["model"]
-
-            if (currentModel != modelName && modelName != null) {
-                currentModel = modelName
-                val model = PretrainedModels
-                    .values()
-                    .find { it.name == modelName }
-                    ?: throw InvalidRouteException("Model '${call.parameters["model"]}' does not exist.")
-                languageModel.changeModelToPretrained(model)
-            }
+            val lm = LanguageModelHelper.LanguageModels
+                .find { it == modelName }
+                ?: throw InvalidRouteException("Model '${call.parameters["model"]}' does not exist.")
 
             val generatedText = withContext(Dispatchers.Default) {
-                languageModel.generateText(seed.text, seed.tokens, seed.temperature)
+                SimpleTextGeneration
+                    .generateText(
+                        LanguageModelHelper.getRelevantLanguageModel(lm),
+                        numTokens = seed.tokens,
+                        temperature = seed.temperature,
+                        seed = seed.text
+                    )
+                    .joinToString()
             }
 
             call.respond(resultResponse(generatedText))
         }
 
-        get("/models") { call.respond(ResultResponseArray(models)) }
+        get("/models") { call.respond(ResultResponseArray(LanguageModelHelper.LanguageModels)) }
     }
 }
