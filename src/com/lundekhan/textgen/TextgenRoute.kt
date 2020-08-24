@@ -1,11 +1,10 @@
 package com.lundekhan.textgen
 
-import com.londogard.textgen.LanguageModel
-import com.londogard.textgen.PretrainedModels
-import com.lundekhan.InvalidRouteException
+import com.londogard.textgen.SimpleTextGeneration
 import com.lundekhan.gui.HtmlTemplates.respondHtmlShell
-import io.ktor.application.call
-import io.ktor.request.receiveParameters
+import com.lundekhan.textgen.LanguageModelHelper.LanguageModels
+import io.ktor.application.*
+import io.ktor.request.*
 import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.post
@@ -13,20 +12,12 @@ import io.ktor.routing.route
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.html.*
-import org.koin.ktor.ext.inject
+import kotlinx.serialization.ExperimentalSerializationApi
 
 internal data class TextGenInput(val text: String, val temperature: Double = 0.3, val tokens: Int = 150)
 
+@ExperimentalSerializationApi
 fun Route.textgenRoute(): Route = route("/textgen") {
-    val languageModel by inject<LanguageModel>()
-    var currentModel: String = PretrainedModels.SHAKESPEARE.name
-    val models by lazy {
-        PretrainedModels
-            .values()
-            .filterNot { it == PretrainedModels.CUSTOM }
-            .map { it.name }
-    }
-
     fun MAIN.textgenForm(selectedItem: String, currentText: String?, temperature: String, tokens: String = "10"): Unit =
         section {
             form(method = FormMethod.post) {
@@ -43,7 +34,7 @@ fun Route.textgenRoute(): Route = route("/textgen") {
                 section {
                     select {
                         name = "model"
-                        (listOf(selectedItem) + models.filterNot { it == selectedItem }).forEach { modelName ->
+                        (listOf(selectedItem) + LanguageModels.filterNot { it == selectedItem }).forEach { modelName ->
                             option {
                                 value = modelName
                                 +modelName
@@ -71,21 +62,21 @@ fun Route.textgenRoute(): Route = route("/textgen") {
             }
         }
 
-    get { call.respondHtmlShell("Text Generation") { textgenForm(models.first(), null, "0.2") } }
+    get { call.respondHtmlShell("Text Generation") { textgenForm(LanguageModels.first(), null, "0.2") } }
+
     post {
         val params = call.receiveParameters()
-        val modelName = params["model"]
-        if (currentModel != modelName && modelName != null) {
-            currentModel = modelName
-            val model = PretrainedModels
-                .values()
-                .find { it.name == modelName }
-                ?: throw InvalidRouteException("Model '${call.parameters["model"]}' does not exist.")
-            languageModel.changeModelToPretrained(model)
-        }
+        val modelName = params["model"] ?: LanguageModels.first()
+        val languageModel = LanguageModelHelper.getRelevantLanguageModel(modelName)
 
         val generatedText = withContext(Dispatchers.Default) {
-            languageModel.generateText(params["seed"]!!, params["tokens"]!!.toInt(), params["temperature"]!!.toDouble())
+            val numTokens = params["tokens"]?.let(String::toIntOrNull) ?: 250
+            val seed = params["seed"] ?: ""
+            val temperature = params["temperature"]?.let(String::toDoubleOrNull) ?: 0.2
+
+            SimpleTextGeneration
+                .generateText(languageModel, numTokens = numTokens, temperature = temperature, seed = seed)
+                .joinToString()
         }
         call.respondHtmlShell("Text Generation") { // TODO make nullable inputs and default in template
             textgenForm(params["model"]!!, params["seed"]!!, params["temperature"]!!, params["tokens"]!!)

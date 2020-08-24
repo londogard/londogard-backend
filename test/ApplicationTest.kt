@@ -14,7 +14,7 @@ import io.ktor.server.testing.handleRequest
 import io.ktor.server.testing.setBody
 import io.ktor.util.InternalAPI
 import io.ktor.util.KtorExperimentalAPI
-import kotlinx.serialization.ImplicitReflectionSerializer
+import kotlinx.serialization.ExperimentalSerializationApi
 import org.amshove.kluent.shouldBe
 import org.koin.ktor.ext.inject
 import kotlin.test.BeforeTest
@@ -23,9 +23,9 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 @KtorExperimentalAPI
-@ImplicitReflectionSerializer
 @KtorExperimentalLocationsAPI
 @InternalAPI
+@ExperimentalSerializationApi
 class ApplicationTest {
     @BeforeTest
     fun cleanup() {
