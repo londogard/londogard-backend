@@ -49,7 +49,7 @@ dependencies {
     implementation "ch.qos.logback:logback-classic:$logback_version"
 
     implementation 'com.londogard:summarize-kt:1.2.0'
-    implementation "com.londogard:text-gen-kt:1.0.2-beta"
+    implementation "com.londogard:text-gen-kt:1.1.0"
     implementation "com.londogard:fuzzy-match-kt:1.0.1"
     implementation "com.londogard:stokk:0.1.0"
 
