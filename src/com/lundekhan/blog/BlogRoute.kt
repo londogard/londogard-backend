@@ -19,14 +19,14 @@ fun Route.blogRoute(): Route = route("/blog") {
     val flavor = GFMFlavourDescriptor()
     val parser = MarkdownParser(flavor)
 
-    get { call.respondHtmlShell("Blogs") { blogOverview(db) } }
+    get { call.respondHtmlShell("Blogs & TILs") { blogOverview(db) } }
     get("/{id}") {
         val id = call.parameters["id"]?.toLong() ?: throw InvalidRouteException()
-        val blog = BlogHelper.getById(id, db) ?: throw InvalidRouteException("Blog $id does not exist")
+        val blog = BlogHelper.getById(id, db) ?: throw InvalidRouteException("Blog or TIL $id does not exist")
         val parsedTree = parser.buildMarkdownTreeFromString(blog.blogBody)
         val html = HtmlGenerator(blog.blogBody, parsedTree, flavor).generateHtml()
 
-        call.respondHtmlShell("Blogs", markdownSupport = true) {
+        call.respondHtmlShell(blog.title, markdownSupport = true) {
             h2 { +blog.title }
             unsafe { raw(html) }
         }
@@ -34,7 +34,7 @@ fun Route.blogRoute(): Route = route("/blog") {
 }
 
 fun MAIN.blogOverview(db: Database): Unit = section {
-    header { h2 { +"\uD83D\uDCDD Blogs" } }
+    header { h2 { +"\uD83D\uDCDD Blogs & TILs" } }
     BlogHelper
         .getAllBlogs(db)
         .forEach { Card(it.title, { +it.summary }, it.date, url = "/blog/${it.id}") }
