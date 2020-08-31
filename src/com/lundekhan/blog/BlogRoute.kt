@@ -2,8 +2,8 @@ package com.lundekhan.blog
 
 import com.lundekhan.Database
 import com.lundekhan.InvalidRouteException
-import com.lundekhan.gui.HtmlTemplates.Card
 import com.lundekhan.gui.HtmlTemplates.respondHtmlShell
+import com.lundekhan.gui.card
 import io.ktor.application.call
 import io.ktor.routing.Route
 import io.ktor.routing.get
@@ -33,11 +33,24 @@ fun Route.blogRoute(): Route = route("/blog") {
     }
 }
 
-fun MAIN.blogOverview(db: Database): Unit = section {
+fun MAIN.blogOverview(db: Database, numItems: Int? = null): Unit = section {
     header { h2 { +"\uD83D\uDCDD Blogs & TILs" } }
-    BlogHelper
-        .getAllBlogs(db)
-        .forEach { Card(it.title, { +it.summary }, it.date, url = "/blog/${it.id}") }
+    card("Blog", {
+        section {
+            BlogHelper
+                .getAllBlogs(db)
+                .let { blogs -> if (numItems != null) blogs.take(numItems) else blogs }
+                .forEach { card(it.title, { +it.summary }, it.date, url = "/blog/${it.id}") }
+        }
+    })
+    card("TILs", {
+        section {
+            BlogHelper
+                .getAllBlogs(db)
+                .let { blogs -> if (numItems != null) blogs.take(numItems) else blogs }
+                .forEach { card(it.title, { +it.summary }, it.date, url = "/blog/${it.id}") }
+        }
+    })
 }
 
 data class BlogPostOpt(

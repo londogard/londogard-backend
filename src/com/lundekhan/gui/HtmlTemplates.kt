@@ -17,17 +17,6 @@ object HtmlTemplates {
         Header("about.", "/about")
     )
 
-    fun SECTION.Card(
-        title: String, body: ASIDE.() -> Unit, date: String? = null,
-        image: String? = null, url: String? = null
-    ): Unit = aside {
-        style = "width:var(--width-card-wide)"
-        image?.let { img(src = it) { height = "150" } }
-        h3 { +title }
-        body()
-        url?.let { p { a(href = it) { em { +"More↗" } } } }
-    }
-
     suspend fun ApplicationCall.respondHtmlShell(
         title: String,
         markdownSupport: Boolean = false,
@@ -107,19 +96,4 @@ object HtmlTemplates {
             }
         }
     }
-
-    fun SECTION.numberInput(
-        min: Int? = null,
-        max: Int? = null,
-        step: Double? = null,
-        value: String? = null,
-        name: String
-    ) =
-        numberInput(name = name) {
-            min?.let { this.min = it.toString() }
-            max?.let { this.max = it.toString() }
-            step?.let { this.step = it.toString() }
-            value?.let { this.value = it }
-        }
-
 }

@@ -13,6 +13,13 @@ object BlogHelper {
         .map { blog -> FullBlog(blog.title, blog.summary, blog.blog_body, blog.category,
             blog.date.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME), blog.blog_id) }
 
+    fun getNBlogs(db: Database, n: Long, offset: Int = 0): List<FullBlog> = db.blogQueries
+        .selectN(n)
+        .executeAsList()
+        .asReversed()
+        .map { blog -> FullBlog(blog.title, blog.summary, blog.blog_body, blog.category,
+            blog.date.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME), blog.blog_id) }
+
     fun getById(id: Long, db: Database): FullBlog? = db.blogQueries
         .selectById(id)
         .executeAsOneOrNull()
