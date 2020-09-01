@@ -25,7 +25,7 @@ fun Configuration.getExceptionResponses() {
     exception<UserCreationException> { exception ->
         call.respond(HttpStatusCode.BadRequest, resultResponse(exception.message ?: unknownError))
     }
-    exception<SQLException> {
-        call.respond(HttpStatusCode.BadRequest, resultResponse("Something went wrong with request."))
+    exception<SQLException> { exception ->
+        call.respond(HttpStatusCode.BadRequest, resultResponse("Something went wrong with request. ${exception.message}"))
     }
 }

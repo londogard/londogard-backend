@@ -13,12 +13,13 @@ import org.intellij.markdown.html.HtmlGenerator
 import org.intellij.markdown.parser.MarkdownParser
 import org.koin.ktor.ext.inject
 
-fun Route.blogRoute(): Route = route("/blog") {
+/** [tilRoute] is the Today I Learned Route. */
+fun Route.tilRoute(): Route = route("/til") {
     val db by inject<Database>()
     val flavor = GFMFlavourDescriptor()
     val parser = MarkdownParser(flavor)
 
-    get { call.respondHtmlShell("Blogs & TILs") { blogOverview(db) } }
+    get { call.respondHtmlShell("TILs") { tilOverview(db) } }
     get("/{id}") {
         val id = call.parameters["id"]?.toLong() ?: throw InvalidRouteException()
         val blog = BlogHelper.getById(id, db) ?: throw InvalidRouteException("Blog or TIL $id does not exist")
@@ -32,31 +33,19 @@ fun Route.blogRoute(): Route = route("/blog") {
     }
 }
 
-fun MAIN.blogOverview(db: Database, numItems: Int? = null): Unit = section {
-    header { h2 { +"\uD83D\uDCDD Blogs" } }
+fun MAIN.tilOverview(db: Database, numItems: Int? = null): Unit = section {
+    header { h2 { +"\uD83D\uDCDD TILs" } }
     section {
         db.blogQueries
-            .let { query -> if (numItems != null) query.selectNBlogs(numItems.toLong()) else query.selectAllBlogs() }
+            .let { query -> if (numItems != null) query.selectNTILs(numItems.toLong()) else query.selectAllTILs() }
             .executeAsList()
-            .forEach { blog -> wideCard(blog.title, { +blog.summary }, blog.date.simpleFormat(), url = "/blog/${blog.blog_id}") }
+            .forEach { blog ->
+                wideCard(
+                    blog.title,
+                    { +blog.summary },
+                    blog.date.simpleFormat(),
+                    url = "/til/${blog.blog_id}"
+                )
+            }
     }
 }
-
-data class BlogPostOpt(
-    val id: Long,
-    val title: String?,
-    val summary: String?,
-    val blogBody: String?,
-    val category: List<String>?,
-    val til: Boolean?
-)
-
-data class BlogPost(val title: String, val summary: String, val blogBody: String, val category: List<String>, val til: Boolean)
-data class FullBlog(
-    val title: String,
-    val summary: String,
-    val blogBody: String,
-    val category: List<String>,
-    val date: String,
-    val id: Long
-)

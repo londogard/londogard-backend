@@ -7,22 +7,47 @@ CREATE TABLE blog (
     summary TEXT NOT NULL,
     date TEXT as LocalDateTime NOT NULL,
     blog_body TEXT NOT NULL,
-    category TEXT as List<String> NOT NULL
+    category TEXT as List<String> NOT NULL,
+    til INTEGER AS Boolean DEFAULT 0
 );
 
 selectAll:
-SELECT * FROM blog;
+SELECT * FROM blog
+ORDER BY date DESC;
 
 selectN:
 SELECT * FROM blog
+ORDER BY date DESC
+LIMIT ?;
+
+selectAllBlogs:
+SELECT * FROM blog
+WHERE til == 0
+ORDER BY date DESC;
+
+selectNBlogs:
+SELECT * FROM blog
+WHERE til == 0
+ORDER BY date DESC
+LIMIT ?;
+
+selectAllTILs:
+SELECT * FROM blog
+WHERE til == 1
+ORDER BY date DESC;
+
+selectNTILs:
+SELECT * FROM blog
+WHERE til == 1
+ORDER BY date DESC
 LIMIT ?;
 
 insert:
-INSERT INTO blog(title, summary, date, blog_body, category)
-VALUES(?, ?, ?, ?, ?);
+INSERT INTO blog(title, summary, date, blog_body, category, til)
+VALUES(?, ?, ?, ?, ?, ?);
 
 insertFull:
-INSERT INTO blog(title, summary, date, blog_body, category)
+INSERT INTO blog(title, summary, date, blog_body, category, til)
 VALUES ?;
 
 selectById:

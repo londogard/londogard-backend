@@ -17,6 +17,7 @@ import io.ktor.util.KtorExperimentalAPI
 import kotlinx.serialization.ExperimentalSerializationApi
 import org.amshove.kluent.shouldBe
 import org.koin.ktor.ext.inject
+
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -30,10 +31,12 @@ class ApplicationTest {
     @BeforeTest
     fun cleanup() {
         withServer {
-            this.application.inject<Database>().value.let {
-                it.blogQueries.drop()
-                it.userQueries.drop()
-                it.urlQueries.drop()
+            val db by this.application.inject<Database>()
+
+            db.apply {
+                blogQueries.drop()
+                userQueries.drop()
+                urlQueries.drop()
             }
         }
     }
@@ -129,7 +132,7 @@ class ApplicationTest {
             addJsonHeader()
             setBody(
                 jacksonObjectMapper()
-                    .writeValueAsString(BlogPost("Hello world", "1.2.3", "123456789", listOf("TRENDING")))
+                    .writeValueAsString(BlogPost("Hello world", "1.2.3", "123456789", listOf("TRENDING"), til = false))
             )
         }
         req.requestHandled shouldBe true

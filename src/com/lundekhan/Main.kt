@@ -5,6 +5,7 @@ import com.lundekhan.api.apiRoute
 import com.lundekhan.auth.JwtConfig
 import com.lundekhan.auth.authRoute
 import com.lundekhan.blog.blogOverview
+import com.lundekhan.blog.indexRoute
 import com.lundekhan.gui.HtmlTemplates.respondHtmlShell
 import com.lundekhan.gui.frontendRoute
 import com.lundekhan.jwtauth.UserSource
@@ -116,7 +117,7 @@ fun Application.module() {
     }
 
     routing {
-        get { call.respondHtmlShell("NLP products on a Raspberry Pi", markdownSupport = true) { blogOverview(db) } }
+        indexRoute()
         get("/github") { call.respondRedirect("https://github.com/londogard/") }
         get("/apps") { call.respondRedirect("https://play.google.com/store/apps/developer?id=Londogard") }
 

@@ -3,6 +3,7 @@ package com.lundekhan
 import com.londogard.fuzzymatch.FuzzyMatcher
 import com.londogard.fuzzymatch.ScoreConfig
 import com.londogard.summarize.summarizers.Summarizer
+import com.lundekhan.DbHelper.createDatabase
 import com.squareup.sqldelight.db.SqlDriver
 import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver
 import org.koin.core.module.Module
