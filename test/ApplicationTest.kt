@@ -26,6 +26,7 @@ import kotlin.test.assertTrue
 @KtorExperimentalAPI
 @KtorExperimentalLocationsAPI
 @InternalAPI
+@ExperimentalStdlibApi
 @ExperimentalSerializationApi
 class ApplicationTest {
     @BeforeTest
