@@ -15,6 +15,7 @@ import io.ktor.routing.Routing
 import io.ktor.routing.route
 import kotlinx.serialization.ExperimentalSerializationApi
 
+@ExperimentalStdlibApi
 @ExperimentalSerializationApi
 fun Routing.frontendRoute(
     redirectionMap: MutableMap<String, String>,

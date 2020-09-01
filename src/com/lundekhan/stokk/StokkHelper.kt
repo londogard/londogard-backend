@@ -9,8 +9,11 @@ object StokkHelper {
 
     //TODO create a graph using this method
     @ExperimentalStdlibApi
-    fun compoundInterestMonthByMonth(years: Int, startAmount: Double, interest: Double, monthlyDeposit: Int): List<Double> =
-        (0 until years*12).scan(startAmount) { acc, _ -> acc + (acc + monthlyDeposit) * interest.pow(month) }
+    fun compoundInterestMonthByMonth(years: Int, startAmount: Double, interest: Double, monthlyDeposit: Int): List<Double> {
+        val s = (0 until years*12).scan(startAmount) { acc, _ -> (acc + monthlyDeposit) * interest.pow(month) }
+        println(s)
+        return s
+    }
 
     // Return amount of months you can withdraw X amount of money each month
     fun amountOfMonthsWithdrawal(startAmount: Double = 0.0, interest: Double = 1.0, monthlyWithdrawal: Int = 0): Int {
