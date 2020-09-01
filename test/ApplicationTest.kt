@@ -135,7 +135,6 @@ class ApplicationTest {
                     .writeValueAsString(BlogPost("Hello world", "1.2.3", "123456789", listOf("TRENDING"), til = false))
             )
         }
-        println(req.response.content)
         req.requestHandled shouldBe true
         req.response.status() shouldBe HttpStatusCode.OK
         val reqTwo = handleRequest {
