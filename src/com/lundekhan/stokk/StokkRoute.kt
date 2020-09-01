@@ -52,7 +52,7 @@ fun Route.stokkRoute(): Route = route("/stokk") {
         }
         postButton { +"Calculate" }
     }
-    get { call.respondHtmlShell { section { stokkForm() } } }
+    get { call.respondHtmlShell("") { section { stokkForm() } } }
     post {
         val params = call.receiveParameters()
         val years = params["year"]?.toIntOrNull() ?: 0
@@ -64,7 +64,8 @@ fun Route.stokkRoute(): Route = route("/stokk") {
             interest / 100 + 1.0, monthlyDeposit
         )
 
-        call.respondHtmlShell {
+        call.respondHtmlShell("") {
+
             section {
                 stokkForm(
                         years.toString(),
