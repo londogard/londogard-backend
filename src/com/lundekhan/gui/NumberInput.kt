@@ -3,6 +3,7 @@ package com.lundekhan.gui
 import kotlinx.html.SECTION
 import kotlinx.html.numberInput
 
+/** [SECTION.numberInput] is a simplified numberInput for SECTIONs. */
 fun SECTION.numberInput(
     min: Int? = null,
     max: Int? = null,

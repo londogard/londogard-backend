@@ -1,6 +1,8 @@
+
 package com.lundekhan.textgen
 
 import com.londogard.textgen.SimpleTextGeneration
+import com.londogard.textgen.search.TopKSampleSearch
 import com.lundekhan.gui.HtmlTemplates.respondHtmlShell
 import com.lundekhan.textgen.LanguageModelHelper.LanguageModels
 import io.ktor.application.*
@@ -18,7 +20,8 @@ internal data class TextGenInput(val text: String, val temperature: Double = 0.3
 
 @ExperimentalSerializationApi
 fun Route.textgenRoute(): Route = route("/textgen") {
-    fun MAIN.textgenForm(selectedItem: String, currentText: String?, temperature: String, tokens: String = "10"): Unit =
+    val topKSample = TopKSampleSearch(5)
+    fun MAIN.textgenForm(selectedItem: String, currentText: String?, temperature: String, tokens: String = "250"): Unit =
         section {
             form(method = FormMethod.post) {
                 acceptCharset = "utf-8"
@@ -75,7 +78,7 @@ fun Route.textgenRoute(): Route = route("/textgen") {
             val temperature = params["temperature"]?.let(String::toDoubleOrNull) ?: 0.2
 
             SimpleTextGeneration
-                .generateText(languageModel, numTokens = numTokens, temperature = temperature, seed = seed)
+                .generateText(languageModel, numTokens = numTokens, temperature = temperature, seed = seed, searchTechnique = topKSample)
                 .joinToString()
         }
         call.respondHtmlShell("Text Generation") { // TODO make nullable inputs and default in template

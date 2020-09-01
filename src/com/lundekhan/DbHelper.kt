@@ -1,20 +1,47 @@
 package com.lundekhan
 
+import com.lundekhan.Database.Companion.Schema
 import com.lundekhan.data.Blog
 import com.squareup.sqldelight.ColumnAdapter
+import com.squareup.sqldelight.db.SqlCursor
 import com.squareup.sqldelight.db.SqlDriver
 import java.time.LocalDateTime
 
-fun createDatabase(driver: SqlDriver): Database {
-    val listOfStringsAdapter = object : ColumnAdapter<List<String>, String> {
-        override fun decode(databaseValue: String) = databaseValue.split(",")
-        override fun encode(value: List<String>) = value.joinToString(separator = ",")
+object DbHelper {
+    private fun getVersion(driver: SqlDriver): Int {
+        val sqlCursor: SqlCursor = driver.executeQuery(null, "PRAGMA user_version;", 0, null)
+        return (sqlCursor.getLong(0)?.toInt() ?: 0)
+            .also { sqlCursor.close() }
     }
-    val dateTimeAdapter = object : ColumnAdapter<LocalDateTime, String> {
-        override fun decode(databaseValue: String): LocalDateTime = LocalDateTime.parse(databaseValue)
-        override fun encode(value: LocalDateTime): String = value.toString()
+
+    private fun setVersion(driver: SqlDriver, version: Int) {
+        driver.execute(null, String.format("PRAGMA user_version = %d;", version), 0, null)
     }
-    
-    try { Database.Schema.create(driver) } catch (exception: Exception) { println(exception.message) }
-    return Database(driver, blogAdapter = Blog.Adapter(dateTimeAdapter, listOfStringsAdapter))
+
+    fun createDatabase(driver: SqlDriver): Database {
+        val listOfStringsAdapter = object : ColumnAdapter<List<String>, String> {
+            override fun decode(databaseValue: String): List<String> = databaseValue.split(",")
+            override fun encode(value: List<String>): String = value.joinToString(separator = ",")
+        }
+        val dateTimeAdapter = object : ColumnAdapter<LocalDateTime, String> {
+            override fun decode(databaseValue: String): LocalDateTime = LocalDateTime.parse(databaseValue)
+            override fun encode(value: LocalDateTime): String = value.toString()
+        }
+
+        val currentVersion = getVersion(driver)
+        if (currentVersion == 0) {
+            runCatching { Schema.create(driver) }
+                .onFailure { exception -> println(exception.message) }
+            setVersion(driver, 1)
+        } else {
+            val schemaVersion = Schema.version
+            if (schemaVersion > currentVersion) {
+                runCatching { Schema.migrate(driver, currentVersion, schemaVersion) }
+                    .onFailure { exception -> println(exception.message) }
+                setVersion(driver, schemaVersion)
+            }
+        }
+
+        return Database(driver, blogAdapter = Blog.Adapter(dateTimeAdapter, listOfStringsAdapter))
+    }
 }

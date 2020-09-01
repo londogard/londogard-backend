@@ -2,12 +2,11 @@ package com.lundekhan.blog
 
 import com.lundekhan.Database
 import com.lundekhan.InvalidRouteException
+import com.lundekhan.blog.BlogHelper.simpleFormat
 import com.lundekhan.gui.HtmlTemplates.respondHtmlShell
-import com.lundekhan.gui.card
-import io.ktor.application.call
-import io.ktor.routing.Route
-import io.ktor.routing.get
-import io.ktor.routing.route
+import com.lundekhan.gui.wideCard
+import io.ktor.application.*
+import io.ktor.routing.*
 import kotlinx.html.*
 import org.intellij.markdown.flavours.gfm.GFMFlavourDescriptor
 import org.intellij.markdown.html.HtmlGenerator
@@ -34,23 +33,13 @@ fun Route.blogRoute(): Route = route("/blog") {
 }
 
 fun MAIN.blogOverview(db: Database, numItems: Int? = null): Unit = section {
-    header { h2 { +"\uD83D\uDCDD Blogs & TILs" } }
-    card("Blog", {
-        section {
-            BlogHelper
-                .getAllBlogs(db)
-                .let { blogs -> if (numItems != null) blogs.take(numItems) else blogs }
-                .forEach { card(it.title, { +it.summary }, it.date, url = "/blog/${it.id}") }
-        }
-    })
-    card("TILs", {
-        section {
-            BlogHelper
-                .getAllBlogs(db)
-                .let { blogs -> if (numItems != null) blogs.take(numItems) else blogs }
-                .forEach { card(it.title, { +it.summary }, it.date, url = "/blog/${it.id}") }
-        }
-    })
+    header { h2 { +"\uD83D\uDCDD Blogs" } }
+    section {
+        db.blogQueries
+            .let { query -> if (numItems != null) query.selectNBlogs(numItems.toLong()) else query.selectAllBlogs() }
+            .executeAsList()
+            .forEach { blog -> wideCard(blog.title, { +blog.summary }, blog.date.simpleFormat(), url = "/blog/${blog.blog_id}") }
+    }
 }
 
 data class BlogPostOpt(
@@ -58,10 +47,11 @@ data class BlogPostOpt(
     val title: String?,
     val summary: String?,
     val blogBody: String?,
-    val category: List<String>?
+    val category: List<String>?,
+    val til: Boolean?
 )
 
-data class BlogPost(val title: String, val summary: String, val blogBody: String, val category: List<String>)
+data class BlogPost(val title: String, val summary: String, val blogBody: String, val category: List<String>, val til: Boolean)
 data class FullBlog(
     val title: String,
     val summary: String,

@@ -6,6 +6,7 @@ import com.lundekhan.*
 import com.lundekhan.billsplitter.PostPersonPayments
 import com.lundekhan.billsplitter.splitBills
 import com.lundekhan.blog.BlogHelper
+import com.lundekhan.blog.BlogHelper.toFullBlog
 import com.lundekhan.blog.BlogPost
 import com.lundekhan.blog.BlogPostOpt
 import com.lundekhan.summarizer.SummarizeReq
@@ -62,7 +63,10 @@ fun Route.apiRoute(redirections: MutableMap<String, String>): Route = route("/ap
     }
 
     route("/blog") {
-        get { call.respond(BlogHelper.getAllBlogs(db)) }
+        get {
+            val blogs = db.blogQueries.selectAll().executeAsList().toFullBlog()
+            call.respond(blogs)
+        }
         get("/{id}") {
             val id = call.parameters["id"]?.toLong() ?: throw InvalidRouteException()
             BlogHelper.getById(id, db)

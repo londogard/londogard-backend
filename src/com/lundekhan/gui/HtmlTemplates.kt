@@ -7,14 +7,13 @@ import kotlinx.html.*
 data class Header(val title: String, val href: String)
 
 object HtmlTemplates {
+    private const val appStoreUrl = "https://play.google.com/store/apps/developer?id=Londogard"
     private val titles = listOf(
-        Header("blog.", "/blog"),
         Header("smry.", "/smry"),
         Header("textgen.", "/textgen"),
         Header("billsplit.", "/billsplit"),
         Header("urlshort.", "/url"),
         Header("fuzsearch.", "/fuzsearch"),
-        Header("about.", "/about")
     )
 
     suspend fun ApplicationCall.respondHtmlShell(
@@ -87,12 +86,21 @@ object HtmlTemplates {
                 }
             }
             ul {
-                titles.forEach { header -> li { a(href = header.href) { +header.title } } }
-                li {
-                    a(href = "https://play.google.com/store/apps/developer?id=Londogard", target = "_blank") {
-                        +"apps↗️"
+                li { +"Blog & TIL⬇"
+                    ul {
+                        li { a(href = "/blog") { +"blog.️" } }
+                        li { a(href = "/til") { +"TIL.️" } }
                     }
                 }
+                titles.forEach { header -> li { a(href = header.href) { +header.title } } }
+                li {
+                    +"Other⬇️"
+                    ul {
+                        li { a(href = "/about") { +"about.️" } }
+                        li { a(href = appStoreUrl, target = "_blank") { +"apps↗️" } }
+                    }
+                }
+
             }
         }
     }
