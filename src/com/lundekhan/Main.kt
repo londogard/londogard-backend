@@ -47,6 +47,7 @@ fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 data class LundeNetSession(val userId: String)
 
 
+@ExperimentalStdlibApi
 @ExperimentalSerializationApi
 @KtorExperimentalAPI
 @KtorExperimentalLocationsAPI

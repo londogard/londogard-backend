@@ -13,7 +13,7 @@ object HtmlTemplates {
         Header("textgen.", "/textgen"),
         Header("billsplit.", "/billsplit"),
         Header("urlshort.", "/url"),
-        Header("fuzsearch.", "/fuzsearch"),
+        Header("fuzsearch.", "/fuzsearch")
     )
 
     suspend fun ApplicationCall.respondHtmlShell(

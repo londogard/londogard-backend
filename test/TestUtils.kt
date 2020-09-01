@@ -10,7 +10,9 @@ import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.server.testing.*
 import io.ktor.util.InternalAPI
 import io.ktor.util.KtorExperimentalAPI
+import io.ktor.utils.io.core.ExperimentalIoApi
 import kotlinx.serialization.ExperimentalSerializationApi
+import org.koin.dsl.module
 
 val testUser = """{"name":  "lunde", "password": "123abc"}"""
 val testUserTwo = """{"name":  "lunde", "password": "123"}"""
@@ -23,6 +25,7 @@ internal fun TestApplicationRequest.addJwtHeader(): Unit = addHeader("Authorizat
 internal fun getToken() = JwtConfig.makeToken(User(1, "lol"))
 
 @ExperimentalSerializationApi
+@ExperimentalStdlibApi
 @KtorExperimentalLocationsAPI
 @KtorExperimentalAPI
 @InternalAPI
