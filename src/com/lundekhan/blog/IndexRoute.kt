@@ -4,6 +4,7 @@ import com.lundekhan.Database
 import com.lundekhan.blog.BlogHelper.simpleFormat
 import com.lundekhan.gui.HtmlTemplates.respondHtmlShell
 import com.lundekhan.gui.card
+import com.lundekhan.gui.mediumCard
 import io.ktor.application.*
 import io.ktor.routing.*
 import kotlinx.html.*
@@ -20,25 +21,39 @@ fun Route.indexRoute(): Route = route("/") {
             section {
                 header { h2 { +"\uD83D\uDCDD Blogs & TILs" } }
                 aside {
-                    style = "width:var(--width-card-medium)"
                     h3 { a(href = "/blog") { +"Blogs" } }
+                    p { +"A longer post discussing and exploring a subject in depth." }
                     section {
-                        p { +"A longer post discussing and exploring a subject in depth." }
                         db.blogQueries
                             .selectNBlogs(4L)
                             .executeAsList()
-                            .forEach { blog -> card(blog.title, { +blog.summary }, blog.date.simpleFormat(), url = "/blog/${blog.blog_id}") }
+                            .forEach { blog ->
+                                p {
+                                    b { +blog.title }
+                                    br {  }
+                                    +blog.summary
+                                    br {  }
+                                    a(href = "/blog/${blog.blog_id}") { +"More↗" }
+                                }
+                            }
                     }
                 }
                 aside {
-                    style = "width:var(--width-card-medium)"
                     h3 { a(href = "/til") { +"TILs" } }
+                    p { +"A shorter segment of what, why and how." }
                     section {
-                        p { +"A shorter segment of what, why and how." }
                         db.blogQueries
                             .selectNTILs(4L)
                             .executeAsList()
-                            .forEach { blog -> card(blog.title, { +blog.summary }, blog.date.simpleFormat(), url = "/blog/${blog.blog_id}") }
+                            .forEach { blog ->
+                                p {
+                                    b { +blog.title }
+                                    br {  }
+                                    +blog.summary
+                                    br {  }
+                                    a(href = "/blog/${blog.blog_id}") { +"More↗" }
+                                }
+                            }
                     }
                 }
             }

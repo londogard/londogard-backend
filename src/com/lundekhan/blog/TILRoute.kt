@@ -4,6 +4,8 @@ import com.lundekhan.Database
 import com.lundekhan.InvalidRouteException
 import com.lundekhan.blog.BlogHelper.simpleFormat
 import com.lundekhan.gui.HtmlTemplates.respondHtmlShell
+import com.lundekhan.gui.card
+import com.lundekhan.gui.mediumCard
 import com.lundekhan.gui.wideCard
 import io.ktor.application.*
 import io.ktor.routing.*
@@ -40,7 +42,7 @@ fun MAIN.tilOverview(db: Database, numItems: Int? = null): Unit = section {
             .let { query -> if (numItems != null) query.selectNTILs(numItems.toLong()) else query.selectAllTILs() }
             .executeAsList()
             .forEach { blog ->
-                wideCard(
+                card(
                     blog.title,
                     { +blog.summary },
                     blog.date.simpleFormat(),

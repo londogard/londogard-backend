@@ -86,15 +86,15 @@ object HtmlTemplates {
                 }
             }
             ul {
+                titles.forEach { header -> li { a(href = header.href) { +header.title } } }
                 li { +"Blog & TIL⬇"
                     ul {
                         li { a(href = "/blog") { +"blog.️" } }
                         li { a(href = "/til") { +"TIL.️" } }
                     }
                 }
-                titles.forEach { header -> li { a(href = header.href) { +header.title } } }
                 li {
-                    +"Other⬇️"
+                    +"Other⬇"
                     ul {
                         li { a(href = "/about") { +"about.️" } }
                         li { a(href = appStoreUrl, target = "_blank") { +"apps↗️" } }

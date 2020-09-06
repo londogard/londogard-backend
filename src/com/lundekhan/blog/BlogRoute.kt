@@ -4,6 +4,8 @@ import com.lundekhan.Database
 import com.lundekhan.InvalidRouteException
 import com.lundekhan.blog.BlogHelper.simpleFormat
 import com.lundekhan.gui.HtmlTemplates.respondHtmlShell
+import com.lundekhan.gui.card
+import com.lundekhan.gui.mediumCard
 import com.lundekhan.gui.wideCard
 import io.ktor.application.*
 import io.ktor.routing.*
@@ -18,7 +20,7 @@ fun Route.blogRoute(): Route = route("/blog") {
     val flavor = GFMFlavourDescriptor()
     val parser = MarkdownParser(flavor)
 
-    get { call.respondHtmlShell("Blogs & TILs") { blogOverview(db) } }
+    get { call.respondHtmlShell("Blogs") { blogOverview(db) } }
     get("/{id}") {
         val id = call.parameters["id"]?.toLong() ?: throw InvalidRouteException()
         val blog = BlogHelper.getById(id, db) ?: throw InvalidRouteException("Blog or TIL $id does not exist")
@@ -38,7 +40,7 @@ fun MAIN.blogOverview(db: Database, numItems: Int? = null): Unit = section {
         db.blogQueries
             .let { query -> if (numItems != null) query.selectNBlogs(numItems.toLong()) else query.selectAllBlogs() }
             .executeAsList()
-            .forEach { blog -> wideCard(blog.title, { +blog.summary }, blog.date.simpleFormat(), url = "/blog/${blog.blog_id}") }
+            .forEach { blog -> card(blog.title, { +blog.summary }, blog.date.simpleFormat(), url = "/blog/${blog.blog_id}") }
     }
 }
 
