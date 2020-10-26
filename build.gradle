@@ -54,7 +54,7 @@ dependencies {
     implementation "com.londogard:fuzzy-match-kt:1.0.1"
     implementation "com.londogard:stokk:0.1.0"
 
-    implementation 'org.jetbrains:markdown:0.1.45'
+    implementation 'org.jetbrains:markdown:0.2.0.pre-49'
 
     implementation "com.squareup.sqldelight:sqlite-driver:$sqldelight_version"
     implementation "com.squareup.sqldelight:runtime-jvm:$sqldelight_version"
