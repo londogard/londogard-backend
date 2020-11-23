@@ -13,7 +13,7 @@ import org.koin.core.qualifier.named
 import org.koin.ktor.ext.inject
 
 fun summarize(summarizeReq: SummarizeReq, summarizeModel: Summarizer) = when {
-    summarizeReq.ratio is Double -> summarizeModel.summarize(summarizeReq.text, summarizeReq.ratio)
+    summarizeReq.ratio is Double -> summarizeModel.summarize(summarizeReq.text, summarizeReq.ratio / 100.0)
     summarizeReq.lines is Int -> summarizeModel.summarize(summarizeReq.text, summarizeReq.lines)
     else -> summarizeModel.summarize(summarizeReq.text, 0.2)
 }
@@ -83,8 +83,7 @@ fun Route.summarizerRoute(): Route = route("/smry") {
 
     post {
         val params = call.receiveParameters()
-        val summary =
-            summarize(SummarizeReq(params["text"]!!, params["reduction"]!!.toDouble(), null), getModel(params["model"]))
+        val summary = summarize(SummarizeReq(params["text"]!!, params["reduction"]!!.toDouble(), null), getModel(params["model"]))
         val percentage = (summary.length.toDouble() * 100 / params["text"]!!.length).round(1)
         call.respondHtmlShell("Summarizer 'Summarize Articles'") {
             section {

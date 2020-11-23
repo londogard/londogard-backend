@@ -6,13 +6,12 @@ import com.lundekhan.blog.blogRoute
 import com.lundekhan.blog.tilRoute
 import com.lundekhan.fuzzyRoute
 import com.lundekhan.stokkRoute
-import com.lundekhan.rssfeed.rssFeedRoute
 import com.lundekhan.summarizer.summarizerRoute
 import com.lundekhan.textgen.textgenRoute
 import com.lundekhan.urlShort
-import io.ktor.routing.Route
-import io.ktor.routing.Routing
-import io.ktor.routing.route
+import io.ktor.application.*
+import io.ktor.response.*
+import io.ktor.routing.*
 import kotlinx.serialization.ExperimentalSerializationApi
 
 @ExperimentalStdlibApi
@@ -30,5 +29,5 @@ fun Routing.frontendRoute(
     tilRoute()
     fuzzyRoute(lines)
     stokkRoute()
-    rssFeedRoute()
+    get("/rss") { call.respondRedirect("https://blog.londogard.com/feed.xml") }
 }

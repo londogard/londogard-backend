@@ -74,8 +74,6 @@ dependencies {
 
     implementation 'org.mindrot:jbcrypt:0.4'
 
-    implementation 'com.rometools:rome:1.15.0'
-
     testImplementation "io.ktor:ktor-server-test-host:$ktor_version"
     testImplementation "org.amshove.kluent:kluent:$kluent_version"
 }
@@ -94,6 +92,7 @@ configurations {
 }
 jar { duplicatesStrategy = DuplicatesStrategy.EXCLUDE }
 // This task will generate your fat JAR and put it in the ./build/libs/ directory
+
 shadowJar {
     //minimize {
     //    exclude("org.jetbrains.kotlin:.*", "org.koin:.*")
