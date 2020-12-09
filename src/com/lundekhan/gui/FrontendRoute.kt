@@ -2,8 +2,6 @@ package com.lundekhan.gui
 
 import com.lundekhan.aboutRoute
 import com.lundekhan.billsplitter.billsplit
-import com.lundekhan.blog.blogRoute
-import com.lundekhan.blog.tilRoute
 import com.lundekhan.fuzzyRoute
 import com.lundekhan.stokkRoute
 import com.lundekhan.summarizer.summarizerRoute
@@ -25,9 +23,8 @@ fun Routing.frontendRoute(
     aboutRoute()
     summarizerRoute()
     textgenRoute()
-    blogRoute()
-    tilRoute()
     fuzzyRoute(lines)
     stokkRoute()
+    get("/blog") { call.respondRedirect("https://blog.londogard.com", permanent = true) }
     get("/rss") { call.respondRedirect("https://blog.londogard.com/feed.xml") }
 }

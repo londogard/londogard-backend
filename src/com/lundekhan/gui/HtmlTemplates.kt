@@ -13,7 +13,9 @@ object HtmlTemplates {
         Header("textgen.", "/textgen"),
         Header("billsplit.", "/billsplit"),
         Header("urlshort.", "/url"),
-        Header("fuzsearch.", "/fuzsearch")
+        Header("fuzsearch.", "/fuzsearch"),
+        Header("about.", "/about"),
+        Header("Blog & TIL↗", "/blog")
     )
 
     suspend fun ApplicationCall.respondHtmlShell(
@@ -51,10 +53,10 @@ object HtmlTemplates {
                 p {
                     +"Made by "
                     a(href = "https://github.com/londogard/", target = "_blank") { +"Londogard↗️" }
-                        a(href = "/rss") {
-                            style = "float:right"
-                            img(src = "/rss.svg", alt = "rss feed") { height = "20" }
-                        }
+                    a(href = "/rss") {
+                        style = "float:right"
+                        img(src = "/rss.svg", alt = "rss feed") { height = "20" }
+                    }
                     br { }
                 }
             }
@@ -87,21 +89,9 @@ object HtmlTemplates {
             }
             ul {
                 titles.forEach { header -> li { a(href = header.href) { +header.title } } }
-                li { +"Blog & TIL⬇"
-                    ul {
-                        li { a(href = "/blog") { +"blog.️" } }
-                        li { a(href = "/til") { +"TIL.️" } }
-                    }
-                }
-                li {
-                    +"Other⬇"
-                    ul {
-                        li { a(href = "/about") { +"about.️" } }
-                        li { a(href = appStoreUrl, target = "_blank") { +"apps↗️" } }
-                    }
-                }
-
+                li { a(href = appStoreUrl, target = "_blank") { +"apps↗️" } }
             }
+
         }
     }
 }

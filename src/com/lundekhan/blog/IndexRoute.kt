@@ -38,24 +38,6 @@ fun Route.indexRoute(): Route = route("/") {
                             }
                     }
                 }
-                aside {
-                    h3 { a(href = "/til") { +"TILs" } }
-                    p { +"A shorter segment of what, why and how." }
-                    section {
-                        db.blogQueries
-                            .selectNTILs(4L)
-                            .executeAsList()
-                            .forEach { blog ->
-                                p {
-                                    b { +blog.title }
-                                    br {  }
-                                    +blog.summary
-                                    br {  }
-                                    a(href = "/blog/${blog.blog_id}") { +"More↗" }
-                                }
-                            }
-                    }
-                }
             }
         }
     }
