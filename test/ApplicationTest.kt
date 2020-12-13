@@ -1,10 +1,10 @@
-package com.lundekhan
+package com.londogard
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.lundekhan.billsplitter.PersonPayment
-import com.lundekhan.blog.BlogPost
-import com.lundekhan.blog.FullBlog
+import com.londogard.billsplitter.PersonPayment
+import com.londogard.blog.BlogPost
+import com.londogard.blog.FullBlog
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
@@ -15,6 +15,7 @@ import io.ktor.server.testing.setBody
 import io.ktor.util.InternalAPI
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.InternalSerializationApi
 import org.amshove.kluent.shouldBe
 import org.koin.ktor.ext.inject
 
@@ -23,6 +24,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
+@InternalSerializationApi
 @KtorExperimentalAPI
 @KtorExperimentalLocationsAPI
 @InternalAPI

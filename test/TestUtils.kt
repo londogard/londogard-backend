@@ -1,7 +1,7 @@
-package com.lundekhan
+package com.londogard
 
-import com.lundekhan.auth.JwtConfig
-import com.lundekhan.jwtauth.User
+import com.londogard.auth.JwtConfig
+import com.londogard.jwtauth.User
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
@@ -10,9 +10,8 @@ import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.server.testing.*
 import io.ktor.util.InternalAPI
 import io.ktor.util.KtorExperimentalAPI
-import io.ktor.utils.io.core.ExperimentalIoApi
 import kotlinx.serialization.ExperimentalSerializationApi
-import org.koin.dsl.module
+import kotlinx.serialization.InternalSerializationApi
 
 val testUser = """{"name":  "lunde", "password": "123abc"}"""
 val testUserTwo = """{"name":  "lunde", "password": "123"}"""
@@ -24,6 +23,7 @@ internal fun TestApplicationRequest.addJwtHeader(): Unit = addHeader("Authorizat
 
 internal fun getToken() = JwtConfig.makeToken(User(1, "lol"))
 
+@InternalSerializationApi
 @ExperimentalSerializationApi
 @ExperimentalStdlibApi
 @KtorExperimentalLocationsAPI
