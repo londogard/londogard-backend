@@ -1,0 +1,30 @@
+import Priority;
+import java.time.LocalDateTime;
+import kotlin.collections.List;
+
+CREATE TABLE subtask (
+    parent INTEGER,
+    child INTEGER,
+    PRIMARY KEY (parent, child),
+    FOREIGN KEY(parent) REFERENCES mind(mind_id),
+    FOREIGN KEY(child) REFERENCES mind(mind_id)
+);
+
+selectAll:
+SELECT * FROM subtask;
+
+insert:
+INSERT INTO subtask(parent, child)
+VALUES ?;
+
+selectChilds:
+SELECT child FROM subtask WHERE parent LIKE ?;
+
+selectParents:
+SELECT parent FROM subtask WHERE child LIKE ?;
+
+insertOrReplace:
+INSERT OR REPLACE INTO subtask VALUES ?;
+
+drop:
+DELETE FROM subtask;

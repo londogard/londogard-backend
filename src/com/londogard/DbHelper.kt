@@ -1,7 +1,10 @@
 package com.londogard
 
+import Priority
 import com.londogard.Database.Companion.Schema
 import com.londogard.data.Blog
+import com.londogard.data.Mind
+import com.londogard.mind.MindType
 import com.squareup.sqldelight.ColumnAdapter
 import com.squareup.sqldelight.db.SqlCursor
 import com.squareup.sqldelight.db.SqlDriver
@@ -27,6 +30,14 @@ object DbHelper {
             override fun decode(databaseValue: String): LocalDateTime = LocalDateTime.parse(databaseValue)
             override fun encode(value: LocalDateTime): String = value.toString()
         }
+        val mindTypeAdapter = object : ColumnAdapter<MindType, String> {
+            override fun decode(databaseValue: String): MindType = MindType.valueOf(databaseValue)
+            override fun encode(value:MindType): String = value.toString()
+        }
+        val priorityAdapter = object : ColumnAdapter<Priority, String> {
+            override fun decode(databaseValue: String): Priority = Priority.valueOf(databaseValue)
+            override fun encode(value:Priority): String = value.toString()
+        }
 
         val currentVersion = getVersion(driver)
         if (currentVersion == 0) {
@@ -42,6 +53,10 @@ object DbHelper {
             }
         }
 
-        return Database(driver, blogAdapter = Blog.Adapter(dateTimeAdapter, listOfStringsAdapter))
+        return Database(
+            driver,
+            blogAdapter = Blog.Adapter(dateTimeAdapter, listOfStringsAdapter),
+            mindAdapter = Mind.Adapter(dateTimeAdapter, mindTypeAdapter, priorityAdapter, listOfStringsAdapter)
+        )
     }
 }

@@ -70,8 +70,6 @@ dependencies {
     implementation "io.ktor:ktor-locations:$ktor_version"
     implementation "io.ktor:ktor-client-core:$ktor_version"
     implementation "io.ktor:ktor-client-cio:$ktor_version"
-    // implementation "io.ktor:ktor-client-serialization-jvm:$ktor_version"
-    // implementation "net.devrieze:xmlutil-serialization-jvm:0.80.1"
 
     implementation "org.koin:koin-ktor:$koin_version"
 
