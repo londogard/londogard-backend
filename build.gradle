@@ -53,6 +53,7 @@ dependencies {
     implementation "com.londogard:text-gen-kt:1.1.0"
     implementation "com.londogard:fuzzy-match-kt:1.0.1"
     implementation "com.londogard:stokk:0.1.0"
+    implementation 'com.github.londogard:embeddings-kt:usif-SNAPSHOT'
 
     implementation 'org.jetbrains:markdown:0.1.45'
 
@@ -64,14 +65,14 @@ dependencies {
     implementation "io.ktor:ktor-html-builder:$ktor_version"
     implementation "io.ktor:ktor-auth:$ktor_version"
     implementation "io.ktor:ktor-auth-jwt:$ktor_version"
-
     implementation "io.ktor:ktor-jackson:$ktor_version"
-
     implementation "io.ktor:ktor-locations:$ktor_version"
     implementation "io.ktor:ktor-client-core:$ktor_version"
     implementation "io.ktor:ktor-client-cio:$ktor_version"
 
     implementation "org.koin:koin-ktor:$koin_version"
+
+    implementation "org.bytedeco:javacv-platform:1.5.4"
 
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1"
     implementation "org.json:json:20201115"
