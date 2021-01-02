@@ -2,6 +2,7 @@ package com.londogard.gui
 
 import com.londogard.aboutRoute
 import com.londogard.billsplitter.billsplit
+import com.londogard.colorkidz.colorKidz
 import com.londogard.fuzzyRoute
 import com.londogard.stokkRoute
 import com.londogard.summarizer.summarizerRoute
@@ -25,6 +26,7 @@ fun Routing.frontendRoute(
     textgenRoute()
     fuzzyRoute(lines)
     stokkRoute()
+    colorKidz()
     // get("/blog") { call.respondRedirect("https://blog.londogard.com", permanent = true) }
     // get("/rss") { call.respondRedirect("https://blog.londogard.com/feed.xml") }
 }
