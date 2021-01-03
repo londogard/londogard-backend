@@ -9,6 +9,7 @@ import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.route
 import kotlinx.html.*
+import kotlinx.serialization.Serializable
 import org.koin.core.qualifier.named
 import org.koin.ktor.ext.inject
 
@@ -101,4 +102,4 @@ fun Route.summarizerRoute(): Route = route("/smry") {
     }
 }
 
-data class SummarizeReq(val text: String, val ratio: Double?, val lines: Int?)
+@Serializable data class SummarizeReq(val text: String, val ratio: Double? = null, val lines: Int? = null)

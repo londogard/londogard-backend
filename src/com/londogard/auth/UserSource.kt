@@ -1,6 +1,7 @@
 package com.londogard.jwtauth
 
-import io.ktor.auth.*
+import com.londogard.auth.UserPasswordCredential
+
 
 interface UserSource {
 

@@ -6,13 +6,14 @@ import com.londogard.ResultResponse
 import com.londogard.UserCreationException
 import com.londogard.jwtauth.UserSource
 import io.ktor.application.call
-import io.ktor.auth.UserPasswordCredential
+import io.ktor.auth.*
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.routing.Route
 import io.ktor.routing.post
 import io.ktor.routing.route
+import kotlinx.serialization.Serializable
 import org.koin.ktor.ext.inject
 import org.mindrot.jbcrypt.BCrypt
 import java.sql.SQLException
@@ -47,3 +48,5 @@ fun Route.authRoute(userSource: UserSource): Route = route("/user") {
         } catch (exception: SQLException) { throw UserCreationException() }
     }
 }
+
+@Serializable data class UserPasswordCredential(val name: String, val password: String) : Credential

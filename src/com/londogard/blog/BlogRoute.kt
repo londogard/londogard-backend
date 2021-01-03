@@ -8,6 +8,7 @@ import com.londogard.gui.card
 import io.ktor.application.*
 import io.ktor.routing.*
 import kotlinx.html.*
+import kotlinx.serialization.Serializable
 import org.intellij.markdown.flavours.gfm.GFMFlavourDescriptor
 import org.intellij.markdown.html.HtmlGenerator
 import org.intellij.markdown.parser.MarkdownParser
@@ -51,8 +52,8 @@ data class BlogPostOpt(
     val til: Boolean?
 )
 
-data class BlogPost(val title: String, val summary: String, val blogBody: String, val category: List<String>, val til: Boolean)
-data class FullBlog(
+@Serializable data class BlogPost(val title: String, val summary: String, val blogBody: String, val category: List<String>, val til: Boolean)
+@Serializable data class FullBlog(
     val title: String,
     val summary: String,
     val blogBody: String,

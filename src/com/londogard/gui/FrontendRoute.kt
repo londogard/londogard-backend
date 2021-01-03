@@ -11,8 +11,10 @@ import com.londogard.urlShort
 import io.ktor.application.*
 import io.ktor.response.*
 import io.ktor.routing.*
+import io.ktor.util.*
 import kotlinx.serialization.ExperimentalSerializationApi
 
+@InternalAPI
 @ExperimentalStdlibApi
 @ExperimentalSerializationApi
 fun Routing.frontendRoute(
@@ -27,6 +29,9 @@ fun Routing.frontendRoute(
     fuzzyRoute(lines)
     stokkRoute()
     colorKidz()
+    //     get("/{visitedUrl...}") {
+    //         call.respondKweb(buildPage)
+    //     }
     // get("/blog") { call.respondRedirect("https://blog.londogard.com", permanent = true) }
     // get("/rss") { call.respondRedirect("https://blog.londogard.com/feed.xml") }
 }

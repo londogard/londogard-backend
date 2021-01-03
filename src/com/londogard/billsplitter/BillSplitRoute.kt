@@ -8,6 +8,7 @@ import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.route
 import kotlinx.html.*
+import kotlinx.serialization.Serializable
 
 fun Route.billsplit(): Route = route("/billsplit") {
     fun SECTION.billsplitForm(text: String = ""): Unit = form(method = FormMethod.post) {
@@ -52,5 +53,5 @@ fun Route.billsplit(): Route = route("/billsplit") {
 }
 
 
-data class PostPayments(val person: String, val amount: Double = 0.0)
-data class PostPersonPayments(val payments: List<PostPayments>)
+@Serializable data class PostPayments(val person: String, val amount: Double = 0.0)
+@Serializable data class PostPersonPayments(val payments: List<PostPayments>)

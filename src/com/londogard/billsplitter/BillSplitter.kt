@@ -1,8 +1,9 @@
 package com.londogard.billsplitter
 
+import kotlinx.serialization.Serializable
 import kotlin.math.min
 
-data class PersonPayment(val payer: String, val owed: String, val amount: Double)
+@Serializable data class PersonPayment(val payer: String, val owed: String, val amount: Double)
 
 private fun MutableMap<String, Double>.addOrPut(key: String, value: Double) {
     this[key] = this.getOrDefault(key, 0.0) + value

@@ -1,6 +1,5 @@
 package com.londogard
 
-import com.fasterxml.jackson.databind.SerializationFeature
 import com.londogard.api.apiRoute
 import com.londogard.auth.JwtConfig
 import com.londogard.auth.authRoute
@@ -8,33 +7,25 @@ import com.londogard.blog.indexRoute
 import com.londogard.gui.frontendRoute
 import com.londogard.jwtauth.UserSource
 import com.londogard.jwtauth.UserSourceImpl
-import io.ktor.application.Application
-import io.ktor.application.ApplicationCall
-import io.ktor.application.call
-import io.ktor.application.install
-import io.ktor.auth.Authentication
-import io.ktor.auth.jwt.JWTPrincipal
-import io.ktor.auth.jwt.jwt
+import io.ktor.application.*
+import io.ktor.auth.*
+import io.ktor.auth.jwt.*
 import io.ktor.features.*
-import io.ktor.http.CacheControl
-import io.ktor.http.ContentType
-import io.ktor.http.HttpHeaders
-import io.ktor.http.content.CachingOptions
-import io.ktor.http.content.resource
-import io.ktor.http.content.static
-import io.ktor.jackson.jackson
-import io.ktor.locations.KtorExperimentalLocationsAPI
-import io.ktor.response.respondRedirect
-import io.ktor.routing.Routing
-import io.ktor.routing.get
-import io.ktor.routing.routing
-import io.ktor.util.InternalAPI
-import io.ktor.util.KtorExperimentalAPI
-import io.ktor.util.toLocalDateTime
+import io.ktor.http.*
+import io.ktor.http.cio.websocket.*
+import io.ktor.http.content.*
+import io.ktor.locations.*
+import io.ktor.response.*
+import io.ktor.routing.*
+import io.ktor.serialization.*
+import io.ktor.util.*
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.json.Json
+// import kweb.Kweb
 import org.koin.ktor.ext.Koin
 import org.koin.ktor.ext.inject
+// import java.time.Duration
 import java.time.LocalDateTime
 
 
@@ -57,7 +48,13 @@ fun Application.module() {
     install(DefaultHeaders)     // Automatic Date & Server Head to each response. Possible to config additional headers
     install(CallLogging)        // This uses use the logger to log every call (request/response)
     install(ConditionalHeaders) // Automatic '304 Not Modified' Responses
+    //install(WebSockets) {
+    //    pingPeriod = Duration.ofSeconds(10)
+    //    timeout = Duration.ofSeconds(30)
+    //}
     install(PartialContent)     // Supports for Range, Accept-Range and Content-Range headers
+    // install(Kweb)
+    // install(Compression)
 
     val redirectionMap = mutableMapOf<String, String>() // Something like cache really
     val lines = javaClass.getResourceAsStream("/fuzzy-filenames.txt").bufferedReader().readLines()
@@ -99,7 +96,12 @@ fun Application.module() {
         }
     }
 
-    install(ContentNegotiation) { jackson { enable(SerializationFeature.INDENT_OUTPUT) } }
+    install(ContentNegotiation) {
+        json(Json {
+            prettyPrint = true
+            isLenient = true
+        })
+    }
 
     if (environment.config.propertyOrNull("ktor.deployment.sslPort") != null) {
         install(HttpsRedirect)

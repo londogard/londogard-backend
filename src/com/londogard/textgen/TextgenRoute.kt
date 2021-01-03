@@ -20,6 +20,7 @@ internal data class TextGenInput(val text: String, val temperature: Double = 0.3
 @ExperimentalSerializationApi
 fun Route.textgenRoute(): Route = route("/textgen") {
     val topKSample = TopKSampleSearch(5)
+
     fun MAIN.textgenForm(selectedItem: String, currentText: String?, temperature: String, tokens: String = "250"): Unit =
         section {
             form(method = FormMethod.post) {

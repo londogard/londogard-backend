@@ -12,6 +12,7 @@ object HtmlTemplates {
         Header("smry.", "/smry"),
         Header("textgen.", "/textgen"),
         Header("billsplit.", "/billsplit"),
+        Header("colorkidz.", "/colorkidz"),
         Header("urlshort.", "/url"),
         Header("fuzsearch.", "/fuzsearch"),
         Header("about.", "/about"),
@@ -22,8 +23,17 @@ object HtmlTemplates {
         title: String,
         markdownSupport: Boolean = false,
         jquerySupport: Boolean = false,
+        htmxSupport: Boolean = false,
         body: MAIN.() -> Unit
-    ): Unit = respondHtml {
+    ): Unit = respondHtml { htmlShell(title, markdownSupport, jquerySupport, htmxSupport, body) }
+
+    fun HTML.htmlShell(
+        title: String,
+        markdownSupport: Boolean = false,
+        jquerySupport: Boolean = false,
+        htmxSupport: Boolean = false,
+        body: MAIN.() -> Unit
+    ) {
         head {
             link(rel = "stylesheet", href = "/css")
             meta(name = "description", content = "Londogard. Our landing page with a few of the products.")
@@ -42,6 +52,9 @@ object HtmlTemplates {
             }
             if (jquerySupport) {
                 script(src = "//code.jquery.com/jquery-1.11.1.min.js") { }
+            }
+            if (htmxSupport) {
+                script(src = "https://unpkg.com/htmx.org@1.0.2") { }
             }
         }
 

@@ -13,6 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.html.*
+import kotlinx.serialization.Serializable
 import org.koin.ktor.ext.inject
 
 
@@ -76,4 +77,4 @@ fun Route.urlShort(redirections: MutableMap<String, String>): Route = route("/ur
     }
 }
 
-data class UrlInput(val url: String)
+@Serializable data class UrlInput(val url: String)

@@ -1,7 +1,7 @@
 package com.londogard.jwtauth
 
+import com.londogard.auth.UserPasswordCredential
 import com.londogard.data.UserQueries
-import io.ktor.auth.UserPasswordCredential
 import org.mindrot.jbcrypt.BCrypt
 
 class UserSourceImpl(private val userQueries: UserQueries) : UserSource {

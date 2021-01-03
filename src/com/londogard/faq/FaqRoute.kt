@@ -31,5 +31,5 @@ fun Route.faq(): Route = route("/faq") {
 }
 
 object USIFEmbeddings {
-    val embeddings: SentenceEmbeddings = USifSentenceEmbeddings()
+//    val embeddings: SentenceEmbeddings = USifSentenceEmbeddings()
 }

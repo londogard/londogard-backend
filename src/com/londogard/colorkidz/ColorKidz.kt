@@ -1,76 +1,135 @@
 package com.londogard.colorkidz
 
-import com.londogard.billsplitter.splitBills
 import com.londogard.gui.HtmlTemplates.respondHtmlShell
 import io.ktor.application.*
-import io.ktor.http.ContentDisposition.Companion.File
+import io.ktor.client.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.features.*
+import io.ktor.client.features.json.*
+import io.ktor.client.request.*
+import io.ktor.client.request.forms.*
+import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.request.*
+import io.ktor.response.*
 import io.ktor.routing.*
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.yield
+import io.ktor.util.*
+import io.ktor.utils.io.core.*
+import kotlinx.coroutines.*
 import kotlinx.html.*
-import org.bytedeco.opencv.opencv_dnn.LayerFactory
-import org.opencv.dnn.Dnn
+import kotlinx.serialization.Serializable
+//import kweb.*
 import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.util.*
+import kotlin.io.use
 
+//     get("/{visitedUrl...}") {
+//         call.respondKweb(buildPage)
+//     }
+@InternalAPI
 fun Route.colorKidz(): Route = route("/colorkidz") {
-    fun SECTION.billsplitForm(text: String = ""): Unit = form(method = FormMethod.post) {
-        header {
-            style = "padding:0;"
-            h3 { +"colorkidz." }
-            small { +"Create a coloring page out of your picture! Works better with close-ups." }
-        }
-        fileInput {
-            name = "file"
-        }
-        postButton { +"Submit" }
+    val rootPath by lazy {
+        val path = Paths.get(System.getProperty("user.home")).resolve("colorkidz")
+        Files.createDirectories(path)
+        path
     }
 
-    get { call.respondHtmlShell("ColorKidz - Create your colouring page today!'") { section { billsplitForm() } } }
+    fun SECTION.billsplitForm(): Unit =
+        form(method = FormMethod.post, encType = FormEncType.multipartFormData) {
+            header {
+                style = "padding:0;"
+                h3 { +"colorkidz." }
+                small { +"Create a coloring page out of your picture! Works better with close-ups." }
+            }
+            fileInput {
+                name = "file"
+            }
+            postButton {
+                +"Submit"
+            }
+        }
+
+
+    get {
+        call.respondHtmlShell("ColorKidz - Create your colouring page today!'") {
+            section { billsplitForm() }
+        }
+        /**
+         * call.respondKweb {
+        val imageString = KVar("")
+        val edgeImageString = KVar("")
+        doc.body.new {
+        val input = fileInput()
+        input.onFileSelect {
+        input.retrieveFile {
+        imageString.value = it.base64Content
+        }
+        }
+        input.inputElement.on.submit {
+        GlobalScope.launch {
+
+        }
+        }
+        val btn = button().text("Submit")
+        btn.on.click {
+        GlobalScope.launch {
+        HttpClient().post {
+
+        }
+        }
+        //                    val array = Base64.getDecoder().decode(imageString.value)
+
+        }
+        br()
+        img().setAttribute("src", imageString)
+        br()
+        img().setAttribute("src", edgeImageString)
+        }
+        }
+         */
+    }
+
+    @Serializable
+    data class PathData(val path: String)
 
     post {
+        call.receiveMultipart().forEachPart { part ->
+            when (part) {
+                is PartData.FileItem -> {
+                    val filePath = rootPath.resolve(part.originalFileName)
+                    val file = filePath.toFile()
 
-        val multipart = call.receiveMultipart()
-        //multipart.forEachPart { part ->
-        //    when (part) {
-        //        is PartData.FileItem -> {
-        //            val ext = File(part.originalFileName ?: "tmp").extension
-        //            val file = File(uploadDir, "upload-${System.currentTimeMillis()}-${session.userId.hashCode()}-${title.hashCode()}.$ext")
-        //            part.streamProvider().use { input -> file.outputStream().buffered().use { output -> input.copyToSuspend(output) } }
-        //            videoFile = file
-        //        }
-        //        else -> Unit
-        //    }
-//
-        //    part.dispose()
-        //}
+                    part.streamProvider()
+                        .use { input -> file.outputStream().buffered().use { output -> input.copyToSuspend(output) } }
 
+                    val newPath = HttpClient(CIO) { install(JsonFeature) }
+                        .use { client ->
+                            client.get<PathData>("http://127.0.0.1:8000/edges?file_path=${filePath}")
+                        }
+                    val updatedFile = File(newPath.path)
 
-        val params = call.receiveParameters()
-        val payments = params["file"]
-            ?.split('\n', ',')
-            ?.map { line -> line.split(' ') }
-            ?.takeIf { it.size > 1 }
-            ?.filter { it.size >= 2 }
-            ?.map { (name, amount) -> name to (amount.toDoubleOrNull() ?: 0.0) }
-            ?.let { personAmounts -> splitBills(personAmounts) } ?: emptyList()
-
-        call.respondHtmlShell("Billsplitter 'Split your bills'") {
-            section { billsplitForm(params["input"]!!) }
-            section {
-                aside {
-                    payments.forEach { payment ->
-                        +"${payment.payer} pays ${payment.owed} ${"%.1f".format(payment.amount)}:-"
-                        br { }
-                    }
-                    if (payments.isEmpty()) +"No bills to split!"
+                    call
+                        .response
+                        .header(
+                            HttpHeaders.ContentDisposition,
+                            ContentDisposition.File.withParameter(
+                                ContentDisposition.Parameters.FileName,
+                                updatedFile.name
+                            ).toString()
+                        )
+                    call.respondFile(updatedFile)
+                }
+                else -> call.respondHtmlShell("ColorKidz - Create your colouring page today!'") {
+                    section { billsplitForm() }
+                    section { }
                 }
             }
+
+            part.dispose()
         }
     }
 }

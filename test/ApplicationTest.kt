@@ -1,7 +1,5 @@
 package com.londogard
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import com.londogard.billsplitter.PersonPayment
 import com.londogard.blog.BlogPost
 import com.londogard.blog.FullBlog
@@ -16,6 +14,8 @@ import io.ktor.util.InternalAPI
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import org.amshove.kluent.shouldBe
 import org.koin.ktor.ext.inject
 
@@ -61,7 +61,7 @@ class ApplicationTest {
                     assertEquals(HttpStatusCode.Created, response.status())
                     assertTrue(response.content != null)
 
-                    val responseJson = jacksonObjectMapper().readValue<ResultResponse>(response.content!!)
+                    val responseJson = Json.decodeFromString<ResultResponse>(response.content!!)
                     assertEquals(ResultResponse("User created"), responseJson)
                 }
             makeLoginRequest()
@@ -69,7 +69,7 @@ class ApplicationTest {
                     assertEquals(HttpStatusCode.OK, response.status())
                     assertTrue(response.content != null)
 
-                    val responseJson = jacksonObjectMapper().readValue<ResultResponse>(response.content!!)
+                    val responseJson = Json.decodeFromString<ResultResponse>(response.content!!)
                     assertTrue(responseJson.result.isNotEmpty())
                 }
             makeLoginRequest(testUserTwo)
@@ -77,7 +77,7 @@ class ApplicationTest {
                     assertEquals(HttpStatusCode.Unauthorized, response.status())
                     assertTrue(response.content != null)
 
-                    val responseJson = jacksonObjectMapper().readValue<ResultResponse>(response.content!!)
+                    val responseJson = Json.decodeFromString<ResultResponse>(response.content!!)
                     assertTrue(responseJson.result.isNotEmpty())
                 }
             makeUserRequest()
@@ -103,8 +103,9 @@ class ApplicationTest {
             )
         }.apply {
             assertEquals(HttpStatusCode.OK, response.status())
-            val correctResponse = jacksonObjectMapper()
-                .readValue<List<PersonPayment>>(response.byteContent!!)
+
+            val correctResponse = Json
+                .decodeFromString<List<PersonPayment>>(response.content!!)
                 .any { it.amount == 50.0 && it.payer == "noah" && it.owed == "hampus" }
 
             assertTrue(correctResponse)
@@ -119,8 +120,9 @@ class ApplicationTest {
             setBody(body)
         }.apply {
             assertEquals(HttpStatusCode.OK, response.status())
-            val correctResponse = jacksonObjectMapper()
-                .readValue<ResultResponse>(response.byteContent!!).result.length < text.length
+            val correctResponse =
+                Json.decodeFromString<ResultResponse>(response.content!!)
+                    .result.length < text.length
             assert(correctResponse)
         }
     }
@@ -134,8 +136,7 @@ class ApplicationTest {
             addJwtHeader()
             addJsonHeader()
             setBody(
-                jacksonObjectMapper()
-                    .writeValueAsString(BlogPost("Hello world", "1.2.3", "123456789", listOf("TRENDING"), til = false))
+                Json.encodeToString(BlogPost.serializer(),BlogPost("Hello world", "1.2.3", "123456789", listOf("TRENDING"), til = false))
             )
         }
         req.requestHandled shouldBe true
@@ -146,8 +147,7 @@ class ApplicationTest {
         reqTwo.requestHandled shouldBe true
         reqTwo.response.let {
             assertEquals(HttpStatusCode.OK, it.status())
-            val blogList = jacksonObjectMapper()
-                .readValue<List<FullBlog>>(it.content!!)
+            val blogList = Json.decodeFromString<List<FullBlog>>(it.content!!)
             assertTrue(blogList.size == 1)
         }
     }
