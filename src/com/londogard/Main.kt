@@ -53,6 +53,7 @@ fun Application.module() {
     //    timeout = Duration.ofSeconds(30)
     //}
     install(PartialContent)     // Supports for Range, Accept-Range and Content-Range headers
+    install(Locations)
     // install(Kweb)
     // install(Compression)
 

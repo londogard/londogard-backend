@@ -1,5 +1,6 @@
 package com.londogard.colorkidz
 
+//import kweb.*
 import com.londogard.gui.HtmlTemplates.respondHtmlShell
 import io.ktor.application.*
 import io.ktor.client.*
@@ -10,6 +11,7 @@ import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.http.*
 import io.ktor.http.content.*
+import io.ktor.locations.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
@@ -18,18 +20,17 @@ import io.ktor.utils.io.core.*
 import kotlinx.coroutines.*
 import kotlinx.html.*
 import kotlinx.serialization.Serializable
-//import kweb.*
 import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.time.Duration
+import java.time.Instant
+import java.time.LocalDateTime
 import java.util.*
 import kotlin.io.use
 
-//     get("/{visitedUrl...}") {
-//         call.respondKweb(buildPage)
-//     }
 @InternalAPI
 fun Route.colorKidz(): Route = route("/colorkidz") {
     val rootPath by lazy {
@@ -55,6 +56,14 @@ fun Route.colorKidz(): Route = route("/colorkidz") {
 
 
     get {
+        async {
+            val yesterday = Instant.now().minus(Duration.ofDays(1))
+            rootPath.toFile().walkTopDown()
+                .filter { file ->
+                    Instant.parse(file.name.take(26)).isBefore(yesterday)
+                }
+                .map(File::delete)
+        }
         call.respondHtmlShell("ColorKidz - Create your colouring page today!'") {
             section { billsplitForm() }
         }
@@ -93,46 +102,63 @@ fun Route.colorKidz(): Route = route("/colorkidz") {
          */
     }
 
-    @Serializable
-    data class PathData(val path: String)
+    get<Path> { path ->
+        val file = rootPath.resolve(path.path).toFile()
+        call
+            .response
+            .header(
+                HttpHeaders.ContentDisposition,
+                ContentDisposition.File.withParameter(
+                    ContentDisposition.Parameters.FileName,
+                    file.name
+                ).toString()
+            )
+        call.respondFile(file)
+    }
 
     post {
+        var path = rootPath
         call.receiveMultipart().forEachPart { part ->
             when (part) {
                 is PartData.FileItem -> {
-                    val filePath = rootPath.resolve(part.originalFileName)
+                    val filePath = rootPath.resolve("${LocalDateTime.now()}-${part.originalFileName}")
                     val file = filePath.toFile()
 
                     part.streamProvider()
                         .use { input -> file.outputStream().buffered().use { output -> input.copyToSuspend(output) } }
-
-                    val newPath = HttpClient(CIO) { install(JsonFeature) }
-                        .use { client ->
-                            client.get<PathData>("http://127.0.0.1:8000/edges?file_path=${filePath}")
-                        }
-                    val updatedFile = File(newPath.path)
-
-                    call
-                        .response
-                        .header(
-                            HttpHeaders.ContentDisposition,
-                            ContentDisposition.File.withParameter(
-                                ContentDisposition.Parameters.FileName,
-                                updatedFile.name
-                            ).toString()
-                        )
-                    call.respondFile(updatedFile)
+                    path = Paths.get(file.parent).resolve("${file.nameWithoutExtension}-colorkidz.png").toAbsolutePath()
+                    async {
+                        HttpClient(CIO) { install(JsonFeature) }
+                            .use { client ->
+                                client.get<PathData>("http://127.0.0.1:8000/edges?file_path=${filePath}")
+                            }
+                        file.delete()
+                    }
                 }
-                else -> call.respondHtmlShell("ColorKidz - Create your colouring page today!'") {
-                    section { billsplitForm() }
-                    section { }
-                }
+                else -> Unit
             }
 
             part.dispose()
         }
+
+        call.respondHtmlShell("ColorKidz - Create your colouring page today!'") {
+            section { billsplitForm() }
+            section {
+                aside {
+                    small { +"This takes a while, please come back to this url in a few minutes to download file" }
+                    br { }
+                    a("/colorkidz/download/${path.toFile().name}") { +"Download" }
+                }
+            }
+        }
     }
 }
+
+@Location("/download/{path}")
+data class Path(val path: String)
+
+@Serializable
+data class PathData(val path: String)
 
 suspend fun InputStream.copyToSuspend(
     out: OutputStream,
