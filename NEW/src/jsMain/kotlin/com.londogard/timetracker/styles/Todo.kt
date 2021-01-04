@@ -9,5 +9,4 @@ object Todo {
     val todoInput: Style<BasicParams> = {
         border { style { none } }
     }
-
 }

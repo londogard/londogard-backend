@@ -2,10 +2,11 @@ package com.londogard.timetracker.components
 
 import com.londogard.timetracker.styles.Todo
 import dev.fritz2.binding.Store
-import dev.fritz2.components.*
+import dev.fritz2.components.checkbox
+import dev.fritz2.components.flexBox
+import dev.fritz2.components.inputField
 import dev.fritz2.dom.html.RenderContext
 import dev.fritz2.dom.states
-import dev.fritz2.styling.style
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi

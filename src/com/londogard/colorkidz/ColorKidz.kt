@@ -33,6 +33,7 @@ import kotlin.io.use
 
 @InternalAPI
 fun Route.colorKidz(): Route = route("/colorkidz") {
+    val title = "ColorKidz - Create your colouring page today!'"
     val rootPath by lazy {
         val path = Paths.get(System.getProperty("user.home")).resolve("colorkidz")
         Files.createDirectories(path)
@@ -46,6 +47,29 @@ fun Route.colorKidz(): Route = route("/colorkidz") {
                 h3 { +"colorkidz." }
                 small { +"Create a coloring page out of your picture! Works better with close-ups." }
             }
+            radioCommand {
+                radioInput {
+                    name = "model"
+                    value = "algo"
+                    checked = true
+                }
+                label { +"Algorithmic" }
+                br { }
+                radioInput {
+                    name = "model"
+                    value = "hed"
+                }
+                label { +"Holistically Edge Detection (slower)" }
+            }
+            br {  }
+            small { +"Smoothing level for Algorithmic approach (lower = more edges)." }
+            numberInput {
+                name = "sigma"
+                id = "sigma"
+                value = "3"
+                min = "0"
+                max = "10"
+            }
             fileInput {
                 name = "file"
             }
@@ -56,7 +80,7 @@ fun Route.colorKidz(): Route = route("/colorkidz") {
 
 
     get {
-        async {
+        launch(Dispatchers.IO) {
             val yesterday = Instant.now().minus(Duration.ofDays(1))
             rootPath.toFile().walkTopDown()
                 .filter { file ->
@@ -64,7 +88,7 @@ fun Route.colorKidz(): Route = route("/colorkidz") {
                 }
                 .map(File::delete)
         }
-        call.respondHtmlShell("ColorKidz - Create your colouring page today!'") {
+        call.respondHtmlShell(title) {
             section { billsplitForm() }
         }
         /**
@@ -117,7 +141,7 @@ fun Route.colorKidz(): Route = route("/colorkidz") {
                 )
             call.respondFile(file)
         } else {
-            call.respondHtmlShell("ColorKidz - Create your colouring page today!'") {
+            call.respondHtmlShell(title) {
                 section { billsplitForm() }
                 section {
                     aside {
@@ -133,37 +157,65 @@ fun Route.colorKidz(): Route = route("/colorkidz") {
     }
 
     post {
-        var path = rootPath
-        call.receiveMultipart().forEachPart { part ->
-            when (part) {
-                is PartData.FileItem -> {
-                    val filePath = rootPath.resolve("${LocalDateTime.now()}-${part.originalFileName}")
-                    val file = filePath.toFile()
-
-                    part.streamProvider()
-                        .use { input -> file.outputStream().buffered().use { output -> input.copyToSuspend(output) } }
-                    path = Paths.get(file.parent).resolve("${file.nameWithoutExtension}-colorkidz.png").toAbsolutePath()
-                    async {
-                        HttpClient(CIO) { install(JsonFeature) }
-                            .use { client ->
-                                client.get<PathData>("http://127.0.0.1:8000/edges?file_path=${filePath}")
-                            }
-                        file.delete()
+        val parts = call.receiveMultipart().readAllParts()
+        val algorithmicApproach =
+            parts.find { part -> part is PartData.FormItem && part.name == "model" && part.value == "algo" } != null
+        val file = parts
+            .mapNotNull { part -> part as? PartData.FileItem }
+            .firstOrNull()
+        when {
+            file == null || file.originalFileName.isNullOrEmpty() -> {
+                call.respondHtmlShell(title) {
+                    section { billsplitForm() }
+                    section {
+                        aside {
+                            b { +"OBS: File input required!" }
+                        }
                     }
                 }
-                else -> Unit
             }
+            algorithmicApproach -> {
+                val sigma = parts
+                    .mapNotNull { part -> if (part is PartData.FormItem && part.name == "sigma") part.value.toDoubleOrNull() else null }
+                    .firstOrNull() ?: 3.0
 
-            part.dispose()
-        }
+                val bytes = file.streamProvider().use(InputStream::readBytes)
+                val edges = CKidz.blurImageBytes(bytes, sigma)
+                call
+                    .response
+                    .header(
+                        HttpHeaders.ContentDisposition,
+                        ContentDisposition.File.withParameter(
+                            ContentDisposition.Parameters.FileName,
+                            "${File(file.originalFileName ?: "unk").nameWithoutExtension}-colorkidz.png"
+                        ).toString()
+                    )
+                call.respondBytes(edges)
+            }
+            else -> {
+                val filePath = rootPath.resolve("${LocalDateTime.now()}-${file.originalFileName}")
+                val fileOnPath = filePath.toFile()
+                fileOnPath.outputStream()
+                    .use { output -> file.streamProvider().use { input -> input.copyToSuspend(output) } }
+                val path = Paths.get(fileOnPath.parent).resolve("${fileOnPath.nameWithoutExtension}-colorkidz.png")
+                    .toAbsolutePath()
 
-        call.respondHtmlShell("ColorKidz - Create your colouring page today!'") {
-            section { billsplitForm() }
-            section {
-                aside {
-                    small { +"This takes a while, please come back to this url in a few minutes to download file" }
-                    br { }
-                    a("/colorkidz/download/${path.toFile().name}") { +"Download" }
+                launch(Dispatchers.IO) {
+                    HttpClient(CIO) { install(JsonFeature) }
+                        .use { client -> client.get<PathData>("http://127.0.0.1:8000/edges?file_path=${filePath}") }
+                    fileOnPath.delete()
+                }
+                call.respondHtmlShell(title) {
+                    section { billsplitForm() }
+                    section {
+                        aside {
+                            b { +"File is not available yet. Please wait another minute." }
+                            br { }
+                            small { +"This (HED) takes a while, please press 'Download' in a few minutes again." }
+                            br { }
+                            a("/colorkidz/download/${path.fileName}") { +"Download" }
+                        }
+                    }
                 }
             }
         }

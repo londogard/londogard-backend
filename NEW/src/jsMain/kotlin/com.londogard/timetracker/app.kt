@@ -26,6 +26,7 @@ fun main() {
             router.data.render { site ->
                 when (site) {
                     "todo" -> mainContent()
+                    "time" -> timeContent()
                     else -> mainContent()
                 }
             }
@@ -35,7 +36,21 @@ fun main() {
             hr { }
             p { +"Footer" }
         }
+
     }.mount("target")
+}
+
+fun RenderContext.timeContent() {
+    h1 { +"My App" }
+    stackUp {
+        items {
+            box {
+                TodoItem(storeOf(false)).render(this)
+            } // simplified for readability
+            box { p { +"2" } }
+            box { p { +"3" } }
+        }
+    }
 }
 
 fun RenderContext.mainContent() {

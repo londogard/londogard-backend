@@ -76,7 +76,7 @@ dependencies {
 
     // implementation 'com.github.kwebio:kweb-core:0.8.1'
 
-    // implementation "org.bytedeco:javacv-platform:1.5.4"
+    implementation "org.bytedeco:javacv-platform:1.5.4"
 
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1"
     implementation "org.json:json:20201115"
