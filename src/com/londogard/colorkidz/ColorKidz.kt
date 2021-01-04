@@ -103,17 +103,33 @@ fun Route.colorKidz(): Route = route("/colorkidz") {
     }
 
     get<Path> { path ->
-        val file = rootPath.resolve(path.path).toFile()
-        call
-            .response
-            .header(
-                HttpHeaders.ContentDisposition,
-                ContentDisposition.File.withParameter(
-                    ContentDisposition.Parameters.FileName,
-                    file.name
-                ).toString()
-            )
-        call.respondFile(file)
+        val filePath = rootPath.resolve(path.path)
+        if (Files.exists(filePath)) {
+            val file = rootPath.resolve(path.path).toFile()
+            call
+                .response
+                .header(
+                    HttpHeaders.ContentDisposition,
+                    ContentDisposition.File.withParameter(
+                        ContentDisposition.Parameters.FileName,
+                        file.name
+                    ).toString()
+                )
+            call.respondFile(file)
+        } else {
+            call.respondHtmlShell("ColorKidz - Create your colouring page today!'") {
+                section { billsplitForm() }
+                section {
+                    aside {
+                        b { +"File is not available yet. Please wait another minute." }
+                        br { }
+                        small { +"This takes a while, please come back to this url in a few minutes to download file" }
+                        br { }
+                        a("/colorkidz/download/${path.path}") { +"Download" }
+                    }
+                }
+            }
+        }
     }
 
     post {
