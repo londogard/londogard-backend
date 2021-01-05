@@ -3,7 +3,7 @@ package com.londogard.faq
 import com.londogard.embeddings.SentenceEmbeddings
 import com.londogard.embeddings.USifSentenceEmbeddings
 import io.ktor.routing.*
-import smile.math.matrix.Matrix
+//import smile.math.matrix.Matrix
 
 fun Route.faq(): Route = route("/faq") {
 

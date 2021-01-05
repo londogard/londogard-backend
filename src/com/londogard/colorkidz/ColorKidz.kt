@@ -1,6 +1,7 @@
 package com.londogard.colorkidz
 
 //import kweb.*
+import boofcv.io.image.UtilImageIO
 import com.londogard.gui.HtmlTemplates.respondHtmlShell
 import io.ktor.application.*
 import io.ktor.client.*
@@ -180,7 +181,8 @@ fun Route.colorKidz(): Route = route("/colorkidz") {
                     .firstOrNull() ?: 3.0
 
                 val bytes = file.streamProvider().use(InputStream::readBytes)
-                val edges = CKidz.blurImageBytes(bytes, sigma)
+                val edges = CKidz.findEdges(bytes, sigma)
+
                 call
                     .response
                     .header(

@@ -14,13 +14,9 @@ buildscript {
     }
 }
 
-plugins {
-    id 'org.bytedeco.gradle-javacpp-build' version "1.5.4"
-}
-
-ext {
-    javacppPlatform = 'linux-x86_64,linux-arm' // defaults to Loader.getPlatform()
-}
+//ext {
+//    javacppPlatform = 'linux-x86_64,linux-armhf' // defaults to Loader.getPlatform()
+//}
 
 apply plugin: 'kotlin'
 apply plugin: 'kotlinx-serialization'
@@ -84,13 +80,11 @@ dependencies {
 
     // implementation 'com.github.kwebio:kweb-core:0.8.1'
 
-    implementation "org.bytedeco:javacv-platform:1.5.4"
+    implementation 'org.boofcv:boofcv-core:0.37'
+    implementation 'org.boofcv:boofcv-kotlin:0.37'
 
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1"
     implementation "org.json:json:20201115"
-
-    implementation "com.github.haifengl:smile-nlp:$smile_version"
-    implementation "com.github.haifengl:smile-kotlin:$smile_version"
 
     implementation 'org.mindrot:jbcrypt:0.4'
 

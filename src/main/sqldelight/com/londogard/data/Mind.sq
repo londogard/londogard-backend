@@ -1,47 +1,47 @@
-import Priority;
-import com.londogard.mind.MindType;
-import java.time.LocalDateTime;
-import kotlin.collections.List;
-
-CREATE TABLE mind (
-    mind_id INTEGER PRIMARY KEY,
-    title TEXT NOT NULL UNIQUE,
-    text TEXT,
-    date TEXT as LocalDateTime,
-    -- filename TEXT,
-    type TEXT as MindType DEFAULT "Todo",
-    archived INTEGER as Boolean DEFAULT 0,
-    priority TEXT as Priority,
-    tags TEXT as List<String> NOT NULL
-);
-
-selectAll:
-SELECT * FROM mind;
-
-insert:
-INSERT INTO mind(title, text, date, type, archived, priority, tags)
-VALUES ?;
-
-selectByDate:
-SELECT * FROM mind WHERE date LIKE ?;
-
-selectByTag:
-SELECT * FROM mind WHERE tags LIKE '%'+?+'%';
-
-selectByPriority:
-SELECT * FROM mind WHERE priority = ?;
-
-selectActive:
-SELECT * FROM mind WHERE archived == 1;
-
-selectArchived:
-SELECT * FROM mind WHERE archived == 0;
-
-selectByMindType:
-SELECT * FROM mind WHERE type == ?;
-
-insertOrReplace:
-INSERT OR REPLACE INTO mind VALUES ?;
-
-drop:
-DELETE FROM mind;
+-- import Priority;
+-- import com.londogard.mind.MindType;
+-- import java.time.LocalDateTime;
+-- import kotlin.collections.List;
+--
+-- CREATE TABLE mind (
+--     mind_id INTEGER PRIMARY KEY,
+--     title TEXT NOT NULL UNIQUE,
+--     text TEXT,
+--     date TEXT as LocalDateTime,
+--     -- filename TEXT,
+--     type TEXT as MindType DEFAULT "Todo",
+--     archived INTEGER as Boolean DEFAULT 0,
+--     priority TEXT as Priority,
+--     tags TEXT as List<String> NOT NULL
+-- );
+--
+-- selectAll:
+-- SELECT * FROM mind;
+--
+-- insert:
+-- INSERT INTO mind(title, text, date, type, archived, priority, tags)
+-- VALUES ?;
+--
+-- selectByDate:
+-- SELECT * FROM mind WHERE date LIKE ?;
+--
+-- selectByTag:
+-- SELECT * FROM mind WHERE tags LIKE '%'+?+'%';
+--
+-- selectByPriority:
+-- SELECT * FROM mind WHERE priority = ?;
+--
+-- selectActive:
+-- SELECT * FROM mind WHERE archived == 1;
+--
+-- selectArchived:
+-- SELECT * FROM mind WHERE archived == 0;
+--
+-- selectByMindType:
+-- SELECT * FROM mind WHERE type == ?;
+--
+-- insertOrReplace:
+-- INSERT OR REPLACE INTO mind VALUES ?;
+--
+-- drop:
+-- DELETE FROM mind;
