@@ -14,13 +14,17 @@ buildscript {
     }
 }
 
+//ext {
+//    javacppPlatform = 'linux-x86_64,linux-armhf' // defaults to Loader.getPlatform()
+//}
+
 apply plugin: 'kotlin'
 apply plugin: 'kotlinx-serialization'
 apply plugin: 'application'
 apply plugin: 'com.squareup.sqldelight'
 apply plugin: 'com.github.johnrengelman.shadow'
 
-group 'com.lundekhan'
+group 'com.londogard'
 version '0.0.1'
 mainClassName = "io.ktor.server.netty.EngineMain"
 
@@ -53,6 +57,7 @@ dependencies {
     implementation "com.londogard:text-gen-kt:1.1.0"
     implementation "com.londogard:fuzzy-match-kt:1.0.1"
     implementation "com.londogard:stokk:0.1.0"
+    implementation 'com.github.londogard:embeddings-kt:usif-SNAPSHOT'
 
     implementation 'org.jetbrains:markdown:0.1.45'
 
@@ -64,17 +69,24 @@ dependencies {
     implementation "io.ktor:ktor-html-builder:$ktor_version"
     implementation "io.ktor:ktor-auth:$ktor_version"
     implementation "io.ktor:ktor-auth-jwt:$ktor_version"
-    implementation "io.ktor:ktor-jackson:$ktor_version"
+    implementation "io.ktor:ktor-serialization:$ktor_version"
     implementation "io.ktor:ktor-locations:$ktor_version"
+
+    implementation "io.ktor:ktor-client-core:$ktor_version"
+    implementation "io.ktor:ktor-client-cio:$ktor_version"
+    implementation "io.ktor:ktor-client-serialization:$ktor_version"
 
     implementation "org.koin:koin-ktor:$koin_version"
 
-    implementation "com.github.haifengl:smile-nlp:$smile_version"
-    implementation "com.github.haifengl:smile-kotlin:$smile_version"
+     implementation 'com.github.kwebio:kweb-core:0.8.1'
+
+    implementation 'org.boofcv:boofcv-core:0.37'
+    implementation 'org.boofcv:boofcv-kotlin:0.37'
+
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1"
+    implementation "org.json:json:20201115"
 
     implementation 'org.mindrot:jbcrypt:0.4'
-
-    implementation 'com.rometools:rome:1.15.0'
 
     testImplementation "io.ktor:ktor-server-test-host:$ktor_version"
     testImplementation "org.amshove.kluent:kluent:$kluent_version"
@@ -82,9 +94,10 @@ dependencies {
 
 sqldelight {
     Database {
-        packageName = "com.lundekhan"
+        packageName = "com.londogard"
     }
 }
+
 compileKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
@@ -94,6 +107,7 @@ configurations {
 }
 jar { duplicatesStrategy = DuplicatesStrategy.EXCLUDE }
 // This task will generate your fat JAR and put it in the ./build/libs/ directory
+
 shadowJar {
     //minimize {
     //    exclude("org.jetbrains.kotlin:.*", "org.koin:.*")
