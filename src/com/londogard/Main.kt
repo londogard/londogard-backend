@@ -22,12 +22,14 @@ import io.ktor.util.*
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.json.Json
+import kweb.Kweb
 // import kweb.Kweb
 import org.koin.ktor.ext.Koin
 import org.koin.ktor.ext.inject
 // import java.time.Duration
 import java.time.LocalDateTime
-
+import io.ktor.websocket.WebSockets
+import java.time.Duration
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -48,16 +50,16 @@ fun Application.module() {
     install(DefaultHeaders)     // Automatic Date & Server Head to each response. Possible to config additional headers
     install(CallLogging)        // This uses use the logger to log every call (request/response)
     install(ConditionalHeaders) // Automatic '304 Not Modified' Responses
-    //install(WebSockets) {
-    //    pingPeriod = Duration.ofSeconds(10)
-    //    timeout = Duration.ofSeconds(30)
-    //}
+    install(WebSockets) {
+        pingPeriod = Duration.ofSeconds(10)
+        timeout = Duration.ofSeconds(30)
+    }
     install(PartialContent)     // Supports for Range, Accept-Range and Content-Range headers
     install(Locations)
-    // install(Kweb)
-    // install(Compression)
+    install(Kweb)
+    install(Compression)
 
-    val redirectionMap = mutableMapOf<String, String>() // Something like cache really
+    val redirectionCache = mutableMapOf<String, String>()
     val lines = javaClass.getResourceAsStream("/fuzzy-filenames.txt").bufferedReader().readLines()
 
     install(Koin) {
@@ -125,8 +127,8 @@ fun Application.module() {
         get("/github") { call.respondRedirect("https://github.com/londogard/") }
         get("/apps") { call.respondRedirect("https://play.google.com/store/apps/developer?id=Londogard") }
 
-        apiRoute(redirectionMap)
-        frontendRoute(redirectionMap, lines)
+        apiRoute(redirectionCache)
+        frontendRoute(redirectionCache, lines)
         authRoute(userSource)
 
         static {

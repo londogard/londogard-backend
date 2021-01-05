@@ -78,7 +78,7 @@ dependencies {
 
     implementation "org.koin:koin-ktor:$koin_version"
 
-    // implementation 'com.github.kwebio:kweb-core:0.8.1'
+     implementation 'com.github.kwebio:kweb-core:0.8.1'
 
     implementation 'org.boofcv:boofcv-core:0.37'
     implementation 'org.boofcv:boofcv-kotlin:0.37'
