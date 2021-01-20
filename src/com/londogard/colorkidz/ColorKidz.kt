@@ -224,6 +224,19 @@ fun Route.colorKidz(): Route = route("/colorkidz") {
     }
 }
 
+//route("/api") {
+//    post {
+//        val body = call.receiveOrNull<EdgeDetection>()
+//        CKidz.findEdges(body!!.a, body.sigma)
+//
+//    }
+//}
+//}
+
+data class EdgeDetection(val sigma: Double, val b64Image: String) {
+    val a = Base64.getDecoder().decode(b64Image)
+}
+
 @Location("/download/{path}")
 data class Path(val path: String)
 

@@ -1,0 +1,33 @@
+{
+  "main": "kotlin/NEW-test.js",
+  "devDependencies": {
+    "karma": "5.1.1",
+    "karma-mocha": "2.0.1",
+    "mocha": "8.1.1",
+    "karma-webpack": "4.0.2",
+    "webpack": "4.44.1",
+    "webpack-cli": "3.3.12",
+    "source-map-loader": "1.0.1",
+    "karma-sourcemap-loader": "0.3.7",
+    "karma-chrome-launcher": "3.1.0",
+    "css-loader": "4.2.1",
+    "style-loader": "1.2.1"
+  },
+  "dependencies": {
+    "typescript": "4.1",
+    "NEW": "1.0.0-SNAPSHOT",
+    "kotlin": "file:/home/londogard/git/londogard-backend/NEW/build/js/packages_imported/kotlin/1.4.21",
+    "fritz2-core": "file:/home/londogard/git/londogard-backend/NEW/build/js/packages_imported/fritz2-core/0.8.0",
+    "kotlinx-coroutines-core": "file:/home/londogard/git/londogard-backend/NEW/build/js/packages_imported/kotlinx-coroutines-core/1.4.1",
+    "kotlinx-atomicfu": "file:/home/londogard/git/londogard-backend/NEW/build/js/packages_imported/kotlinx-atomicfu/0.14.4",
+    "fritz2-styling": "file:/home/londogard/git/londogard-backend/NEW/build/js/packages_imported/fritz2-styling/0.8.0",
+    "fritz2-components": "file:/home/londogard/git/londogard-backend/NEW/build/js/packages_imported/fritz2-components/0.8.0",
+    "kotlin-test": "file:/home/londogard/git/londogard-backend/NEW/build/js/packages_imported/kotlin-test/1.4.21",
+    "kotlin-test-js-runner": "file:/home/londogard/git/londogard-backend/NEW/build/js/packages_imported/kotlin-test-js-runner/1.4.21"
+  },
+  "peerDependencies": {},
+  "optionalDependencies": {},
+  "bundledDependencies": [],
+  "name": "NEW-test",
+  "version": "1.0.0-SNAPSHOT"
+}

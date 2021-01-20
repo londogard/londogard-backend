@@ -1,0 +1,13 @@
+{
+  "main": "fritz2-styling.js",
+  "devDependencies": {},
+  "dependencies": {
+    "stylis": "4.0.2",
+    "murmurhash": "1.0.0"
+  },
+  "peerDependencies": {},
+  "optionalDependencies": {},
+  "bundledDependencies": [],
+  "name": "fritz2-styling",
+  "version": "0.8.0"
+}

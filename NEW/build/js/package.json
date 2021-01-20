@@ -1,0 +1,14 @@
+{
+  "private": true,
+  "workspaces": [
+    "packages/NEW"
+  ],
+  "resolutions": {},
+  "devDependencies": {},
+  "dependencies": {},
+  "peerDependencies": {},
+  "optionalDependencies": {},
+  "bundledDependencies": [],
+  "name": "NEW",
+  "version": "1.0-SNAPSHOT"
+}

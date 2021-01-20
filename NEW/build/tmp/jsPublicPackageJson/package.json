@@ -1,0 +1,15 @@
+{
+  "main": "NEW.js",
+  "devDependencies": {
+    "webpack": "4.44.1",
+    "webpack-cli": "3.3.12",
+    "source-map-loader": "1.0.1",
+    "dukat": "0.5.8-rc.3"
+  },
+  "dependencies": {},
+  "peerDependencies": {},
+  "optionalDependencies": {},
+  "bundledDependencies": [],
+  "name": "NEW",
+  "version": "1.0.0-SNAPSHOT"
+}
