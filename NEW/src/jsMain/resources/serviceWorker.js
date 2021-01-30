@@ -2,8 +2,15 @@ var CACHE_NAME = 'londogard-colorkidz';
 var urlsToCache = [
   "/index.html",
   "/NEW.js",
-  "/colorkidz-256.png",
-  "/colorkidz-512.png"
+  "/android-chrome-192x192.png",
+  "/android-chrome-512x512.png",
+  "/apple-touch-icon.png",
+  "/browserconfig.xml",
+  "/favicon.ico",
+  "/favicon-16x16.png",
+  "/favicon-32x32.png",
+  "/mstile-150x150.png",
+  "/safari-pinned-tab.svg"
 ];
 
 self.addEventListener('install', function(event) {

@@ -5,8 +5,13 @@ import dev.fritz2.styling.params.Style
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
-object Todo {
-    val todoInput: Style<BasicParams> = {
-        border { style { none } }
+object StyledItems {
+    val smallMargin: Style<BasicParams> = {
+        margin { small }
+    }
+    val smallTopMargin: Style<BasicParams> = {
+        margins {
+            top { small }
+        }
     }
 }

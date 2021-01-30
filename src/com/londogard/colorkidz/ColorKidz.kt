@@ -1,7 +1,6 @@
 package com.londogard.colorkidz
 
 //import kweb.*
-import boofcv.io.image.UtilImageIO
 import com.londogard.gui.HtmlTemplates.respondHtmlShell
 import io.ktor.application.*
 import io.ktor.client.*
@@ -222,19 +221,20 @@ fun Route.colorKidz(): Route = route("/colorkidz") {
             }
         }
     }
+    route("/api") {
+        post {
+            println("HIIII")
+            val body = call.receiveOrNull<EdgeDetection>()
+            val byteArray = CKidz.findEdges(body!!.toByteArray(), body.sigma)
+
+            call.respondText(Base64.getEncoder().encodeToString(byteArray), ContentType.Image.PNG)
+        }
+    }
 }
 
-//route("/api") {
-//    post {
-//        val body = call.receiveOrNull<EdgeDetection>()
-//        CKidz.findEdges(body!!.a, body.sigma)
-//
-//    }
-//}
-//}
-
+@Serializable
 data class EdgeDetection(val sigma: Double, val b64Image: String) {
-    val a = Base64.getDecoder().decode(b64Image)
+    fun toByteArray(): ByteArray = Base64.getDecoder().decode(b64Image)
 }
 
 @Location("/download/{path}")

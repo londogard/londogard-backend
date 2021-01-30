@@ -3,12 +3,11 @@ package com.londogard.timetracker
 import dev.fritz2.dom.html.RenderContext
 
 object ThirdPartyScripts {
-    fun RenderContext.imageComparison(): Unit {
+    fun RenderContext.imageComparison() {
         script {
             type("module")
             src("https://unpkg.com/img-comparison-slider@3/dist/component/component.esm.js")
         }
-
         script {
             attr("nomodule", "")
             src("https://unpkg.com/img-comparison-slider@3/dist/component/component.js")

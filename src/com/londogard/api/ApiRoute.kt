@@ -9,26 +9,26 @@ import com.londogard.blog.BlogHelper
 import com.londogard.blog.BlogHelper.toFullBlog
 import com.londogard.blog.BlogPost
 import com.londogard.blog.BlogPostOpt
+import com.londogard.colorkidz.CKidz
+import com.londogard.colorkidz.EdgeDetection
 import com.londogard.summarizer.SummarizeReq
 import com.londogard.summarizer.summarize
 import com.londogard.textgen.LanguageModelHelper
 import com.londogard.textgen.TextGenInput
 import io.ktor.application.call
 import io.ktor.auth.authenticate
-import io.ktor.http.HttpStatusCode
+import io.ktor.http.*
 import io.ktor.request.receive
 import io.ktor.request.receiveOrNull
-import io.ktor.response.respond
-import io.ktor.routing.Route
-import io.ktor.routing.get
-import io.ktor.routing.post
-import io.ktor.routing.route
+import io.ktor.response.*
+import io.ktor.routing.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
 import org.koin.core.qualifier.named
 import org.koin.ktor.ext.inject
+import java.util.*
 
 @ExperimentalSerializationApi
 fun Route.apiRoute(redirections: MutableMap<String, String>): Route = route("/api") {
@@ -151,5 +151,12 @@ fun Route.apiRoute(redirections: MutableMap<String, String>): Route = route("/ap
         }
 
         get("/models") { call.respond(ResultResponseArray(LanguageModelHelper.LanguageModels)) }
+    }
+
+    post("/colorkidz") {
+        val body = call.receiveOrNull<EdgeDetection>()
+        val byteArray = CKidz.findEdges(body!!.toByteArray(), body.sigma)
+
+        call.respondText(Base64.getEncoder().encodeToString(byteArray), ContentType.Image.PNG)
     }
 }
