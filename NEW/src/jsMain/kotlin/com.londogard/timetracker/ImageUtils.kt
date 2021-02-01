@@ -6,7 +6,7 @@ import org.w3c.dom.HTMLCanvasElement
 import org.w3c.dom.HTMLImageElement
 import kotlin.math.sqrt
 
-object ImageResizer {
+object ImageUtils {
     private const val HDReadySize: Double = 720.0 * 1080
 
     fun resizeB64Encoded(img: HTMLImageElement, document: Document): String {
@@ -26,5 +26,16 @@ object ImageResizer {
         canvas.remove()
 
         return canvas.toDataURL("image/jpeg")
+    }
+
+    fun Document.saveBase64AsFile(base64: String, filename: String) {
+        val link = createElement("download-b64")
+        appendChild(link) // for Firefox
+        link.apply {
+            setAttribute("href", base64)
+            setAttribute("download", filename)
+        }
+        link.asDynamic().click()
+        link.remove()
     }
 }

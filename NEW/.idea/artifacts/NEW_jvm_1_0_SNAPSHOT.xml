@@ -1,8 +1,8 @@
 <component name="ArtifactManager">
   <artifact type="jar" name="NEW-jvm-1.0-SNAPSHOT">
-    <output-path>C:\Users\hampu\IdeaProjects\snake-js-jvm-native\londogard-backend\NEW\build\libs</output-path>
+    <output-path>$PROJECT_DIR$/build/libs</output-path>
     <root id="archive" name="NEW-jvm-1.0-SNAPSHOT.jar">
-      <element id="module-output" name="com.londogard.NEW.jvmMain" />
+      <element id="module-output" name="NEW.jvmMain" />
     </root>
   </artifact>
 </component>

@@ -3,7 +3,6 @@ package com.londogard.timetracker
 import com.londogard.timetracker.ThirdPartyScripts.imageComparison
 import com.londogard.timetracker.styles.StyledItems.smallMargin
 import com.londogard.timetracker.styles.StyledItems.smallTopMargin
-import dev.fritz2.binding.SimpleHandler
 import dev.fritz2.binding.storeOf
 import dev.fritz2.binding.watch
 import dev.fritz2.components.*
@@ -12,9 +11,7 @@ import dev.fritz2.dom.html.RenderContext
 import dev.fritz2.dom.html.render
 import dev.fritz2.dom.mount
 import dev.fritz2.routing.router
-import dev.fritz2.styling.params.styled
 import kotlinx.browser.document
-import kotlinx.browser.window
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import org.w3c.files.FileList
@@ -125,6 +122,11 @@ fun RenderContext.mainContent() {
             clickButton(smallMargin) {
                 loadingText("playing")
                 text("Save Image")
+
+                clicks
+                    .events
+                    .onEach { rhsEdgeRepo.saveImage(document) }
+                    .watch()
             }
         }
 
@@ -140,7 +142,7 @@ fun RenderContext.mainContent() {
                 src(lhsStore.data)
 
                 loads   // TODO replace all .watch() with handlers :)
-                    .map { ImageResizer.resizeB64Encoded(this.domNode, document) }
+                    .map { ImageUtils.resizeB64Encoded(this.domNode, document) }
                     .map { rhsEdgeRepo.update(EdgedImage(it, sigma = rhsEdgeRepo.current.sigma)) }
                     .watch()
             }

@@ -1,9 +1,11 @@
 package com.londogard.timetracker
 
+import com.londogard.timetracker.ImageUtils.saveBase64AsFile
 import dev.fritz2.binding.RootStore
 import dev.fritz2.remote.getBody
 import dev.fritz2.remote.http
 import dev.fritz2.tracking.tracker
+import org.w3c.dom.Document
 
 data class EdgedImage(val before: String, val sigma: String = "3", val after: String? = null)
 
@@ -33,8 +35,9 @@ class EdgeRepository : RootStore<EdgedImage>(EdgedImage("")) {
         }
     }
 
-    val saveImage = handle { edgeImg ->
 
+    val saveImage = handle { edgeImg, doc: Document ->
+        doc.saveBase64AsFile(edgeImg.after ?: edgeImg.before, "colorkidz.jpg")
         edgeImg
     }
 }
