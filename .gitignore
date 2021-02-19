@@ -36,3 +36,6 @@ resources/embeddings
 resources/texts
 resources/languagemodels
 *.db
+**/build
+**/.gradle
+
