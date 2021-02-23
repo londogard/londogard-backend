@@ -1,19 +1,27 @@
-package com.londogard.timetracker
+package com.londogard.colorkidz
 
-import com.londogard.timetracker.ThirdPartyScripts.imageComparison
-import com.londogard.timetracker.styles.StyledItems.smallMargin
-import com.londogard.timetracker.styles.StyledItems.smallTopMargin
+import com.londogard.colorkidz.webcomponents.ImageSlider
+import com.londogard.colorkidz.styles.Icons
+import com.londogard.colorkidz.styles.StyledItems.smallMargin
+import com.londogard.colorkidz.styles.StyledItems.smallTopMargin
 import dev.fritz2.binding.storeOf
 import dev.fritz2.binding.watch
-import dev.fritz2.components.*
+import dev.fritz2.components.clickButton
+import dev.fritz2.components.flexBox
+import dev.fritz2.components.icon
+import dev.fritz2.components.inputField
 import dev.fritz2.dom.files
 import dev.fritz2.dom.html.RenderContext
 import dev.fritz2.dom.html.render
 import dev.fritz2.dom.mount
 import dev.fritz2.routing.router
-import kotlinx.browser.document
+import dev.fritz2.styling.params.styled
+import com.londogard.colorkidz.webcomponents.imageComparisonSlider
+import kotlinx.browser.window
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.onEach
 import org.w3c.files.FileList
 import org.w3c.files.FileReader
 import org.w3c.files.get
@@ -21,9 +29,9 @@ import org.w3c.files.get
 @ExperimentalCoroutinesApi
 fun main() {
     val router = router("")
-
+    window.customElements.define("img-comparison-slider", { ImageSlider::class.js })
     render {
-        imageComparison()
+        //loadImageComparisonScript()
 
         div("content") {
             router.data.render { site ->
@@ -42,14 +50,18 @@ fun main() {
             }) {
                 a {
                     href("https://github.com/londogard/")
-                    img {
-                        src("https://github.githubassets.com/images/modules/logos_page/GitHub-Logo.png")
-                        width(64)
-                    }
+                    icon { def = Icons.githubMark }
+                }
+                (::a.styled{ margins { left { small } } }) {
+                    href("http://blog.londogard.com/")
+                    +"Blog"
+                }
+                (::a.styled{ margins { left { small } } }) {
+                    href("https://londogard.com:8443/")
+                    +"Webpage"
                 }
             }
         }
-
     }.mount("target")
 }
 
@@ -73,7 +85,7 @@ fun RenderContext.mainContent() {
         direction { column }
         justifyContent { center }
     }) {
-        h1 { +"ColorKidz" }
+        h1 { +"ColorKidz by Londogard" }
 
         flexBox({
             margin { normal }
@@ -117,19 +129,20 @@ fun RenderContext.mainContent() {
                 loading(rhsEdgeRepo.loading)
                 loadingText("Converting...")
                 text("Convert Image")
+                icon { fromTheme { play } }
             } handledBy rhsEdgeRepo.imageConvert
 
             clickButton(smallMargin) {
-                loadingText("playing")
                 text("Save Image")
-
-                clicks
-                    .events
-                    .onEach { rhsEdgeRepo.saveImage(document) }
-                    .watch()
-            }
+                icon { fromTheme { download } }
+            } handledBy rhsEdgeRepo.saveImage
         }
 
+        //imageComparisonSlider {
+//
+        //    lhs(lhsStore.data, rhsEdgeRepo.setImage)
+        //    rhs(rhsEdgeRepo.data.map { it.after ?: it.before })
+        //}
         custom("img-comparison-slider") {
             img {
                 attr("slot", "before")
@@ -138,11 +151,11 @@ fun RenderContext.mainContent() {
 
             img {
                 attr("slot", "after")
-                attr("width", "100%")
-                src(lhsStore.data)
+                 src(lhsStore.data)
 
-                loads   // TODO replace all .watch() with handlers :)
-                    .map { ImageUtils.resizeB64Encoded(this.domNode, document) }
+                this@img
+                    .loads    ///TODO replace all .watch() with handlers :)
+                    .map { ImageUtils.resizeB64Encoded(this.domNode) }
                     .map { rhsEdgeRepo.update(EdgedImage(it, sigma = rhsEdgeRepo.current.sigma)) }
                     .watch()
             }

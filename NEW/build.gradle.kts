@@ -55,6 +55,7 @@ kotlin {
                 implementation("dev.fritz2:core:0.8")
                 implementation("dev.fritz2:styling:0.8")
                 implementation("dev.fritz2:components:0.8")
+                implementation(npm("img-comparison-slider", "3.0.1"))
             }
         }
         val jsTest by getting {

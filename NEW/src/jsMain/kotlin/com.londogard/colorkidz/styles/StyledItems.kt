@@ -1,4 +1,4 @@
-package com.londogard.timetracker.styles
+package com.londogard.colorkidz.styles
 
 import dev.fritz2.styling.params.BasicParams
 import dev.fritz2.styling.params.Style

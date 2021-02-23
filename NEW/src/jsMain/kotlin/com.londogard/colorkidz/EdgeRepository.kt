@@ -1,19 +1,17 @@
-package com.londogard.timetracker
+package com.londogard.colorkidz
 
-import com.londogard.timetracker.ImageUtils.saveBase64AsFile
+import com.londogard.colorkidz.ImageUtils.saveBase64AsFile
 import dev.fritz2.binding.RootStore
 import dev.fritz2.remote.getBody
 import dev.fritz2.remote.http
 import dev.fritz2.tracking.tracker
-import org.w3c.dom.Document
+import kotlinx.browser.document
 
 data class EdgedImage(val before: String, val sigma: String = "3", val after: String? = null)
+private const val prodApi = "https://londogard.com:8443/api/colorkidz"
 
 class EdgeRepository : RootStore<EdgedImage>(EdgedImage("")) {
-    private val testApi = "http://localhost:8080/colorkidz/api"
-    private val prodApi = "https://londogard.com:8443/colorkidz/api"
-    private val edgeApi = http(testApi).contentType("application/json")
-
+    private val edgeApi = http(prodApi).contentType("application/json")
     val loading = tracker()
 
     val imageConvert = handle { edgeImg ->
@@ -31,13 +29,16 @@ class EdgeRepository : RootStore<EdgedImage>(EdgedImage("")) {
                 .post()
                 .getBody()
 
-            edgeImg.copy(after="data:image/png;base64,$b64")
+            edgeImg.copy(after="data:image/jpg;base64,$b64")
         }
     }
 
+    val setImage = handle<String> { edgeImage, b64Image ->
+        edgeImage.copy(before = b64Image)
+    }
 
-    val saveImage = handle { edgeImg, doc: Document ->
-        doc.saveBase64AsFile(edgeImg.after ?: edgeImg.before, "colorkidz.jpg")
+    val saveImage = handle { edgeImg ->
+        document.saveBase64AsFile(edgeImg.after ?: edgeImg.before, "colorkidz.jpg")
         edgeImg
     }
 }

@@ -1,5 +1,6 @@
-package com.londogard.timetracker
+package com.londogard.colorkidz
 
+import kotlinx.browser.document
 import org.w3c.dom.CanvasRenderingContext2D
 import org.w3c.dom.Document
 import org.w3c.dom.HTMLCanvasElement
@@ -9,7 +10,7 @@ import kotlin.math.sqrt
 object ImageUtils {
     private const val HDReadySize: Double = 720.0 * 1080
 
-    fun resizeB64Encoded(img: HTMLImageElement, document: Document): String {
+    fun resizeB64Encoded(img: HTMLImageElement): String {
         if (img.src.startsWith("http")) return img.src
 
         val canvas = document.createElement("canvas") as HTMLCanvasElement
@@ -25,16 +26,20 @@ object ImageUtils {
         ctx.drawImage(img, 0.0, 0.0)
         canvas.remove()
 
-        return canvas.toDataURL("image/jpeg")
+        return canvas.toDataURL("image/jpg")
     }
 
     fun Document.saveBase64AsFile(base64: String, filename: String) {
-        val link = createElement("download-b64")
-        appendChild(link) // for Firefox
+        val link = createElement("a")
+        body?.appendChild(link) // for Firefox
+
         link.apply {
+            id = "download-b64"
             setAttribute("href", base64)
             setAttribute("download", filename)
+            setAttribute("target", "_self")
         }
+
         link.asDynamic().click()
         link.remove()
     }

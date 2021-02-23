@@ -1,12 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
-    <bytecodeTargetLevel target="14">
-      <module name="com.londogard.NEW.jvmMain" target="1.8" />
-      <module name="com.londogard.NEW.jvmTest" target="1.8" />
-      <module name="NEW.commonMain" target="1.8" />
-      <module name="NEW.commonTest" target="1.8" />
-      <module name="NEW.generated" target="1.8" />
-    </bytecodeTargetLevel>
+    <bytecodeTargetLevel target="14" />
   </component>
 </project>
