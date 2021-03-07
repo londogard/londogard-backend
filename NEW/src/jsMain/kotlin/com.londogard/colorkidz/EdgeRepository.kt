@@ -14,6 +14,10 @@ class EdgeRepository : RootStore<EdgedImage>(EdgedImage("")) {
     private val edgeApi = http(prodApi).contentType("application/json")
     val loading = tracker()
 
+    val updateSigma = handle<String> { edgeImg, sigma ->
+        edgeImg.copy(sigma = sigma)
+    }
+
     val imageConvert = handle { edgeImg ->
         loading.track("Edgefying Image") {
             val b64 = edgeApi

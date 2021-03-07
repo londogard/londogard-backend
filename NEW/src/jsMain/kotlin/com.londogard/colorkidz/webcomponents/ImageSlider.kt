@@ -1,8 +1,5 @@
 package com.londogard.colorkidz.webcomponents
 
-import org.w3c.dom.HTMLElement
-
-
-@JsModule("img-comparison-slider")
+@JsModule("compare-image-slider")
 @JsNonModule
-abstract external class ImageSlider : HTMLElement
+external object ImageSlider

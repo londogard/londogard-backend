@@ -1,6 +1,6 @@
 plugins {
-    kotlin("multiplatform") version "1.4.21"
-    id("dev.fritz2.fritz2-gradle") version "0.8"
+    kotlin("multiplatform") version "1.4.30"
+    id("dev.fritz2.fritz2-gradle") version "0.9"
 }
 
 group = "com.londogard"
@@ -20,7 +20,8 @@ kotlin {
             useJUnit()
         }
     }
-    js(LEGACY) {
+
+    js(IR) {
         browser {
             binaries.executable()
             runTask {
@@ -52,10 +53,12 @@ kotlin {
         }
         val jsMain by getting {
             dependencies {
-                implementation("dev.fritz2:core:0.8")
-                implementation("dev.fritz2:styling:0.8")
-                implementation("dev.fritz2:components:0.8")
+                implementation("dev.fritz2:core:0.9")
+                implementation("dev.fritz2:styling:0.9")
+                implementation("dev.fritz2:components:0.9")
                 implementation(npm("img-comparison-slider", "3.0.1"))
+                implementation(npm("svelte-image-compare", "1.1.1"))
+                implementation(npm("compare-image-slider", "0.1.15"))
             }
         }
         val jsTest by getting {
