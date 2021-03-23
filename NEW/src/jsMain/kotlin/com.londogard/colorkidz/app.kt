@@ -1,12 +1,9 @@
 package com.londogard.colorkidz
 
-import com.londogard.colorkidz.styles.Icons
+import com.londogard.colorkidz.styles.Icons.githubMark
+import com.londogard.colorkidz.styles.StyledItems.floatingCard
 import com.londogard.colorkidz.styles.StyledItems.smallMargin
-import com.londogard.colorkidz.styles.StyledItems.smallTopMargin
-import com.londogard.colorkidz.webcomponents.ImageSlider
-import com.londogard.colorkidz.webcomponents.imageComparisonSlider
 import dev.fritz2.binding.RootStore
-import dev.fritz2.binding.watch
 import dev.fritz2.components.*
 import dev.fritz2.components.data.File
 import dev.fritz2.dom.html.RenderContext
@@ -14,18 +11,15 @@ import dev.fritz2.dom.html.render
 import dev.fritz2.dom.values
 import dev.fritz2.routing.router
 import dev.fritz2.styling.params.styled
-import kotlinx.browser.window
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.map
 
 @ExperimentalCoroutinesApi
 fun main() {
     val router = router("")
-    ImageSlider
-    //window.customElements.define("svelte-image-compare", ImageSlider::class.js.unsafeCast<() -> dynamic>())
-    render("#target") {
-        //loadImageComparisonScript()
 
+    render("#target") {
+        header {  }
         div("content") {
             router.data.render { site ->
                 when (site) {
@@ -41,17 +35,17 @@ fun main() {
                 width { full }
                 padding { small }
             }) {
-                a {
+                (::a.styled { margins { left { small } } }) {
                     href("https://github.com/londogard/")
-                    icon { Icons.githubMark }
+                    icon { def(githubMark) }
                 }
                 (::a.styled { margins { left { small } } }) {
                     href("http://blog.londogard.com/")
-                    +"Blog"
+                    +"Londogard Blog"
                 }
                 (::a.styled { margins { left { small } } }) {
-                    href("https://londogard.com:8443/")
-                    +"Webpage"
+                    href("https://londogard.com/")
+                    +"Londogard.com"
                 }
             }
         }
@@ -61,7 +55,7 @@ fun main() {
 @ExperimentalCoroutinesApi
 fun RenderContext.mainContent() {
     val rhsEdgeRepo = EdgeRepository()
-    val lhsStore = object : RootStore<String>("") {
+    val lhsStore = object : RootStore<String>(DemoImage.lhs) {
         val upload = handle<File> { _, file ->
             // TODO save name to use when saving file!
             "data:${file.type};base64,${file.content}"
@@ -76,33 +70,25 @@ fun RenderContext.mainContent() {
     }) {
         h1 { +"ColorKidz by Londogard" }
 
-        flexBox({
-            margin { normal }
-            padding { normal }
-            boxShadow { raised }
-            radius { "1.5rem" }
-            justifyContent { center }
-            direction { column }
-        }) {
-            file(smallTopMargin) {
+        flexBox(floatingCard) {
+            file(smallMargin) {
                 accept("image/*")
                 button(id = "myFile") {
-                    text("Select a image")
+                    text("Select image")
                     icon { fromTheme { cloudUpload } }
                 }
             } handledBy lhsStore.upload
 
             p {
-                b { +"Edges " }
-                +"(lower = more edges)"
+                b { +"EdgeDetectionLevel " }
+                rhsEdgeRepo.data.map { "(${it.sigma})" }.asText()
             }
-            inputField {
-                type("number")
+            input {
+                type("range")
+                step("0.5");max("5");min("0")
+
                 value(rhsEdgeRepo.data.map { it.sigma })
-                step("0.5")
-                events {
-                    changes.values() handledBy rhsEdgeRepo.updateSigma
-                }
+                changes.values() handledBy rhsEdgeRepo.updateSigma
             }
 
             clickButton(smallMargin) {
@@ -118,15 +104,15 @@ fun RenderContext.mainContent() {
             } handledBy rhsEdgeRepo.saveImage
         }
 
-        custom("compare-image-slider") {
+        custom("img-comparison-slider") {
             img {
-                attr("slot", "left")
+                attr("slot", "after")
                 attr("width", "100%")
                 src(lhsStore.data)
                 loads.map { ImageUtils.resizeB64Encoded(this.domNode) } handledBy rhsEdgeRepo.setImage
             }
             img {
-                attr("slot", "right")
+                attr("slot", "before")
                 attr("width", "100%")
                 src(rhsEdgeRepo.data.map { it.after ?: it.before })
             }

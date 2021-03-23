@@ -22,21 +22,9 @@ kotlin {
     }
 
     js(IR) {
-        browser {
-            binaries.executable()
-            runTask {
-                devServer = devServer?.copy(port = 3000)
-            }
+        browser()
+    }.binaries.executable()
 
-            testTask {
-                useKarma {
-                    useChromeHeadless()
-                    webpackConfig.cssSupport.enabled = true
-                }
-            }
-        }
-    }
-    
     sourceSets {
         val commonMain by getting
         val commonTest by getting {
@@ -56,9 +44,6 @@ kotlin {
                 implementation("dev.fritz2:core:0.9")
                 implementation("dev.fritz2:styling:0.9")
                 implementation("dev.fritz2:components:0.9")
-                implementation(npm("img-comparison-slider", "3.0.1"))
-                implementation(npm("svelte-image-compare", "1.1.1"))
-                implementation(npm("compare-image-slider", "0.1.15"))
             }
         }
         val jsTest by getting {

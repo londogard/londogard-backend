@@ -49,18 +49,13 @@ data class LundeNetSession(val userId: String)
 @Suppress("unused") // Referenced in application.conf
 fun Application.module() {
     install(DefaultHeaders)     // Automatic Date & Server Head to each response. Possible to config additional headers
-    install(CallLogging) {        // This uses use the logger to log every call (request/response)
-//        level = Level.DEBUG
-    }
+    install(CallLogging) { /** level = Level.DEBUG */ }       // This uses use the logger to log every call (request/response)
     install(ConditionalHeaders) // Automatic '304 Not Modified' Responses
-    //install(WebSockets) {
-    //    pingPeriod = Duration.ofSeconds(10)
-    //    timeout = Duration.ofSeconds(30)
-    //}
     install(PartialContent)     // Supports for Range, Accept-Range and Content-Range headers
     install(Locations)
-    // install(Kweb)
     install(Compression)
+    // install(Kweb)
+    //install(WebSockets) { pingPeriod = Duration.ofSeconds(10); timeout = Duration.ofSeconds(30) }
 
     val redirectionCache = mutableMapOf<String, String>()
     val lines = javaClass.getResourceAsStream("/fuzzy-filenames.txt").bufferedReader().readLines()
@@ -141,6 +136,7 @@ fun Application.module() {
             resource("rss.svg", "rss.svg")
             resource("css", "mvp.css")
             resource("hampus", "hampus.jpg")
+            resource("dennis", "dennis.jpg")
         }
     }
 }

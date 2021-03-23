@@ -50,6 +50,8 @@ dependencies {
 
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-core:$kotlinx_serialization"
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-cbor:$kotlinx_serialization"
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1"
+    implementation "org.json:json:20210307" // XML
 
     implementation "ch.qos.logback:logback-classic:$logback_version"
 
@@ -82,9 +84,6 @@ dependencies {
 
     implementation 'org.boofcv:boofcv-core:0.37'
     implementation 'org.boofcv:boofcv-kotlin:0.37'
-
-    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1"
-    implementation "org.json:json:20201115"
 
     implementation 'org.mindrot:jbcrypt:0.4'
 
