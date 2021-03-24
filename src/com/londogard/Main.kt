@@ -29,6 +29,7 @@ import org.koin.ktor.ext.inject
 // import java.time.Duration
 import java.time.LocalDateTime
 import io.ktor.websocket.WebSockets
+import org.slf4j.event.Level
 import java.time.Duration
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
@@ -48,16 +49,13 @@ data class LundeNetSession(val userId: String)
 @Suppress("unused") // Referenced in application.conf
 fun Application.module() {
     install(DefaultHeaders)     // Automatic Date & Server Head to each response. Possible to config additional headers
-    install(CallLogging)        // This uses use the logger to log every call (request/response)
+    install(CallLogging) { /** level = Level.DEBUG */ }       // This uses use the logger to log every call (request/response)
     install(ConditionalHeaders) // Automatic '304 Not Modified' Responses
-    install(WebSockets) {
-        pingPeriod = Duration.ofSeconds(10)
-        timeout = Duration.ofSeconds(30)
-    }
     install(PartialContent)     // Supports for Range, Accept-Range and Content-Range headers
     install(Locations)
-    install(Kweb)
     install(Compression)
+    // install(Kweb)
+    //install(WebSockets) { pingPeriod = Duration.ofSeconds(10); timeout = Duration.ofSeconds(30) }
 
     val redirectionCache = mutableMapOf<String, String>()
     val lines = javaClass.getResourceAsStream("/fuzzy-filenames.txt").bufferedReader().readLines()
@@ -68,10 +66,12 @@ fun Application.module() {
         else modules(backendModule)
     }
 
+    // Default: [Accept, AcceptLanguages, ContentLanguage, ContentType]
     install(CORS) {
-        header(HttpHeaders.Authorization)
-        allowCredentials = true
         anyHost()
+        method(HttpMethod.Options)
+        allowNonSimpleContentTypes = true
+        allowCredentials = true
     }
 
     install(StatusPages) { getExceptionResponses() }
@@ -136,6 +136,7 @@ fun Application.module() {
             resource("rss.svg", "rss.svg")
             resource("css", "mvp.css")
             resource("hampus", "hampus.jpg")
+            resource("dennis", "dennis.jpg")
         }
     }
 }

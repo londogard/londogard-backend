@@ -12,7 +12,8 @@ object HtmlTemplates {
         Header("smry.", "/smry"),
         Header("textgen.", "/textgen"),
         Header("billsplit.", "/billsplit"),
-        Header("colorkidz.", "/colorkidz"),
+        Header("SweNER", "/ner"),
+        Header("ColorKidz↗", "https://colorkidz.londogard.com"),
         Header("urlshort.", "/url"),
         Header("fuzsearch.", "/fuzsearch"),
         Header("about.", "/about"),
@@ -104,7 +105,6 @@ object HtmlTemplates {
                 titles.forEach { header -> li { a(href = header.href) { +header.title } } }
                 li { a(href = appStoreUrl, target = "_blank") { +"apps↗️" } }
             }
-
         }
     }
 }

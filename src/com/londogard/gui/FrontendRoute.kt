@@ -2,16 +2,16 @@ package com.londogard.gui
 
 import com.londogard.aboutRoute
 import com.londogard.billsplitter.billsplit
-import com.londogard.colorkidz.colorKidz
 import com.londogard.fuzzyRoute
+import com.londogard.gui.HtmlTemplates.respondHtmlShell
 import com.londogard.stokkRoute
 import com.londogard.summarizer.summarizerRoute
 import com.londogard.textgen.textgenRoute
 import com.londogard.urlShort
 import io.ktor.application.*
-import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.util.*
+import kotlinx.html.iframe
 import kotlinx.serialization.ExperimentalSerializationApi
 
 @InternalAPI
@@ -28,10 +28,13 @@ fun Routing.frontendRoute(
     textgenRoute()
     fuzzyRoute(lines)
     stokkRoute()
-    colorKidz()
-    //     get("/{visitedUrl...}") {
-    //         call.respondKweb(buildPage)
-    //     }
-    // get("/blog") { call.respondRedirect("https://blog.londogard.com", permanent = true) }
-    // get("/rss") { call.respondRedirect("https://blog.londogard.com/feed.xml") }
+    get("ner") {
+       call.respondHtmlShell("Swedish NER") {
+           iframe {
+               src="https://share.streamlit.io/londogard/swedish-ner/main/swedish-ner-flair-streamlit.py"
+               width="100%"
+               height="1080px"
+           }
+       }
+    }
 }

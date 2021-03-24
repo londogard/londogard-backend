@@ -14,7 +14,7 @@ import org.koin.ktor.ext.inject
 @KtorExperimentalAPI
 @InternalSerializationApi
 fun Route.indexRoute(): Route = route("/") {
-    val db by inject<Database>()
+    val db by inject<Database>()    // TODO cache blog in db
 
     get {
         val blogs = BlogHelper.fetchBlogRss()
