@@ -105,7 +105,6 @@ object HtmlTemplates {
                 titles.forEach { header -> li { a(href = header.href) { +header.title } } }
                 li { a(href = appStoreUrl, target = "_blank") { +"apps↗️" } }
             }
-
         }
     }
 }

@@ -86,7 +86,8 @@ fun Route.aboutRoute(): Route = get("/about") {
                     br {  }
                     +"Has a big interest in finance, working out and of course coding!"
                 }
-                a(href="https://www.linkedin.com/in/dennis-lond%C3%B6g%C3%A5rd-43a26b15b/", target="_blank") { linkedInLogo() }
+
+                a(href="https://www.linkedin.com/in/dennis-londögård-43a26b15b", target="_blank") { linkedInLogo() }
                 a(href="https://github.com/denkhan", target="_blank") { img(src="https://github.githubassets.com/favicons/favicon.png", alt="GitHub") }
             }, image = "dennis")
         }
