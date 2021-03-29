@@ -31,7 +31,7 @@ fun Routing.frontendRoute(
     get("ner") {
        call.respondHtmlShell("Swedish NER") {
            iframe {
-               src="https://share.streamlit.io/londogard/swedish-ner/main/swedish-ner-flair-streamlit.py"
+               src="https://share.streamlit.io/londogard/swedish-ner/main/main.py"
                width="100%"
                height="1080px"
            }
