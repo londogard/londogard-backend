@@ -9,15 +9,9 @@ data class Header(val title: String, val href: String)
 object HtmlTemplates {
     private const val appStoreUrl = "https://play.google.com/store/apps/developer?id=Londogard"
     private val titles = listOf(
-        Header("smry.", "/smry"),
-        Header("textgen.", "/textgen"),
-        Header("billsplit.", "/billsplit"),
-        Header("SweNER", "/ner"),
-        Header("ColorKidz↗", "https://colorkidz.londogard.com"),
-        Header("urlshort.", "/url"),
-        Header("fuzsearch.", "/fuzsearch"),
+        Header("projects.", "/projects"),
         Header("about.", "/about"),
-        Header("Blog & TIL↗", "https://blog.londogard.com")
+        Header("blog.", "https://blog.londogard.com")
     )
 
     suspend fun ApplicationCall.respondHtmlShell(
@@ -65,13 +59,19 @@ object HtmlTemplates {
             footer {
                 hr { }
                 p {
-                    +"Made by "
-                    a(href = "https://github.com/londogard/", target = "_blank") { +"Londogard↗️" }
-                    a(href = "https://blog.londogard.com/feed.xml") {
+                    +"Made by Londogard "
+                    a(href = "https://blog.londogard.com/feed.xml", target="_blank") {
                         style = "float:right"
-                        img(src = "/rss.svg", alt = "rss feed") { height = "20" }
+                        img(src = "/rss.svg", alt = "rss feed") { height = "24" }
                     }
-                    br { }
+                    a(appStoreUrl, target="_blank") {
+                        style = "float:right"
+                        img(src = "/playstore.svg", alt = "Android Play Store") { height = "24" }
+                    }
+                    a(href="https://github.com/londogard/", target="_blank") {
+                        style = "float:right"
+                        img(src="/github.svg", alt="GitHub") { height = "24" }
+                    }
                 }
             }
         }
@@ -101,10 +101,7 @@ object HtmlTemplates {
                     height = "70"
                 }
             }
-            ul {
-                titles.forEach { header -> li { a(href = header.href) { +header.title } } }
-                li { a(href = appStoreUrl, target = "_blank") { +"apps↗️" } }
-            }
+            ul { titles.forEach { header -> li { a(href = header.href) { +header.title } } } }
         }
     }
 }

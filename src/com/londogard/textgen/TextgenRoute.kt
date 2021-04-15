@@ -18,7 +18,7 @@ import kotlinx.serialization.ExperimentalSerializationApi
 internal data class TextGenInput(val text: String, val temperature: Double = 0.3, val tokens: Int = 150)
 
 @ExperimentalSerializationApi
-fun Route.textgenRoute(): Route = route("/textgen") {
+fun Route.textgenRoute(): Route = route("textgen") {
     val topKSample = TopKSampleSearch(5)
 
     fun MAIN.textgenForm(selectedItem: String, currentText: String?, temperature: String, tokens: String = "250"): Unit =

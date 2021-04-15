@@ -45,7 +45,10 @@ fun Route.fuzzyRoute(lines: List<String>): Route = route("/fuzsearch") {
             fuzzyForm(keyword)
             section {
                 aside {
-                    fuzzyMatches.forEach { p { +it } }
+                    p { fuzzyMatches.forEach { match ->
+                        +match
+                        br {  }
+                    } }
                 }
             }
         }

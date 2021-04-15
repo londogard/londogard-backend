@@ -132,8 +132,13 @@ fun Application.module() {
         authRoute(userSource)
 
         static {
-            resource("favicon.ico", "favicon.ico")
-            resource("rss.svg", "rss.svg")
+            listOf(
+                "rss.svg", "github.svg", "twitter.svg", "linkedin.svg",
+                "playstore.svg", "swener.jpg", "colorkidz.jpg", "favicon.ico"
+            )
+                .forEach { resource ->
+                    resource(resource, resource)
+                }
             resource("css", "mvp.css")
             resource("hampus", "hampus.jpg")
             resource("dennis", "dennis.jpg")
