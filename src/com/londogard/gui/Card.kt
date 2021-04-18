@@ -4,7 +4,7 @@ import kotlinx.html.*
 
 /** [wideCard] create a wide card, all nulls are optional */
 fun FlowContent.wideCard(
-    title: String, body: FlowContent.() -> Unit, date: String? = null,
+    title: String, body: DIV.() -> Unit, date: String? = null,
     image: String? = null, url: String? = null, smallLink: Boolean = false
 ): Unit = aside {
     style = "width:var(--width-card-wide);display:flex;flex-wrap:wrap;"
