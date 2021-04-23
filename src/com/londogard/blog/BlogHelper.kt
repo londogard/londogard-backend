@@ -8,15 +8,33 @@ import io.ktor.client.request.*
 import io.ktor.util.*
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonTransformingSerializer
+import kotlinx.serialization.serializer
 import org.json.XML
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
+@InternalSerializationApi
+object WrappingJsonListSerializer :
+    JsonTransformingSerializer<List<Category>>(ListSerializer(Category::class.serializer())) {
+    override fun transformDeserialize(element: JsonElement): JsonElement {
+        return if (element !is JsonArray) JsonArray(listOf(element))
+        else element
+    }
+}
+
+@InternalSerializationApi
 @Serializable data class FeedHead(val feed: Feed)
+@InternalSerializationApi
 @Serializable data class Feed(val entry: List<Entry>, val subtitle: String, val title: StringContent)
-@Serializable data class Entry(val id: String, val published: String, val title: StringContent, val summary: StringContent, val category: List<Category>)
+@InternalSerializationApi
+@Serializable data class Entry(val id: String, val published: String, val title: StringContent, val summary: StringContent,
+                               @Serializable(WrappingJsonListSerializer::class) val category: List<Category>)
 @Serializable data class StringContent(val content: String = "Missing")
 @Serializable data class Category(val term: String)
 
