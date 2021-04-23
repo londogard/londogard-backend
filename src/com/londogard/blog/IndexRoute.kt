@@ -37,7 +37,10 @@ fun Route.indexRoute(): Route = route("/") {
                             p {
                                 b { +blog.title.content.descapeHTML() }
                                 br { }
-                                +blog.summary.content.descapeHTML()
+                                small {
+                                    style="color: var(--color-text)"
+                                    +blog.summary.content.descapeHTML()
+                                }
                                 br { }
                                 a(href = blog.id) { +"More↗" }
                             }
