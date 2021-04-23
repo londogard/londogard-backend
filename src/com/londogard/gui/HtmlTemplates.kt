@@ -59,7 +59,7 @@ object HtmlTemplates {
             footer {
                 hr { }
                 p {
-                    +"Made by Londogard "
+                    +"Made by Londogard - Running on a (single) Raspberry Pi"
                     a(href = "https://blog.londogard.com/feed.xml", target="_blank") {
                         style = "float:right"
                         img(src = "/rss.svg", alt = "rss feed") { height = "24" }

@@ -71,7 +71,7 @@ fun Route.aboutRoute(): Route = get("/about") {
                 svgImage(href="https://github.com/denkhan", img="/github.svg", alt="GitHub")
             }, image = "dennis", "clipOne")
         }
-    }// <img src="$src" alt="" width="200px" style="clip-path: url(#myClip);"/>
+    }
 }
 
 fun HTMLTag.defineSvgShapes() = unsafe {
