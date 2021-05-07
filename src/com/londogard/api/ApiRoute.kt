@@ -9,8 +9,7 @@ import com.londogard.blog.BlogHelper
 import com.londogard.blog.BlogHelper.toFullBlog
 import com.londogard.blog.BlogPost
 import com.londogard.blog.BlogPostOpt
-import com.londogard.colorkidz.CKidz
-import com.londogard.colorkidz.EdgeDetection
+import com.londogard.colorkidz.*
 import com.londogard.summarizer.SummarizeReq
 import com.londogard.summarizer.summarize
 import com.londogard.textgen.LanguageModelHelper
@@ -154,9 +153,25 @@ fun Route.apiRoute(redirections: MutableMap<String, String>): Route = route("/ap
     }
 
     post("/colorkidz") {
-        val body = call.receiveOrNull<EdgeDetection>()
-        val byteArray = CKidz.findEdges(body!!.toByteArray(), body.sigma)
+        val body = call.receiveOrNull<EdgeDetection>() ?: throw InvalidInputException("Requires EdgeDetection(sigma: Double, b64Image: String).")
+        val byteArray = CKidz.findEdges(body.b64Image.b64ToByteArray(), body.sigma)
 
-        call.respondText(Base64.getEncoder().encodeToString(byteArray), ContentType.Image.PNG)
+        call.respondText(byteArray.b64ToString(), ContentType.Image.JPEG)
+    }
+
+    route("/resize") {
+        post("/single") {
+            val body = call.receiveOrNull<Resize>() ?: throw InvalidInputException("Requires Resize(pixelLinesToRemove: Int, b64Image: String).")
+            val byteArray = CKidz.seamCarving(body.b64Image.b64ToByteArray(), body.pixelLinesToRemove, 1).first()
+
+            call.respondText(byteArray.b64ToString(), ContentType.Image.JPEG)
+        }
+        post("/demo") {
+            val body = call.receiveOrNull<ResizeDemo>() ?: throw InvalidInputException("Requires ResizeDemo(numAlternatives: Int, b64Image: String).")
+
+            val byteArray = CKidz.seamCarving(body.b64Image.b64ToByteArray(), body.pixelLinesToRemove, body.numAlternatives)
+
+            call.respond(ResultResponseArray(byteArray.map(ByteArray::b64ToString)))
+        }
     }
 }

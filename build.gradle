@@ -9,7 +9,7 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
         classpath "com.squareup.sqldelight:gradle-plugin:$sqldelight_version"
-        classpath 'com.github.jengelman.gradle.plugins:shadow:5.1.0'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:6.1.0'
         // classpath 'com.guardsquare:proguard-gradle:7.0.0'
     }
 }
@@ -56,7 +56,6 @@ dependencies {
     implementation "com.londogard:text-gen-kt:1.1.0"
     implementation "com.londogard:fuzzy-match-kt:1.0.1"
     implementation "com.londogard:stokk:0.1.0"
-    implementation 'com.github.londogard:embeddings-kt:usif-SNAPSHOT'
 
     implementation 'org.jetbrains:markdown:0.1.45'
 

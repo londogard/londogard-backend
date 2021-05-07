@@ -1,13 +1,9 @@
 package com.londogard.faq
 
-import com.londogard.embeddings.SentenceEmbeddings
-import com.londogard.embeddings.USifSentenceEmbeddings
 import io.ktor.routing.*
-//import smile.math.matrix.Matrix
 
 fun Route.faq(): Route = route("/faq") {
 
-    // val emb: LightWordEmbeddings = TODO("DO")
     /**
      * dists = distance.cdist(df['embedded_avg'].values.tolist(), [q_embedded], 'cosine')
         dists = np.array([d[0] for d in dists])
@@ -28,8 +24,4 @@ fun Route.faq(): Route = route("/faq") {
         return TODO("Return the FAQ of indice of dist min N")
     }
 
-}
-
-object USIFEmbeddings {
-//    val embeddings: SentenceEmbeddings = USifSentenceEmbeddings()
 }
