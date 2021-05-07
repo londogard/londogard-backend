@@ -22,18 +22,37 @@ object CKidz {
     private val grayDX: GrayF32 = GrayF32(1, 1)
     private val grayDY: GrayF32 = GrayF32(1, 1)
     private val intensity: GrayF32 = GrayF32(1, 1)
-    private val canny: CannyEdge<GrayU8, GrayS16> by lazy { FactoryEdgeDetectors.canny(2, true, true, GrayU8::class.java, GrayS16::class.java) }
-    private val sobel: ImageGradient_SB.Sobel<GrayF32, GrayF32> by lazy { ImageGradient_SB.Sobel(GrayF32::class.java, GrayF32::class.java) }
+    private val canny: CannyEdge<GrayU8, GrayS16> by lazy {
+        FactoryEdgeDetectors.canny(
+            2,
+            true,
+            true,
+            GrayU8::class.java,
+            GrayS16::class.java
+        )
+    }
+    private val sobel: ImageGradient_SB.Sobel<GrayF32, GrayF32> by lazy {
+        ImageGradient_SB.Sobel(
+            GrayF32::class.java,
+            GrayF32::class.java
+        )
+    }
 
     private fun toBufferedImage(bs: ByteArray): BufferedImage? =
         runCatching { ImageIO.read(ByteArrayInputStream(bs)) }.getOrNull()
 
     // TODO only recalculate the update path..!
     //  This could be done by saving the energyMap and only update states requiring update moving upwards
-    fun cheapestPath(image: GrayF32): Set<Int> {
+    fun cheapestPath(image: GrayF32): IntArray {
+        val widthRange = 0 until image.width
         for (y in image.height - 2 downTo 0) {
-            for (x in 0 until image.width) {
-                val cheapestPath = (max(x - 1, 0)..min(x + 1, image.width - 1))
+            for (x in widthRange) {
+                val range = when (x) {
+                    0 -> 0..1
+                    widthRange.last -> x-1..x
+                    else -> x-1..x+1
+                }
+                val cheapestPath = range
                     .minOf { i -> image[i, y + 1] }
 
                 image[x, y] = image[x, y] + cheapestPath
@@ -48,10 +67,10 @@ object CKidz {
             previousBest = range.minByOrNull { j -> image.get(j, i) } ?: 0
 
             previousBest + (i * image.width) // Raw Index
-        }.toSet()
+        }
     }
 
-    fun seamCarve(img: GrayF32): Set<Int> {
+    fun seamCarve(img: GrayF32): IntArray {
         sobel.process(img, grayDX, grayDY)
         GGradientToEdgeFeatures.intensityE(grayDX, grayDY, intensity)
         return cheapestPath(intensity)
@@ -61,40 +80,30 @@ object CKidz {
         val orig = toBufferedImage(byteArray) ?: return emptyList()
         val planar = orig.asPlanarU8()
 
-        val toReturn = MutableList(numDemos) { planar.clone() }
-
         val currImg = ConvertBufferedImage.convertFrom(orig, null as GrayF32?)
         val savePoints = reductions / numDemos
-        val indiceToRemove: MutableList<Set<Int>> = MutableList(reductions) { emptySet() }
 
-        // TODO set lines as 255 and save indices..??
-        (0..reductions).forEach { i ->
+        val byteArrays = (0..reductions).fold(emptyList<ByteArray>()) { acc, i ->
             val indices = seamCarve(currImg)
             currImg.apply {
                 setData(currImg.data.removeIndices(indices))
                 reshape(width - 1, height)
             }
-            indiceToRemove[i] = indices
-        }
 
-        (0..reductions).forEach { i ->
-            planar.bands.forEach { band ->
-                band.apply {
-                    setData(band.data.removeIndices(indices))
-                    width -= 1
-                }
-            }
-            planar.reshape(planar.width - 1, planar.height)
+            planar
+                .bands
+                .forEach { band -> band.setData(band.data.removeIndices(indices)) }
 
             if (i != 0 && i % savePoints == 0) {
-                toReturn[i / savePoints - 1] = planar.clone()
-            }
+                planar.reshape(currImg.width, planar.height)
+                acc + planar.asBufferedImage().toByteArray("jpg")
+            } else acc
         }
 
-        return toReturn.map { img -> img.asBufferedImage().toByteArray("jpg") }
+         return byteArrays
     }
 
-    fun BufferedImage.toByteArray(format: String): ByteArray {
+    private fun BufferedImage.toByteArray(format: String): ByteArray {
         val stream = ByteArrayOutputStream()
         ImageIO.write(this, format, stream)
         return stream.toByteArray()
