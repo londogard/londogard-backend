@@ -42,7 +42,7 @@ fun Route.indexRoute(): Route = route("/") {
                                     +blog.summary.content.descapeHTML()
                                 }
                                 br { }
-                                a(href = blog.id) { +"More↗" }
+                                a(href = blog.id.descapeHTML()) { +"More↗" }
                             }
                         }
                 })
@@ -60,4 +60,5 @@ private fun String.descapeHTML(): String {
         .replace("&amp;", "&")
         .replace("&lt;;", "<")
         .replace("&gt;;", ">")
+        .replace("%20", "-")
 }
