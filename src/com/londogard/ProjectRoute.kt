@@ -54,7 +54,6 @@ fun Route.projectRoute(): Route = get("") {
                         i { +"Convert your images into colouring pages" }
                         br { }
                         +"Our only Progressive Web App (PWA) this far. ColorKidz turns your photo into a colouring page using an algorithmic approach. "
-                        +""
                     }
                     a(href = "https://colorkidz.londogard.com") { +"Test ColorKidz" }
                 }, image = "colorkidz.jpg")
