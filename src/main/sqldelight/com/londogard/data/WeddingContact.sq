@@ -1,0 +1,28 @@
+CREATE TABLE wedding_contact (
+    weddingid INTEGER NOT NULL,
+    title TEXT NOT NULL,
+    name TEXT NOT NULL,
+    telephone TEXT,
+    email TEXT,
+    address TEXT,
+    UNIQUE(weddingid, title),
+    FOREIGN KEY(weddingid) REFERENCES wedding_information(weddingid)
+);
+
+insert:
+INSERT INTO wedding_contact (weddingid, title, name, telephone, email, address)
+VALUES (?, ?, ?, ?, ?, ?);
+
+selectSimple:
+SELECT * FROM wedding_contact WHERE weddingid == ?;
+
+delete:
+DELETE FROM wedding_contact
+WHERE weddingid == ? AND title == ?;
+
+update:
+UPDATE wedding_contact
+SET title = ?, name = ?, telephone = ?, email = ?, address = ?
+WHERE weddingid == ? AND title == ?;
+
+rowid: SELECT last_insert_rowid();

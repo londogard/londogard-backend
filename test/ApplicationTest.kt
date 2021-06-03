@@ -3,22 +3,16 @@ package com.londogard
 import com.londogard.billsplitter.PersonPayment
 import com.londogard.blog.BlogPost
 import com.londogard.blog.FullBlog
-import io.ktor.http.ContentType
-import io.ktor.http.HttpHeaders
-import io.ktor.http.HttpMethod
-import io.ktor.http.HttpStatusCode
-import io.ktor.locations.KtorExperimentalLocationsAPI
+import io.ktor.http.*
+import io.ktor.locations.*
 import io.ktor.server.testing.*
-import io.ktor.util.InternalAPI
-import io.ktor.util.KtorExperimentalAPI
+import io.ktor.util.*
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import org.amshove.kluent.shouldBe
-import org.koin.core.context.startKoin
 import org.koin.ktor.ext.inject
-
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -35,12 +29,7 @@ class ApplicationTest {
     fun cleanup() {
         withServer {
             val db by this.application.inject<Database>()
-
-            db.apply {
-                blogQueries.drop()
-                userQueries.drop()
-                urlQueries.drop()
-            }
+            db.testingQueries.resetAll()
         }
     }
 

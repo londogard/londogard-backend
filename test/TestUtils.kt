@@ -8,12 +8,13 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.escapeIfNeeded
 import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.server.testing.*
-import io.ktor.util.InternalAPI
-import io.ktor.util.KtorExperimentalAPI
+import io.ktor.util.*
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.InternalSerializationApi
 
 val testUser = """{"name":  "lunde", "password": "123abc"}"""
+@InternalAPI
+val testUserb64 = "lunde:123abc".encodeBase64()
 val testUserTwo = """{"name":  "lunde", "password": "123"}"""
 
 internal fun TestApplicationRequest.addJsonHeader(): Unit =
@@ -80,3 +81,56 @@ kotlinx.serialization/docs/examples.md
     About
 
 """.trim().escapeIfNeeded().replace('\n', '\t')
+
+val weddingCreate = """
+    {
+    	"contact": {
+    		"entries": [
+    			{
+    				"title": "Toastmasters",
+    				"entries": [
+    					{
+    						"name": "Hampus",
+    						"tel": "0708..."
+    					}
+    				]
+    			}
+    		]
+    	},
+    	"information": {
+    		"content": "Hello World! Lorem Ipsum....",
+    		"date": "10th of Oct",
+    		"timeline": [
+    			{
+    				"title": "Church",
+    				"time": "10:00",
+    				"description": "Walking to church..."
+    			}
+    		]
+    	},
+    	"guests": [
+    		{
+    			"names": [
+    				"Amanda",
+    				"Viktor"
+    			]
+    		}
+    	],
+    	"gift": {
+    		"title": "Our gifts",
+    		"description": "Please buy more",
+    		"gifts": [
+    			{
+    				"title": "Värmare",
+    				"description": "Låt oss bli varma!",
+    				"links": [
+    					"https://www.google.com/random/path"
+    				],
+    				"checked": false,
+    				"checkable": true,
+    				"giftId": 0
+    			}
+    		]
+    	}
+    }
+""".trimIndent()

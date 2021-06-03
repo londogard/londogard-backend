@@ -58,6 +58,3 @@ SELECT * FROM blog WHERE category LIKE '%'+?+'%';
 
 insertOrReplace:
 INSERT OR REPLACE INTO blog VALUES ?;
-
-drop:
-DELETE FROM blog;

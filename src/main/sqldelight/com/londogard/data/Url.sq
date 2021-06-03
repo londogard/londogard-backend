@@ -22,6 +22,3 @@ SELECT * FROM url WHERE full_url == ?;
 
 selectByHash:
 SELECT * FROM url WHERE shortened == ?;
-
-drop:
-DELETE FROM url;

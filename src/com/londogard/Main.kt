@@ -2,17 +2,22 @@ package com.londogard
 
 import com.londogard.api.apiRoute
 import com.londogard.auth.JwtConfig
+import com.londogard.auth.UserPasswordCredential
 import com.londogard.auth.authRoute
 import com.londogard.blog.indexRoute
 import com.londogard.gui.frontendRoute
 import com.londogard.jwtauth.UserSource
 import com.londogard.jwtauth.UserSourceImpl
+import com.londogard.wedding.weddingRoute
+import io.ktor.webjars.Webjars
+import io.bkbn.kompendium.routes.openApi
+import io.bkbn.kompendium.swagger.swaggerUI
+import io.bkbn.kompendium.routes.redoc
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.auth.jwt.*
 import io.ktor.features.*
 import io.ktor.http.*
-import io.ktor.http.cio.websocket.*
 import io.ktor.http.content.*
 import io.ktor.locations.*
 import io.ktor.response.*
@@ -22,15 +27,9 @@ import io.ktor.util.*
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.json.Json
-import kweb.Kweb
-// import kweb.Kweb
 import org.koin.ktor.ext.Koin
 import org.koin.ktor.ext.inject
-// import java.time.Duration
 import java.time.LocalDateTime
-import io.ktor.websocket.WebSockets
-import org.slf4j.event.Level
-import java.time.Duration
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -38,7 +37,6 @@ fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
  * Session of this site, that just contains the [userId].
  */
 data class LundeNetSession(val userId: String)
-
 
 @InternalSerializationApi
 @ExperimentalStdlibApi
@@ -54,8 +52,9 @@ fun Application.module() {
     install(PartialContent)     // Supports for Range, Accept-Range and Content-Range headers
     install(Locations)
     install(Compression)
+    install(Webjars)
     // install(Kweb)
-    //install(WebSockets) { pingPeriod = Duration.ofSeconds(10); timeout = Duration.ofSeconds(30) }
+    // install(WebSockets) { pingPeriod = Duration.ofSeconds(10); timeout = Duration.ofSeconds(30) }
 
     val redirectionCache = mutableMapOf<String, String>()
     val lines = javaClass.getResourceAsStream("/fuzzy-filenames.txt").bufferedReader().readLines()
@@ -66,10 +65,12 @@ fun Application.module() {
         else modules(backendModule)
     }
 
+
     // Default: [Accept, AcceptLanguages, ContentLanguage, ContentType]
     install(CORS) {
         anyHost()
         method(HttpMethod.Options)
+        header("Authorization")
         allowNonSimpleContentTypes = true
         allowCredentials = true
     }
@@ -81,6 +82,13 @@ fun Application.module() {
     JwtConfig.initAlgo(environment.config.propertyOrNull("security.secret")?.getString())
 
     install(Authentication) {
+        basic("auth-basic") {
+            realm = "londogard.com"
+            validate { credential -> // TODO look into if this can be optimized
+                userSource.findUserByCredentials(UserPasswordCredential(credential.name, credential.password))
+            }
+        }
+
         /**
          * Setup the JWT authentication to be used in [Routing].
          * If the token is valid, the corresponding [JWTPrincipal] is fetched from the database.
@@ -103,6 +111,7 @@ fun Application.module() {
         json(Json {
             prettyPrint = true
             isLenient = true
+            encodeDefaults = true
         })
     }
 
@@ -123,6 +132,9 @@ fun Application.module() {
     }
 
     routing {
+        openApi(oas)
+        redoc(oas)
+        swaggerUI()
         indexRoute()
         get("/github") { call.respondRedirect("https://github.com/londogard/") }
         get("/apps") { call.respondRedirect("https://play.google.com/store/apps/developer?id=Londogard") }
@@ -130,6 +142,8 @@ fun Application.module() {
         apiRoute(redirectionCache)
         frontendRoute(redirectionCache, lines)
         authRoute(userSource)
+
+        authenticate("auth-basic") { weddingRoute() }
 
         static {
             listOf(

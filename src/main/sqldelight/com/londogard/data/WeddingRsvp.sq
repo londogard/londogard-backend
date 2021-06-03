@@ -1,0 +1,35 @@
+import java.lang.Boolean;
+
+CREATE TABLE wedding_rsvp (
+    guestid INTEGER NOT NULL,
+    name TEXT NOT NULL,
+    coming INTEGER as Boolean DEFAULT 0 NOT NULL,
+    FOREIGN KEY(guestid) REFERENCES wedding_guest(guestid),
+    UNIQUE(guestid, name)
+);
+-- Create a supertable over guest, wrapping. Then underlying names?
+
+insert:
+INSERT INTO wedding_rsvp (guestid, name)
+VALUES (?,  ?);
+
+selectByIdName:
+SELECT * FROM wedding_rsvp WHERE guestid == ? AND name == ?;
+
+selectById:
+SELECT * FROM wedding_rsvp WHERE guestid == ?;
+
+selectByWeddingId:
+SELECT * FROM wedding_rsvp WHERE guestid == (SELECT guestid FROM wedding_guest WHERE weddingid == ?);
+
+isComing:
+UPDATE wedding_rsvp SET coming = ? WHERE guestid = ? AND name = ?;
+
+isComingAll:
+UPDATE wedding_rsvp SET coming = ? WHERE guestid == ? AND guestid == (SELECT guestid FROM wedding_guest WHERE weddingid == ?);
+
+remove:
+DELETE FROM wedding_rsvp
+WHERE guestid == ?;
+
+rowid: SELECT last_insert_rowid();

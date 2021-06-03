@@ -1,0 +1,14 @@
+CREATE TABLE giftery_list (
+    gifteryid INTEGER PRIMARY KEY,
+    title TEXT NOT NULL,
+    description TEXT NOT NULL
+);
+
+insert:
+INSERT INTO giftery_list (title, description)
+VALUES (?, ?);
+
+selectById:
+SELECT * FROM giftery_list WHERE gifteryid == ?;
+
+rowid: SELECT last_insert_rowid();

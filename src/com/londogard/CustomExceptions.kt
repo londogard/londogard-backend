@@ -4,6 +4,7 @@ import io.ktor.application.call
 import io.ktor.features.StatusPages.Configuration
 import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
+import io.ktor.utils.io.*
 import java.sql.SQLException
 
 class InvalidCredentialsException(message: String) : RuntimeException(message)
@@ -13,9 +14,6 @@ class InvalidRouteException(message: String = "Route does not exist") : RuntimeE
 const val unknownError = "UNKNOWN ERROR"
 
 fun Configuration.getExceptionResponses() {
-    status(HttpStatusCode.Unauthorized) {
-        call.respond(HttpStatusCode.Unauthorized, "UNAUTHORIZED")
-    }
     exception<InvalidCredentialsException> { exception ->
         call.respond(HttpStatusCode.Unauthorized, resultResponse(exception.message ?: unknownError))
     }
@@ -26,6 +24,7 @@ fun Configuration.getExceptionResponses() {
         call.respond(HttpStatusCode.BadRequest, resultResponse(exception.message ?: unknownError))
     }
     exception<SQLException> { exception ->
+        exception.printStack()
         call.respond(HttpStatusCode.BadRequest, resultResponse("Something went wrong with request. ${exception.message}"))
     }
 }

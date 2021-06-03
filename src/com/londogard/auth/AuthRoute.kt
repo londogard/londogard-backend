@@ -36,7 +36,7 @@ fun Route.authRoute(userSource: UserSource): Route = route("/user") {
      * A public createuser [Route] used to create users
      */
     post("/create") {
-        val credentials = call.receive<UserPasswordCredential>()
+        val credentials = call.receive<UserPasswordCredential>() // TODO extract code
         val pw = BCrypt.hashpw(credentials.password, BCrypt.gensalt())
 
         try {

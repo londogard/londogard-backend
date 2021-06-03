@@ -1,0 +1,29 @@
+CREATE TABLE wedding_information (
+    weddingid INTEGER PRIMARY KEY,
+    userid INTEGER NOT NULL,
+    gifteryid INTEGER NOT NULL,
+    description TEXT NOT NULL,
+    date TEXT NOT NULL,
+    FOREIGN KEY(userid) REFERENCES user(userid),
+    FOREIGN KEY(gifteryid) REFERENCES giftery_list(gifteryid)
+);
+
+insert:
+INSERT INTO wedding_information (userid, gifteryid, description, date)
+VALUES ( ?, ?, ?, ?);
+
+rowid: SELECT last_insert_rowid();
+
+selectByGuestUserId:
+SELECT * FROM wedding_information WHERE weddingid == (SELECT weddingid FROM wedding_guest WHERE userid == ?);
+
+selectById:
+SELECT * FROM wedding_information WHERE weddingid == ?;
+
+selectByUserId:
+SELECT * FROM wedding_information WHERE userid == ?;
+
+update:
+UPDATE wedding_information
+SET description = ?, date = ?
+WHERE weddingid = ?;

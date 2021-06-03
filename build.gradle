@@ -36,7 +36,7 @@ repositories {
     mavenLocal()
     mavenCentral()
     jcenter()
-    maven { url 'https://mvnrepository.com/artifact/org.mindrot/jbcrypt' }
+    //maven { url 'https://mvnrepository.com/artifact/org.mindrot/jbcrypt' }
     maven { url 'https://kotlin.bintray.com/ktor' }
     maven { url 'https://dl.bintray.com/jetbrains/markdown' }
     maven { url "https://jitpack.io" }
@@ -53,6 +53,7 @@ dependencies {
     implementation "ch.qos.logback:logback-classic:$logback_version"
 
     implementation 'com.londogard:summarize-kt:1.2.0'
+    implementation 'com.londogard:londogard-nlp-toolkit:1.0.0'
     implementation "com.londogard:text-gen-kt:1.1.0"
     implementation "com.londogard:fuzzy-match-kt:1.0.1"
     implementation "com.londogard:stokk:0.1.0"
@@ -69,6 +70,8 @@ dependencies {
     implementation "io.ktor:ktor-auth-jwt:$ktor_version"
     implementation "io.ktor:ktor-serialization:$ktor_version"
     implementation "io.ktor:ktor-locations:$ktor_version"
+    implementation "io.ktor:ktor-webjars:$ktor_version"
+
 
     implementation "io.ktor:ktor-client-core:$ktor_version"
     implementation "io.ktor:ktor-client-cio:$ktor_version"
@@ -76,6 +79,11 @@ dependencies {
 
     implementation "org.koin:koin-ktor:$koin_version"
     implementation "org.koin:koin-logger-slf4j:$koin_version"
+
+    implementation("io.bkbn:kompendium-core:local-SNAPSHOT")
+    implementation("io.bkbn:kompendium-auth:local-SNAPSHOT")
+    implementation("io.bkbn:kompendium-swagger-ui:local-SNAPSHOT")
+    implementation 'com.github.nielsfalk:ktor-swagger:0.7.0'
 
     implementation 'com.github.kwebio:kweb-core:0.8.9'
 

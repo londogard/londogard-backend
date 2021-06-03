@@ -1,0 +1,28 @@
+CREATE TABLE timeline (
+    timelineid INTEGER PRIMARY KEY,
+    weddingid INTEGER,
+    time TEXT NOT NULL,
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    FOREIGN KEY(weddingid) REFERENCES wedding_information(weddingid)
+);
+
+insert:
+INSERT INTO timeline (weddingid, time, title, description)
+VALUES (?, ?, ?, ?);
+
+select:
+SELECT * FROM timeline WHERE weddingid == ?;
+
+selectSimple:
+SELECT time, title, description, timelineid FROM timeline WHERE weddingid == ?;
+
+modify:
+UPDATE timeline
+SET time = ?, title = ?, description = ?
+WHERE timelineid == ?;
+
+delete:
+DELETE FROM timeline WHERE timelineid == ?;
+
+rowid: SELECT last_insert_rowid();

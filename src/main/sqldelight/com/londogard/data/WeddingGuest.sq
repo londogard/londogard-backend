@@ -1,0 +1,40 @@
+CREATE TABLE wedding_guest (
+    guestid INTEGER PRIMARY KEY,
+    weddingid INTEGER NOT NULL,
+    userid INTEGER NOT NULL,
+    extra TEXT, -- bus=true&hotel=true...
+    comment TEXT, -- simple comment.
+    FOREIGN KEY(weddingid) REFERENCES wedding_information(weddingid),
+    FOREIGN KEY(userid) REFERENCES user(userid),
+    UNIQUE(weddingid, userid)
+);
+
+insert:
+INSERT INTO wedding_guest (weddingid, userid) VALUES (?, ?);
+
+selectByWeddingId:
+SELECT * FROM wedding_guest WHERE weddingid == ?;
+
+selectByGuestId:
+SELECT * FROM wedding_guest WHERE guestid == ?;
+
+getGuestId:
+SELECT guestid FROM wedding_guest WHERE weddingid == ? AND userid == ?;
+
+getWeddingIdByUserId:
+SELECT weddingid FROM wedding_guest WHERE userid == ?;
+
+updateComment:
+UPDATE wedding_guest SET comment = ? WHERE weddingid == ? AND userid == ?;
+
+updateExtra:
+UPDATE wedding_guest SET extra = ? WHERE weddingid == ? AND userid == ?;
+
+updateGuestInfo:
+UPDATE wedding_guest SET comment = ?, extra = ? WHERE weddingid == ? AND userid == ?;
+
+remove:
+DELETE FROM wedding_guest
+WHERE weddingid == ? AND userid == ?;
+
+rowid: SELECT last_insert_rowid();

@@ -1,17 +1,40 @@
-# App: Mind
-Mind consists of the mind. It'll do everything from TODOs to Knowledge DB to Bookmarking.
+App: Wedding
 
-# Database
+---
 
-Mind
-- title
-- text
-- date (if TODO)
-- tags (List<String>)
-- priority (Priority)
+Make sure to split up Wedding & Giftery clearly.
 
-MindSubTask
-- Connects tasks
+=== General ===  
+UserAuth via User (old table)
 
-Link TODOs, knowledge and everything together.
-Convert between DB & md file simple as it gets.
+=== Wedding ===  
+WeddingInformation:
+- id: PrimaryKey
+- userId: ForeginKey
+- markdownInfo: String
+- date: String
+
+Timeline:
+- id: PrimaryKey
+- wedding: ForeignKey
+- time: String (datestamp?)
+- markdownText: String
+
+=== Giftery ===  
+GifteryList:
+- id: PrimaryKey
+- userId: ForeignKey
+- title: String
+- description: String (MD)
+
+Gift:
+- id: PrimaryKey
+- title: String
+- description: String
+- checkable: Boolean
+- checked: Boolean
+
+GiftCheck:
+- giftId: ForeignKey
+- userId: ForeignKey
+- id: PrimaryKey

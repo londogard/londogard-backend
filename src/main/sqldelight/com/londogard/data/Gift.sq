@@ -1,0 +1,33 @@
+import java.lang.Boolean;
+import kotlin.collections.List;
+
+CREATE TABLE gift (
+    giftid INTEGER PRIMARY KEY,
+    gifterylistid INTEGER NOT NULL,
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    img TEXT,
+    checked INTEGER as Boolean DEFAULT 0 NOT NULL,
+    links TEXT as List<String> NOT NULL,
+    checkable INTEGER as Boolean NOT NULL,
+    FOREIGN KEY(gifterylistid) REFERENCES giftery_list(gifteryid)
+);
+
+selectByGifteryId:
+SELECT * FROM gift WHERE gifterylistid == ?;
+
+insert:
+INSERT INTO gift(gifterylistid, title, description, img, links, checkable)
+VALUES (?, ?, ?, ?, ?, ?);
+
+update:
+UPDATE gift
+SET title = ?, description = ?, checked = ?, links = ?, checkable = ?
+WHERE giftid = ?;
+
+check:
+UPDATE gift
+SET checked = ? WHERE giftid = ?;
+
+delete:
+DELETE FROM gift WHERE giftid = ?;

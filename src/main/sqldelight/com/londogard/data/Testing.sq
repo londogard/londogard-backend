@@ -1,0 +1,12 @@
+resetAll {
+DELETE FROM timeline;
+DELETE FROM blog;
+DELETE FROM giftery_list;
+DELETE FROM gift;
+DELETE FROM url;
+DELETE FROM user;
+DELETE FROM wedding_guest;
+DELETE FROM wedding_contact;
+DELETE FROM wedding_information;
+VACUUM;
+}

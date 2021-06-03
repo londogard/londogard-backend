@@ -11,9 +11,15 @@ insert:
 INSERT INTO user (username, hashpw)
 VALUES (?, ?);
 
+rowid: SELECT last_insert_rowid();
+
 insertFull:
 INSERT INTO user (username, hashpw)
 VALUES ?;
+
+remove:
+DELETE FROM user
+WHERE userid == ?;
 
 select:
 SELECT * FROM user WHERE username == ?;
@@ -26,6 +32,3 @@ SELECT * FROM user WHERE hashpw == ?;
 
 selectByCredentials:
 SELECT * FROM user WHERE hashpw == ? AND username == ?;
-
-drop:
-DELETE FROM user;
