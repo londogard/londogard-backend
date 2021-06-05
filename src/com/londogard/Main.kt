@@ -1,5 +1,6 @@
 package com.londogard
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.londogard.api.apiRoute
 import com.londogard.auth.JwtConfig
 import com.londogard.auth.UserPasswordCredential
@@ -9,16 +10,17 @@ import com.londogard.gui.frontendRoute
 import com.londogard.jwtauth.UserSource
 import com.londogard.jwtauth.UserSourceImpl
 import com.londogard.wedding.weddingRoute
-import io.ktor.webjars.Webjars
+import io.bkbn.kompendium.auth.KompendiumAuth.notarizedBasic
 import io.bkbn.kompendium.routes.openApi
 import io.bkbn.kompendium.swagger.swaggerUI
-import io.bkbn.kompendium.routes.redoc
+import io.ktor.webjars.Webjars
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.auth.jwt.*
 import io.ktor.features.*
 import io.ktor.http.*
 import io.ktor.http.content.*
+import io.ktor.jackson.*
 import io.ktor.locations.*
 import io.ktor.response.*
 import io.ktor.routing.*
@@ -82,7 +84,7 @@ fun Application.module() {
     JwtConfig.initAlgo(environment.config.propertyOrNull("security.secret")?.getString())
 
     install(Authentication) {
-        basic("auth-basic") {
+        notarizedBasic("auth-basic") {
             realm = "londogard.com"
             validate { credential -> // TODO look into if this can be optimized
                 userSource.findUserByCredentials(UserPasswordCredential(credential.name, credential.password))
@@ -109,9 +111,8 @@ fun Application.module() {
 
     install(ContentNegotiation) {
         json(Json {
-            prettyPrint = true
             isLenient = true
-            encodeDefaults = true
+            prettyPrint = true
         })
     }
 
@@ -133,7 +134,6 @@ fun Application.module() {
 
     routing {
         openApi(oas)
-        redoc(oas)
         swaggerUI()
         indexRoute()
         get("/github") { call.respondRedirect("https://github.com/londogard/") }

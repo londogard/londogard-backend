@@ -4,6 +4,7 @@ import com.londogard.Database
 import com.londogard.UserCreationException
 import com.londogard.jwtauth.simplePrincipal
 import io.bkbn.kompendium.Notarized.notarizedGet
+import io.bkbn.kompendium.Notarized.notarizedPost
 import io.bkbn.kompendium.models.meta.MethodInfo
 import io.bkbn.kompendium.models.meta.ResponseInfo
 import io.ktor.application.*
@@ -28,11 +29,15 @@ data class WeddingCreator(val data: Data, val userPws: List<UserData>)
 fun Route.weddingRoute() = route("/wedding") {
     val db by inject<Database>()
 
-    post("/create") {
-        val weddingData = call.receive<Data>()
-        val (data, userPws) = WeddingHelper.createWedding(weddingData, db, call.simplePrincipal?.id!!)
+    route("/create") {
+        notarizedPost(MethodInfo.PostInfo<Data, Data, WeddingCreator>(
+            summary = "Create a Wedding"
+        )) {
+            val weddingData = call.receive<Data>()
+            val (data, userPws) = WeddingHelper.createWedding(weddingData, db, call.simplePrincipal?.id!!)
 
-        call.respond(Created, WeddingCreator(data, userPws))
+            call.respond(Created, WeddingCreator(data, userPws))
+        }
     }
 
     post("/modify/{weddingId}") {
@@ -43,7 +48,12 @@ fun Route.weddingRoute() = route("/wedding") {
         db.weddingInfoQueries.update(weddingInfo.content, weddingInfo.date, weddingId)
     }
 
-    get {
+    notarizedGet(
+        MethodInfo.GetInfo<Unit, String>(
+            summary = "Test Auth",
+            responseInfo = ResponseInfo(status = OK, description = "Returns 'Hello World!' - a good way to test auth")
+        )
+    ) {
         call.respondText("Hello World!")
     }
 
