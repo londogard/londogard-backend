@@ -8,6 +8,7 @@ CREATE TABLE wedding_information (
     FOREIGN KEY(gifteryid) REFERENCES giftery_list(gifteryid)
 );
 
+-- Add custom
 insert:
 INSERT INTO wedding_information (userid, gifteryid, description, date)
 VALUES ( ?, ?, ?, ?);

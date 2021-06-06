@@ -42,4 +42,11 @@ data class Gift(
 data class GifteryList(val title: String, val description: String, val gifts: List<Gift> = emptyList())
 
 @Serializable
-data class Data(val contact: Contacts, val information: Information, val guests: List<Guest>, val gift: GifteryList, val weddingId: Long)
+data class Data(
+    val contact: Contacts,
+    val information: Information,
+    val guests: List<Guest>,
+    val gift: GifteryList,
+    val weddingId: Long,
+    val customMarkdownSections: Map<String, String>? = null
+)
