@@ -5,7 +5,7 @@ CREATE TABLE wedding_contact (
     telephone TEXT,
     email TEXT,
     address TEXT,
-    UNIQUE(weddingid, title),
+    UNIQUE(weddingid, title, name),
     FOREIGN KEY(weddingid) REFERENCES wedding_information(weddingid)
 );
 

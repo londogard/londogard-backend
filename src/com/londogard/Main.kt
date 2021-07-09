@@ -1,6 +1,5 @@
 package com.londogard
 
-import com.fasterxml.jackson.annotation.JsonInclude
 import com.londogard.api.apiRoute
 import com.londogard.auth.JwtConfig
 import com.londogard.auth.UserPasswordCredential
@@ -10,17 +9,12 @@ import com.londogard.gui.frontendRoute
 import com.londogard.jwtauth.UserSource
 import com.londogard.jwtauth.UserSourceImpl
 import com.londogard.wedding.weddingRoute
-import io.bkbn.kompendium.auth.KompendiumAuth.notarizedBasic
-import io.bkbn.kompendium.routes.openApi
-import io.bkbn.kompendium.swagger.swaggerUI
-import io.ktor.webjars.Webjars
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.auth.jwt.*
 import io.ktor.features.*
 import io.ktor.http.*
 import io.ktor.http.content.*
-import io.ktor.jackson.*
 import io.ktor.locations.*
 import io.ktor.response.*
 import io.ktor.routing.*
@@ -30,6 +24,7 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.json.Json
 import org.koin.ktor.ext.Koin
+import org.koin.ktor.ext.get
 import org.koin.ktor.ext.inject
 import java.time.LocalDateTime
 
@@ -54,8 +49,6 @@ fun Application.module() {
     install(PartialContent)     // Supports for Range, Accept-Range and Content-Range headers
     install(Locations)
     install(Compression)
-    install(Webjars)
-    // install(Kweb)
     // install(WebSockets) { pingPeriod = Duration.ofSeconds(10); timeout = Duration.ofSeconds(30) }
 
     val redirectionCache = mutableMapOf<String, String>()
@@ -80,17 +73,50 @@ fun Application.module() {
     install(StatusPages) { getExceptionResponses() }
 
     val db by inject<Database>()
-    val userSource: UserSource = UserSourceImpl(db.userQueries)
+    val userSource: UserSource = UserSourceImpl(db)
     JwtConfig.initAlgo(environment.config.propertyOrNull("security.secret")?.getString())
 
     install(Authentication) {
-        notarizedBasic("auth-basic") {
+        basic("auth-basic") {
             realm = "londogard.com"
             validate { credential -> // TODO look into if this can be optimized
                 userSource.findUserByCredentials(UserPasswordCredential(credential.name, credential.password))
             }
         }
 
+        basic("auth-wedding") {
+            realm = "londogard.com"
+            validate { credential -> // TODO look into if this can be optimized
+                val weddingId = parameters["weddingId"]
+                if (weddingId != null) {
+                    userSource.findUserByCredentialsWedding(
+                        UserPasswordCredential(
+                            credential.name,
+                            credential.password
+                        ), weddingId.toLong()
+                    )
+                } else {
+                    userSource.findUserByCredentials(UserPasswordCredential(credential.name, credential.password))
+                }
+            }
+        }
+
+        basic("auth-wedding-admin") {
+            realm = "londogard.com"
+            validate { credential -> // TODO look into if this can be optimized
+                val weddingId = parameters["weddingId"]
+                if (weddingId != null) {
+                    userSource.findUserByCredentialsWeddingAdmin(
+                        UserPasswordCredential(
+                            credential.name,
+                            credential.password
+                        ), weddingId.toLong()
+                    )
+                } else {
+                    userSource.findUserByCredentials(UserPasswordCredential(credential.name, credential.password))
+                }
+            }
+        }
         /**
          * Setup the JWT authentication to be used in [Routing].
          * If the token is valid, the corresponding [JWTPrincipal] is fetched from the database.
@@ -112,6 +138,7 @@ fun Application.module() {
     install(ContentNegotiation) {
         json(Json {
             isLenient = true
+            encodeDefaults = true
             prettyPrint = true
         })
     }
@@ -133,8 +160,6 @@ fun Application.module() {
     }
 
     routing {
-        openApi(oas)
-        swaggerUI()
         indexRoute()
         get("/github") { call.respondRedirect("https://github.com/londogard/") }
         get("/apps") { call.respondRedirect("https://play.google.com/store/apps/developer?id=Londogard") }
@@ -143,8 +168,12 @@ fun Application.module() {
         frontendRoute(redirectionCache, lines)
         authRoute(userSource)
 
-        authenticate("auth-basic") { weddingRoute() }
-
+        authenticate("auth-wedding") { weddingRoute() }
+        authenticate("auth-basic") {
+            get("/test-auth") {
+                call.respond(HttpStatusCode.OK)
+            }
+        }
         static {
             listOf(
                 "rss.svg", "github.svg", "twitter.svg", "linkedin.svg",

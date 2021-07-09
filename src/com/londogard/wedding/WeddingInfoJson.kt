@@ -20,7 +20,11 @@ data class Contacts(val entries: List<ContactWrapper> = emptyList())
 data class TimelineElement(val title: String, val description: String, val time: String, val timelineid: Long? = null)
 
 @Serializable
-data class Information(val content: String, val date: String, val timeline: List<TimelineElement> = emptyList())
+data class Information(
+    val content: String,
+    val date: String,
+    val timeline: List<TimelineElement> = emptyList()
+)
 
 @Serializable
 data class RsvpGuest(val name: String, val isComing: Boolean = false)
@@ -34,8 +38,8 @@ data class Guest(
 @Serializable
 data class Gift(
     val title: String, val description: String, val img: String? = null,
-    val links: List<String> = emptyList(), val checked: Boolean = false,
-    val checkable: Boolean = true, val giftId: Long = -1L
+    val links: List<String> = emptyList(), val checkable: Boolean = true,
+    val checkedGiftById: List<Pair<Boolean, Long>> = emptyList()
 )
 
 @Serializable
@@ -47,6 +51,6 @@ data class Data(
     val information: Information,
     val guests: List<Guest>,
     val gift: GifteryList,
-    val weddingId: Long,
+    val weddingId: Long = -1L,
     val customMarkdownSections: Map<String, String>? = null
 )

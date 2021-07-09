@@ -1,0 +1,31 @@
+
+
+CREATE TABLE wedding_extra_information (
+    weddingid INTEGER NOT NULL,
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    UNIQUE(weddingid, title),
+    FOREIGN KEY(weddingid) REFERENCES wedding_information(weddingid)
+);
+
+-- Add custom
+insert:
+INSERT INTO wedding_extra_information (weddingid, title, description)
+VALUES ( ?, ?, ?);
+
+rowid: SELECT last_insert_rowid();
+
+selectById:
+SELECT title, description FROM wedding_extra_information WHERE weddingid == ?;
+
+selectAllByWeddingId:
+SELECT * FROM wedding_extra_information WHERE weddingid == ?;
+
+update:
+UPDATE wedding_extra_information
+SET description = ?, title = ?
+WHERE weddingid == ? AND title == ?;
+
+delete:
+DELETE FROM wedding_contact
+WHERE weddingid == ? AND title == ?;

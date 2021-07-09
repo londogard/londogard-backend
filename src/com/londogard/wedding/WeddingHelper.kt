@@ -1,14 +1,21 @@
 package com.londogard.wedding
 
 import com.londogard.Database
+import com.londogard.MarkdownHelper
 import com.londogard.UserCreationException
+import com.londogard.data.SelectById
+import com.londogard.data.Wedding_guest
 import com.londogard.data.Wedding_rsvp
 import com.londogard.nlp.utils.LanguageSupport
 import com.londogard.nlp.wordfreq.WordFrequencies
+import com.londogard.wedding.WeddingUtils.extraToMap
 import io.ktor.server.engine.*
 import kotlinx.serialization.Serializable
+import org.intellij.markdown.flavours.gfm.GFMFlavourDescriptor
+import org.intellij.markdown.parser.MarkdownParser
 import org.mindrot.jbcrypt.BCrypt
 import java.sql.SQLException
+import kotlin.math.min
 import kotlin.random.Random
 
 @Serializable
@@ -22,26 +29,28 @@ object WeddingHelper {
         .take(250) // TODO don't limit this...
         .map { it.key }
 
-    fun getWeddingForGuest(userid: Long, db: Database): Data {
-        val allData = getWedding(userid, db)
-        return allData.copy(guests = listOf(allData.guests.first { it.userid == userid }))
+    fun getWeddingForGuest(userid: Long, db: Database, minified: Boolean): Data {
+        val allData = getWedding(userid, db, minified)
+        return allData.copy(
+            guests = listOf(allData.guests.first { it.userid == userid })
+        )
     }
 
-    fun getWedding(userid: Long, db: Database): Data {
+    fun getWedding(userid: Long, db: Database, minified: Boolean = false): Data {
         return db.transactionWithResult {
             val weddingInfo = db.weddingInfoQueries.selectByUserId(userid).executeAsOneOrNull()
                 ?: db.weddingInfoQueries.selectByGuestUserId(userid).executeAsOne()
             val timeline =
                 db.timelineQueries.selectSimple(weddingInfo.weddingid) { time, title, description, timelineid ->
-                    TimelineElement(
-                        title,
-                        description,
-                        time,
-                        timelineid
-                    )
+                    TimelineElement(title, description, time, timelineid)
                 }
                     .executeAsList()
                     .sortedBy { if (it.time > "06:00") it.time else "24:00" + it.time }
+            val extraSections = db.weddingExtraInfoQueries
+                .selectById(weddingInfo.weddingid)
+                .executeAsList()
+                .associate { row -> row.title to row.description }
+
             val contacts = db.weddingContactQueries.selectSimple(weddingInfo.weddingid)
                 .executeAsList()
                 .groupBy { it.title }
@@ -49,45 +58,55 @@ object WeddingHelper {
                     ContactWrapper(
                         key,
                         value.map { contact ->
-                            ContactEntry(
-                                contact.name,
-                                contact.telephone ?: "",
-                                contact.email,
-                                contact.address
-                            )
-                        })
+                            ContactEntry(contact.name, contact.telephone ?: "", contact.email, contact.address)
+                        }
+                    )
                 }
+
             val guests = db.weddingGuestQueries.transactionWithResult<List<Guest>> {
-                val guests = db.weddingRsvpQueries.selectByWeddingId(weddingInfo.weddingid)
-                    .executeAsList()
-                    .groupBy(Wedding_rsvp::guestid)
-                val guestWrapper = db.weddingGuestQueries
-                    .selectByWeddingId(weddingInfo.weddingid) { guestId, _, userId, extra, comment ->
-                        val guests = guests.getOrDefault(guestId, emptyList())
-                        val extraMap = extra
-                            ?.split('&')
-                            ?.filter(String::isNotEmpty)
-                            ?.map { keyValue ->
-                                val split = keyValue.split('=')
-                                split[0] to (split[1].toBooleanStrictOrNull() ?: false)
-                            }?.toMap()
-                        Guest(userId, guestId, guests.map { RsvpGuest(it.name, it.coming) }, extraMap, comment)
+                val (guestData, rsvpData) = if (minified) {
+                    val guestData = db.weddingGuestQueries.selectByUserId(userid).executeAsOne()
+                    val rsvpData = db.weddingRsvpQueries.selectById(guestData.guestid).executeAsList()
+                    listOf(guestData) to rsvpData
+                } else {
+                    val guestData = db.weddingGuestQueries.selectByWeddingId(weddingInfo.weddingid).executeAsList()
+                    val rsvpData = db.weddingRsvpQueries.selectByWeddingId(weddingInfo.weddingid).executeAsList()
+                    guestData to rsvpData
+                }
+                val groupedGuests = guestData.associateBy(Wedding_guest::guestid)
+                val groupedRsvps = rsvpData.groupBy(Wedding_rsvp::guestid)
+                groupedGuests
+                    .map { (id, guest) ->
+                        val rsvps = groupedRsvps[id]?.map { rsvp -> RsvpGuest(rsvp.name, rsvp.coming) } ?: emptyList()
+                        val extraMap = guest.extra?.extraToMap()
+                        Guest(guest.userid, guest.guestid, rsvps, extraMap, guest.comment)
                     }
-                    .executeAsList()
-                guestWrapper
             }
             val gift = db.gifteryListQueries.selectById(weddingInfo.gifteryid).executeAsOne()
             val gifts =
-                db.giftQueries.selectByGifteryId(weddingInfo.gifteryid) { giftid, _, title, description, img, checked, links, checkable ->
-                    Gift(title, description, img, links, checked, checkable, giftid)
-                }.executeAsList()
+                db.giftQueries.selectByGifteryId(weddingInfo.gifteryid)
+                    .executeAsList()
+                    .groupBy { it.title }
+                    .values
+                    .map { items ->
+                        val gift = items.first()
+                        Gift(
+                            gift.title,
+                            gift.description,
+                            gift.img,
+                            gift.links,
+                            gift.checkable,
+                            items.map { it.checked to it.giftid })
+                    }
+                    .filter { gift -> minified && !gift.checkedGiftById.all { (checked, _) -> checked } }
 
             Data(
                 contact = Contacts(contacts),
                 information = Information(weddingInfo.description, weddingInfo.date, timeline),
                 guests = guests,
                 gift = GifteryList(gift.title, gift.description, gifts),
-                weddingInfo.weddingid
+                weddingInfo.weddingid,
+                customMarkdownSections = extraSections
             )
         }
     }
@@ -105,9 +124,16 @@ object WeddingHelper {
 
         // 1. Create WeddingHolder
         val weddingId = db.weddingInfoQueries.transactionWithResult<Long> {
-            db.weddingInfoQueries.insert(userid, gifteryId, info.content, info.date)
+            db.weddingInfoQueries.insert(userid, gifteryId, MarkdownHelper.markdownToHtml(info.content), info.date)
             db.weddingInfoQueries.rowid().executeAsOne()
         }
+
+        db.transaction {
+            data.customMarkdownSections?.forEach { (title, descr) ->
+                db.weddingExtraInfoQueries.insert(weddingId, title, MarkdownHelper.markdownToHtml(descr))
+            }
+        }
+
 
         // 2. Create timeline
         db.timelineQueries.transaction {

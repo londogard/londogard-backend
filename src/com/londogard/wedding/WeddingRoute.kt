@@ -1,14 +1,11 @@
 package com.londogard.wedding
 
 import com.londogard.Database
+import com.londogard.MarkdownHelper
 import com.londogard.UserCreationException
 import com.londogard.jwtauth.simplePrincipal
-import io.bkbn.kompendium.Notarized.notarizedGet
-import io.bkbn.kompendium.Notarized.notarizedPost
-import io.bkbn.kompendium.models.meta.MethodInfo
-import io.bkbn.kompendium.models.meta.ResponseInfo
 import io.ktor.application.*
-import io.ktor.http.*
+import io.ktor.auth.*
 import io.ktor.http.HttpStatusCode.Companion.Created
 import io.ktor.http.HttpStatusCode.Companion.OK
 import io.ktor.locations.*
@@ -25,95 +22,100 @@ import kotlin.random.Random
 @Serializable
 data class WeddingCreator(val data: Data, val userPws: List<UserData>)
 
+// TODO create auth-tester under Auth
+
 @KtorExperimentalLocationsAPI
-fun Route.weddingRoute() = route("/wedding") {
+fun Route.weddingRoute() {
     val db by inject<Database>()
 
-    route("/create") {
-        notarizedPost(MethodInfo.PostInfo<Data, Data, WeddingCreator>(
-            summary = "Create a Wedding"
-        )) {
-            val weddingData = call.receive<Data>()
-            val (data, userPws) = WeddingHelper.createWedding(weddingData, db, call.simplePrincipal?.id!!)
-
-            call.respond(Created, WeddingCreator(data, userPws))
-        }
-    }
-
-    post("/modify/{weddingId}") {
-        val weddingId =
-            call.parameters["weddingId"]?.toLong() ?: throw IllegalArgumentException("Require weddingId")
-        val weddingInfo = call.receive<Information>()
-
-        db.weddingInfoQueries.update(weddingInfo.content, weddingInfo.date, weddingId)
-    }
-
-    notarizedGet(
-        MethodInfo.GetInfo<Unit, String>(
-            summary = "Test Auth",
-            responseInfo = ResponseInfo(status = OK, description = "Returns 'Hello World!' - a good way to test auth")
-        )
-    ) {
-        call.respondText("Hello World!")
-    }
-
-    get("/user") {
+    get<Wedding> {   // /wedding
         val userId = call.simplePrincipal?.id ?: throw IllegalArgumentException("Require userId")
 
-        call.respond(WeddingHelper.getWeddingForGuest(userId, db))
+        call.respond(WeddingHelper.getWeddingForGuest(userId, db, minified = true))
+    }
+
+    get<Wedding.Full> {   // /wedding
+        val userId = call.simplePrincipal?.id ?: throw IllegalArgumentException("Require userId")
+
+        call.respond(WeddingHelper.getWeddingForGuest(userId, db, minified = false))
+    }
+
+    post<Wedding.Create> {  // /wedding/create
+        val weddingData = call.receive<Data>()
+        val (data, userPws) = WeddingHelper.createWedding(weddingData, db, call.simplePrincipal?.id!!)
+
+        call.respond(Created, WeddingCreator(data, userPws))
+    }
+
+    post<Wedding.Modify> { pathData ->   // /wedding/modify?weddingId={id}
+        val weddingInfo = call.receive<Information>()
+
+        db.weddingInfoQueries.update(weddingInfo.content, weddingInfo.date, pathData.p.weddingId)
+        call.respond(OK)
     }
 
     timelineRoute()
     giftRoute()
     contactRoute()
     guestRoute()
+    customRoutes()
 }
 
 // TODO add auth based by weddingId
-fun Route.timelineRoute() = route("/timeline") {
+@KtorExperimentalLocationsAPI
+fun Route.timelineRoute() {
     val db by inject<Database>()
-    post("/modify/{weddingId}") {
-//        val weddingId = call.parameters["weddingId"]?.toLong() ?: throw IllegalArgumentException("Require weddingId")
+
+    // TODO add weddingId requirement
+    post<Wedding.Timeline.Modify> { // /wedding/timeline/modify?weddingId={id}
         val timeline = call.receive<TimelineElement>()
         val id = timeline.timelineid ?: throw IllegalArgumentException("Timelineid must not be null to modify")
         db.timelineQueries.modify(timeline.time, timeline.title, timeline.description, id)
-    }
-
-    post("/add/{weddingId}") {
-        val weddingId = call.parameters["weddingId"]?.toLong() ?: throw IllegalArgumentException("Require weddingId")
-        val timeline = call.receive<TimelineElement>()
-
-        db.timelineQueries.insert(weddingId, timeline.time, timeline.title, timeline.description)
         call.respond(OK)
     }
 
-    post("/delete/{timelineId}") {
-        val timelineId = call.parameters["timelineId"]?.toLong() ?: throw IllegalArgumentException("Require timelineId")
-        db.timelineQueries.delete(timelineId)
+    post<Wedding.Timeline.Add> { pathData ->   // /wedding/timeline/add?weddingId={id}
+        val timeline = call.receive<TimelineElement>()
+
+        db.timelineQueries.insert(pathData.timeline.p.weddingId, timeline.time, timeline.title, timeline.description)
+        call.respond(OK)
+    }
+
+    post<Wedding.Timeline.Delete> { pathData ->
+        db.timelineQueries.delete(pathData.timelineId)
+        call.respond(OK)
     }
 }
 
-fun Route.giftRoute() = route("/gift") {
+@KtorExperimentalLocationsAPI
+fun Route.giftRoute() {
     val db by inject<Database>()
 
-    post("/check/{giftId}/{check}") {
-        val giftId = call.parameters["giftId"]?.toLong() ?: throw IllegalArgumentException("Require giftId")
-        val check = call.parameters["check"]?.toBoolean() ?: true
-        db.giftQueries.check(check, giftId)
+    authenticate("auth-wedding-admin") {
+        // TODO("Add Admin routes here!")
+    }
 
-        call.respondText(true.toString())
+    post<Wedding.Gift.Check> { pathData -> // /wedding/gift/check?weddingId={id}
+        val giftData = call.receive<Gift>()
+        db.giftQueries.transaction {
+            giftData.checkedGiftById.forEach { (checked, giftId) ->
+                db.giftQueries.check(checked, giftId)
+            }
+        }
+
+        call.respond(OK)
     }
 
     // TODO require admin
-    post("/delete/{giftId}") {
-        val giftId = call.parameters["giftId"]?.toLong() ?: throw IllegalArgumentException("Require giftId")
-        db.giftQueries.delete(giftId)
+    delete<Wedding.Gift.Delete> { pathData -> // /wedding/gift/delete?weddingId={id}&giftId={id}
+        db.giftQueries.delete(pathData.giftId)
+        call.respond(OK)
     }
-    post("/add/{weddingId}") {
-        val weddingId = call.parameters["weddingId"]?.toLong() ?: throw IllegalArgumentException("Require weddingId")
+
+    post<Wedding.Gift.Add> { pathData -> // /wedding/gift/add?weddingId={id}
         val gift = call.receive<Gift>()
         db.transaction {
-            val weddingInfo = db.weddingInfoQueries.selectById(weddingId).executeAsOne()
+            val weddingInfo = db.weddingInfoQueries.selectById(pathData.p.p.weddingId).executeAsOne()
 
             db.giftQueries.insert(
                 weddingInfo.gifteryid,
@@ -124,11 +126,20 @@ fun Route.giftRoute() = route("/gift") {
                 gift.checkable
             )
         }
+        call.respond(OK)
     }
-    post("/modify/{weddingId}") {
-        val weddingId = call.parameters["weddingId"]?.toLong() ?: throw IllegalArgumentException("Require weddingId")
+
+
+    post<Wedding.Gift.Modify> { // /wedding/gift/modify?weddingId={id}
         val gift = call.receive<Gift>()
-        db.giftQueries.update(gift.title, gift.description, gift.checked, gift.links, gift.checkable, gift.giftId)
+        db.transaction {
+            gift.checkedGiftById
+                .forEach { (checked, giftId) ->
+                    db.giftQueries.update(gift.title, gift.description, checked, gift.links, gift.checkable, giftId)
+                }
+        }
+
+        call.respond(OK)
     }
 }
 
@@ -180,12 +191,14 @@ fun Route.contactRoute() = route("/contact/{weddingId}") {
     }
 }
 
-fun Route.guestRoute() = route("/guest") {
+@KtorExperimentalLocationsAPI
+fun Route.guestRoute() {
     val db by inject<Database>()
 
-    post("/create/{weddingId}") {
+    post<Wedding.Guest.Add> {
         val weddingId = call.parameters["weddingId"]?.toLong() ?: throw IllegalArgumentException("Require weddingId")
         val guest = call.receive<Guest>()
+        // TODO make a try-catch and rerun a few times.
         val userPw = db.userQueries.transactionWithResult<UserData> {
             val username = guest.rsvps.map(RsvpGuest::name).joinToString("-") { name -> name.take(3).lowercase() }
             val password = "${WeddingHelper.wf[Random.nextInt(WeddingHelper.wf.size)]}-${
@@ -212,7 +225,7 @@ fun Route.guestRoute() = route("/guest") {
         }
         call.respond(userPw)
     }
-    post("/delete/{weddingId}") {
+    post<Wedding.Guest.Remove> {
         val weddingId = call.parameters["weddingId"]?.toLong() ?: throw IllegalArgumentException("Require weddingId")
         val guest = call.receive<Guest>()
 
@@ -221,8 +234,8 @@ fun Route.guestRoute() = route("/guest") {
             db.userQueries.remove(guest.userid)
         }
     }
-    post("/rsvp/{weddingId}") {
-        val weddingId = call.parameters["weddingId"]?.toLong() ?: throw IllegalArgumentException("Require weddingId")
+    post<Wedding.Guest.Rsvp> { dataPath ->
+        val weddingId = dataPath.p.p.weddingId
         val guests = call.receive<Guest>()
 
         val updatedGuest = db.weddingGuestQueries.transactionWithResult<Guest> {
@@ -252,5 +265,41 @@ fun Route.guestRoute() = route("/guest") {
         }
 
         call.respond(updatedGuest)
+    }
+}
+
+@Serializable
+data class CustomContent(val title: String, val mdContent: String)
+
+@KtorExperimentalLocationsAPI
+fun Route.customRoutes() {
+    val db by inject<Database>()
+
+    get<Wedding.Custom> { pathData ->
+        call.respond(
+            db.weddingExtraInfoQueries.selectAllByWeddingId(pathData.p.weddingId)
+                .executeAsList()
+                .map { e -> CustomContent(e.title, e.description) }
+        )
+    }
+
+    post<Wedding.Custom.Add>{ pathData ->
+        val weddingId = pathData.p.p.weddingId
+        val customContent = call.receive<CustomContent>()
+        db.weddingExtraInfoQueries
+            .insert(weddingId, customContent.title, MarkdownHelper.markdownToHtml(customContent.mdContent))
+
+        call.respond(OK)
+    }
+    post<Wedding.Custom.Modify>{
+        TODO("")
+    }
+
+    post<Wedding.Custom.Delete>{ pathData ->
+        val weddingId = pathData.p.p.weddingId
+        val customContent = call.receive<CustomContent>()
+        db.weddingExtraInfoQueries.delete(weddingId, customContent.title)
+
+        call.respond(OK)
     }
 }

@@ -1,5 +1,5 @@
 package com.londogard
-
+/**
 import io.bkbn.kompendium.Kompendium
 import io.bkbn.kompendium.models.oas.OpenApiSpecInfo
 import io.bkbn.kompendium.models.oas.OpenApiSpecInfoContact
@@ -29,4 +29,4 @@ val oas = Kompendium.openApiSpec.copy(
             description = "The test instance"
         )
     )
-)
+)*/

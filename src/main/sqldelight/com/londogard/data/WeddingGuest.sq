@@ -18,6 +18,9 @@ SELECT * FROM wedding_guest WHERE weddingid == ?;
 selectByGuestId:
 SELECT * FROM wedding_guest WHERE guestid == ?;
 
+selectByUserId:
+SELECT * FROM wedding_guest WHERE userid == ?;
+
 getGuestId:
 SELECT guestid FROM wedding_guest WHERE weddingid == ? AND userid == ?;
 
