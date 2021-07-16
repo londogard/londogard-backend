@@ -32,7 +32,7 @@ data class RsvpGuest(val name: String, val isComing: Boolean = false)
 @Serializable
 data class Guest(
     val userid: Long = -1L, val guestid: Long = -1L, val rsvps: List<RsvpGuest> = emptyList(),
-    val extra: Map<String, Boolean>? = null, val comment: String? = null
+    val extra: Map<String, Boolean> = emptyMap(), val comment: String = ""
 )
 
 @Serializable

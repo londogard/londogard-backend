@@ -8,5 +8,7 @@ DELETE FROM user;
 DELETE FROM wedding_guest;
 DELETE FROM wedding_contact;
 DELETE FROM wedding_information;
+DELETE FROM wedding_rsvp;
+DELETE FROM wedding_extra_information;
 VACUUM;
 }

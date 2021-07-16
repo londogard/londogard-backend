@@ -8,6 +8,4 @@ object WeddingUtils {
                 val split = keyValue.split('=')
                 split[0] to (split[1].toBooleanStrictOrNull() ?: false)
             }
-
-
 }

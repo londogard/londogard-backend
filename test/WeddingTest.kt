@@ -47,7 +47,7 @@ class WeddingTest {
                 setBody(weddingCreate)
                 addHeader("Authorization", "Basic $testUserb64")
             }.apply {
-                assertEquals(HttpStatusCode.OK, response.status())
+                assertEquals(HttpStatusCode.Created, response.status())
             }
         }
     }

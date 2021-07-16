@@ -22,18 +22,25 @@ import kotlin.random.Random
 data class UserData(val username: String, val password: String, val id: Long)
 
 object WeddingHelper {
+    val asciiRange = ('a'..'z') + ('A'..'Z') + ('0'..'9')
     val wf = (WordFrequencies.getAllWordFrequenciesOrNull(LanguageSupport.sv) ?: emptyMap())
         .entries
+        .asSequence()
         .filter { (key, _) -> key.length <= 5 }
         .sortedByDescending { it.value }
-        .take(250) // TODO don't limit this...
-        .map { it.key }
+        .map { it.key.lowercase() }
+        .map { it
+            .replace('å', 'a')
+            .replace('ä', 'a')
+            .replace('ö', 'o')
+        }
+        .filter { key -> key.all { it in asciiRange } }
+        .distinct()
+        .take(250)
+        .toList() // TODO don't limit this...
 
     fun getWeddingForGuest(userid: Long, db: Database, minified: Boolean): Data {
-        val allData = getWedding(userid, db, minified)
-        return allData.copy(
-            guests = listOf(allData.guests.first { it.userid == userid })
-        )
+        return getWedding(userid, db, minified)
     }
 
     fun getWedding(userid: Long, db: Database, minified: Boolean = false): Data {
@@ -78,8 +85,8 @@ object WeddingHelper {
                 groupedGuests
                     .map { (id, guest) ->
                         val rsvps = groupedRsvps[id]?.map { rsvp -> RsvpGuest(rsvp.name, rsvp.coming) } ?: emptyList()
-                        val extraMap = guest.extra?.extraToMap()
-                        Guest(guest.userid, guest.guestid, rsvps, extraMap, guest.comment)
+                        val extraMap = guest.extra?.extraToMap() ?: emptyMap()
+                        Guest(guest.userid, guest.guestid, rsvps, extraMap, guest.comment ?: "")
                     }
             }
             val gift = db.gifteryListQueries.selectById(weddingInfo.gifteryid).executeAsOne()
@@ -165,10 +172,9 @@ object WeddingHelper {
 
         // 4. Add Guests
         // 4a. Create Guest User - TODO extract createUser part.
-        val range = ('a'..'z') + ('A'..'Z') + ('0'..'9')
         val userPws = db.userQueries.transactionWithResult<List<UserData>> {
             data.guests.map { guest ->
-                val username = (guest.rsvps.map(RsvpGuest::name) + "${range.random()}${range.random()}")
+                val username = (guest.rsvps.map(RsvpGuest::name).filterNot { it.contains("+1") }.take(2) + "${asciiRange.random()}${asciiRange.random()}")
                     .joinToString("-") { name -> name.take(3).lowercase() }
                 val password = "${wf[Random.nextInt(wf.size)]}-${wf[Random.nextInt(wf.size)]}-${Random.nextInt(1000)}"
                 val pw = BCrypt.hashpw(password, BCrypt.gensalt())

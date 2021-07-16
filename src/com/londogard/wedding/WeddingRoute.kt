@@ -11,12 +11,14 @@ import io.ktor.http.HttpStatusCode.Companion.OK
 import io.ktor.locations.*
 import io.ktor.request.*
 import io.ktor.response.*
-import io.ktor.routing.*
 import kotlinx.serialization.Serializable
 import org.koin.ktor.ext.inject
 import org.mindrot.jbcrypt.BCrypt
 import java.sql.SQLException
 import kotlin.random.Random
+import io.ktor.locations.post
+import io.ktor.routing.Route
+import io.ktor.routing.route
 
 
 @Serializable
@@ -146,49 +148,49 @@ fun Route.giftRoute() {
 fun Route.contactRoute() = route("/contact/{weddingId}") {
     val db by inject<Database>()
 
-    post("/add") {
-        val weddingId = call.parameters["weddingId"]?.toLong() ?: throw IllegalArgumentException("Require weddingId")
-        val contacts = call.receive<ContactWrapper>()
-
-        db.weddingContactQueries.transaction {
-            contacts.entries.forEach { entry ->
-                db.weddingContactQueries.insert(
-                    weddingId,
-                    contacts.title,
-                    entry.name,
-                    entry.telephone,
-                    entry.email,
-                    entry.address
-                )
-            }
-        }
-    }
-    post("/edit/{title}") {
-        val weddingId = call.parameters["weddingId"]?.toLong() ?: throw IllegalArgumentException("Require weddingId")
-        val title = call.parameters["title"] ?: throw IllegalArgumentException("Require title")
-        val contacts = call.receive<ContactWrapper>()
-
-        db.weddingContactQueries.transaction {
-            contacts.entries.forEach { entry ->
-                db.weddingContactQueries.update(
-                    contacts.title,
-                    entry.name,
-                    entry.telephone,
-                    entry.email,
-                    entry.address,
-                    weddingId,
-                    title
-                )
-            }
-        }
-    }
-
-    post("/delete/{title}") {
-        val weddingId = call.parameters["weddingId"]?.toLong() ?: throw IllegalArgumentException("Require weddingId")
-        val title = call.parameters["title"] ?: throw IllegalArgumentException("Require title")
-
-        db.weddingContactQueries.delete(weddingId, title)
-    }
+    //post("/add") {
+    //    val weddingId = call.parameters["weddingId"]?.toLong() ?: throw IllegalArgumentException("Require weddingId")
+    //    val contacts = call.receive<ContactWrapper>()
+//
+    //    db.weddingContactQueries.transaction {
+    //        contacts.entries.forEach { entry ->
+    //            db.weddingContactQueries.insert(
+    //                weddingId,
+    //                contacts.title,
+    //                entry.name,
+    //                entry.telephone,
+    //                entry.email,
+    //                entry.address
+    //            )
+    //        }
+    //    }
+    //}
+    //post("/edit/{title}") {
+    //    val weddingId = call.parameters["weddingId"]?.toLong() ?: throw IllegalArgumentException("Require weddingId")
+    //    val title = call.parameters["title"] ?: throw IllegalArgumentException("Require title")
+    //    val contacts = call.receive<ContactWrapper>()
+//
+    //    db.weddingContactQueries.transaction {
+    //        contacts.entries.forEach { entry ->
+    //            db.weddingContactQueries.update(
+    //                contacts.title,
+    //                entry.name,
+    //                entry.telephone,
+    //                entry.email,
+    //                entry.address,
+    //                weddingId,
+    //                title
+    //            )
+    //        }
+    //    }
+    //}
+//
+    //post("/delete/{title}") {
+    //    val weddingId = call.parameters["weddingId"]?.toLong() ?: throw IllegalArgumentException("Require weddingId")
+    //    val title = call.parameters["title"] ?: throw IllegalArgumentException("Require title")
+//
+    //    db.weddingContactQueries.delete(weddingId, title)
+    //}
 }
 
 @KtorExperimentalLocationsAPI
@@ -239,7 +241,7 @@ fun Route.guestRoute() {
         val guests = call.receive<Guest>()
 
         val updatedGuest = db.weddingGuestQueries.transactionWithResult<Guest> {
-            val extraPre = guests.extra?.entries?.joinToString("&") { (key, value) -> "$key=$value" } ?: ""
+            val extraPre = guests.extra.entries.joinToString("&") { (key, value) -> "$key=$value" } ?: ""
 
             db.weddingGuestQueries.updateGuestInfo(guests.comment, extraPre, weddingId, guests.userid)
 
@@ -256,12 +258,12 @@ fun Route.guestRoute() {
             val extra = guest.extra
                 ?.split('&')
                 ?.filter(String::isNotEmpty)
-                ?.map { keyValue ->
+                ?.associate { keyValue ->
                     val split = keyValue.split('=')
                     split[0] to (split[1].toBooleanStrictOrNull() ?: false)
-                }?.toMap() ?: emptyMap()
+                } ?: emptyMap()
 
-            Guest(guest.userid, guest.guestid, rsvps.map { RsvpGuest(it.name, it.coming) }, extra, guest.comment)
+            Guest(guest.userid, guest.guestid, rsvps.map { RsvpGuest(it.name, it.coming) }, extra, guest.comment ?: "")
         }
 
         call.respond(updatedGuest)
@@ -283,7 +285,7 @@ fun Route.customRoutes() {
         )
     }
 
-    post<Wedding.Custom.Add>{ pathData ->
+    post<Wedding.Custom.Add> { pathData ->
         val weddingId = pathData.p.p.weddingId
         val customContent = call.receive<CustomContent>()
         db.weddingExtraInfoQueries
@@ -291,11 +293,11 @@ fun Route.customRoutes() {
 
         call.respond(OK)
     }
-    post<Wedding.Custom.Modify>{
+    post<Wedding.Custom.Modify> {
         TODO("")
     }
 
-    post<Wedding.Custom.Delete>{ pathData ->
+    post<Wedding.Custom.Delete> { pathData ->
         val weddingId = pathData.p.p.weddingId
         val customContent = call.receive<CustomContent>()
         db.weddingExtraInfoQueries.delete(weddingId, customContent.title)
