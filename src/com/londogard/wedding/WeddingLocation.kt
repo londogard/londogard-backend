@@ -6,6 +6,8 @@ import io.ktor.locations.*
 @KtorExperimentalLocationsAPI
 @Location("/wedding")
 class Wedding(val weddingId: Long = 0) {
+    @Location("/unauthorized")
+    class Unauthorized(val p: Wedding)
     @Location("/full")
     class Full(val p: Wedding)
 

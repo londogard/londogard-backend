@@ -30,6 +30,12 @@ data class WeddingCreator(val data: Data, val userPws: List<UserData>)
 fun Route.weddingRoute() {
     val db by inject<Database>()
 
+    get<Wedding.Unauthorized> { pathData ->
+        val weddingId = pathData.p.weddingId
+
+        WeddingHelper.getUnauthorizedWedding(weddingId, db)
+    }
+
     get<Wedding> {   // /wedding
         val userId = call.simplePrincipal?.id ?: throw IllegalArgumentException("Require userId")
 

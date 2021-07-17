@@ -209,4 +209,12 @@ object WeddingHelper {
 
         return getWedding(userid, db) to userPws
     }
+
+    fun getUnauthorizedWedding(weddingId: Long, db: Database) {
+        return db.transactionWithResult {
+            val info = db.weddingInfoQueries.selectById(weddingId).executeAsOne()
+            val timeline = db.timelineQueries.selectSimple(weddingId) { time, title, descr, _ -> TimelineElement(title, descr, time) }.executeAsList()
+            Data(Contacts(), Information(info.description, info.date, timeline), emptyList(), GifteryList("Unauthorized", ""))
+        }
+    }
 }
