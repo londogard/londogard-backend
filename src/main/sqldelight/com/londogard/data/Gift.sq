@@ -7,9 +7,9 @@ CREATE TABLE gift (
     title TEXT NOT NULL,
     description TEXT NOT NULL,
     img TEXT,
-    checked INTEGER as Boolean DEFAULT 0 NOT NULL,
-    links TEXT as List<String> NOT NULL,
-    checkable INTEGER as Boolean NOT NULL,
+    checked INTEGER AS Boolean DEFAULT 0 NOT NULL,
+    links TEXT AS List<String> NOT NULL,
+    checkable INTEGER AS Boolean NOT NULL,
     FOREIGN KEY(gifterylistid) REFERENCES giftery_list(gifteryid)
 );
 

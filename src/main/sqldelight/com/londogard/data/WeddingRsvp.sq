@@ -3,7 +3,7 @@ import java.lang.Boolean;
 CREATE TABLE wedding_rsvp (
     guestid INTEGER NOT NULL,
     name TEXT NOT NULL,
-    coming INTEGER as Boolean DEFAULT 0 NOT NULL,
+    coming INTEGER AS Boolean DEFAULT 0 NOT NULL,
     FOREIGN KEY(guestid) REFERENCES wedding_guest(guestid),
     UNIQUE(guestid, name)
 );
