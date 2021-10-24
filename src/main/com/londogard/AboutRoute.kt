@@ -64,7 +64,7 @@ fun Route.aboutRoute(): Route = get("/about") {
                         li {
                             +"Presentations, Panels & More"
                             ul {
-                                li { +"DevFest 2021 (by Google Dev Group): Managing the ML Lifecycle without a Headache" }
+                                li { +"DevFest2021 (by Google Dev Group): Managing the ML Lifecycle without a Headache" }
                                 li { +"Industry Days 2021: AI-expert of a panel on how to accelerate Industry Automation" }
                                 li { +"Almedalsveckan 2021: The importance of (really) understanding AI Models (ethical and practical issues)" }
                             }
