@@ -33,7 +33,7 @@ repositories {
     maven(url="https://jitpack.io")
 }
 
-val ktorVersion="1.6.4"
+val ktorVersion="1.6.5"
 val sqldelightVersion="1.5.2"
 val koinVersion="3.1.2"
 val kluentVersion="1.68"
