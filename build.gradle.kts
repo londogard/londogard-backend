@@ -1,6 +1,6 @@
 plugins {
     kotlin("jvm") version "1.5.31"
-    kotlin("plugin.serialization") version "1.5.31"
+    kotlin("plugin.serialization") version "1.6.0"
 
     id("com.squareup.sqldelight") version "1.5.2"
     id("com.github.johnrengelman.shadow") version "7.1.0"
@@ -39,7 +39,7 @@ val koinVersion="3.1.4"
 val kluentVersion="1.68"
 val kotlinVersion="1.5.31"
 val kotlinxSerialization="1.3.0"
-val logbackVersion="1.2.1"
+val logbackVersion="1.2.7"
 
 dependencies {
     implementation(kotlin("stdlib"))
