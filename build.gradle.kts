@@ -1,6 +1,6 @@
 plugins {
-    kotlin("jvm") version "1.5.31"
-    kotlin("plugin.serialization") version "1.5.31"
+    kotlin("jvm") version "1.6.0"
+    kotlin("plugin.serialization") version "1.6.0"
 
     id("com.squareup.sqldelight") version "1.5.2"
     id("com.github.johnrengelman.shadow") version "7.1.0"
@@ -34,7 +34,7 @@ repositories {
 }
 
 val ktorVersion="1.6.4"
-val sqldelightVersion="1.5.2"
+val sqldelightVersion="1.5.3"
 val koinVersion="3.1.4"
 val kluentVersion="1.68"
 val kotlinVersion="1.5.31"
