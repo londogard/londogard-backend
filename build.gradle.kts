@@ -38,7 +38,7 @@ val sqldelightVersion="1.5.3"
 val koinVersion="3.1.4"
 val kluentVersion="1.68"
 val kotlinVersion="1.5.31"
-val kotlinxSerialization="1.3.0"
+val kotlinxSerialization="1.3.1"
 val logbackVersion="1.2.7"
 
 dependencies {
