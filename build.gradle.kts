@@ -78,7 +78,7 @@ dependencies {
     // implementation 'com.github.kwebio:kweb-core:0.8.9'
 
     implementation("org.boofcv:boofcv-core:0.39")
-    implementation("org.boofcv:boofcv-kotlin:0.39")
+    implementation("org.boofcv:boofcv-kotlin:0.40")
 
     implementation("org.mindrot:jbcrypt:0.4")
 
