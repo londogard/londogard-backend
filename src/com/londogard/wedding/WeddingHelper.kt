@@ -29,10 +29,11 @@ object WeddingHelper {
         .filter { (key, _) -> key.length <= 5 }
         .sortedByDescending { it.value }
         .map { it.key.lowercase() }
-        .map { it
-            .replace('å', 'a')
-            .replace('ä', 'a')
-            .replace('ö', 'o')
+        .map {
+            it
+                .replace('å', 'a')
+                .replace('ä', 'a')
+                .replace('ö', 'o')
         }
         .filter { key -> key.all { it in asciiRange } }
         .distinct()
@@ -174,7 +175,8 @@ object WeddingHelper {
         // 4a. Create Guest User - TODO extract createUser part.
         val userPws = db.userQueries.transactionWithResult<List<UserData>> {
             data.guests.map { guest ->
-                val username = (guest.rsvps.map(RsvpGuest::name).filterNot { it.contains("+1") }.take(2) + "${asciiRange.random()}${asciiRange.random()}")
+                val username = (guest.rsvps.map(RsvpGuest::name).filterNot { it.contains("+1") }
+                    .take(2) + "${asciiRange.random()}${asciiRange.random()}")
                     .joinToString("-") { name -> name.take(3).lowercase() }
                 val password = "${wf[Random.nextInt(wf.size)]}-${wf[Random.nextInt(wf.size)]}-${Random.nextInt(1000)}"
                 val pw = BCrypt.hashpw(password, BCrypt.gensalt())
@@ -210,11 +212,17 @@ object WeddingHelper {
         return getWedding(userid, db) to userPws
     }
 
-    fun getUnauthorizedWedding(weddingId: Long, db: Database) {
-        return db.transactionWithResult {
-            val info = db.weddingInfoQueries.selectById(weddingId).executeAsOne()
-            val timeline = db.timelineQueries.selectSimple(weddingId) { time, title, descr, _ -> TimelineElement(title, descr, time) }.executeAsList()
-            Data(Contacts(), Information(info.description, info.date, timeline), emptyList(), GifteryList("Unauthorized", ""))
-        }
+    fun getUnauthorizedWedding(weddingId: Long, db: Database): Data {
+        val info = db.weddingInfoQueries.selectById(weddingId).executeAsOne()
+        val timeline =
+            db.timelineQueries.selectSimple(weddingId) { time, title, descr, _ -> TimelineElement(title, descr, time) }
+                .executeAsList()
+
+        return Data(
+            Contacts(),
+            Information(info.description, info.date, timeline),
+            emptyList(),
+            GifteryList("Unauthorized", "")
+        )
     }
 }

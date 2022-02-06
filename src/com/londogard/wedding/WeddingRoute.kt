@@ -24,6 +24,9 @@ import io.ktor.routing.route
 @Serializable
 data class WeddingCreator(val data: Data, val userPws: List<UserData>)
 
+@Serializable
+data class Rsvp(val names: String, val comment: String, val coming: Int, val options: String)
+
 // TODO create auth-tester under Auth
 
 @KtorExperimentalLocationsAPI
@@ -33,40 +36,56 @@ fun Route.weddingRoute() {
     get<Wedding.Unauthorized> { pathData ->
         val weddingId = pathData.p.weddingId
 
-        WeddingHelper.getUnauthorizedWedding(weddingId, db)
+        call.respond(WeddingHelper.getUnauthorizedWedding(weddingId, db))
     }
 
-    get<Wedding> {   // /wedding
-        val userId = call.simplePrincipal?.id ?: throw IllegalArgumentException("Require userId")
+    authenticate("auth-wedding-admin") {
+        get<Wedding.Admin.Rsvps> { pathData ->
+            val weddingId = pathData.p.p.weddingId
 
-        call.respond(WeddingHelper.getWeddingForGuest(userId, db, minified = true))
+            val data = db.weddingGuestQueries
+                .getAllRsvps(weddingId) { names, count, comment, extra ->
+                    Rsvp(names, comment ?: "", count.toInt(), extra ?: "")
+                }
+                .executeAsList()
+
+            call.respond(data)
+        }
     }
 
-    get<Wedding.Full> {   // /wedding
-        val userId = call.simplePrincipal?.id ?: throw IllegalArgumentException("Require userId")
+    authenticate("auth-wedding") {
+        get<Wedding> {   // /wedding
+            val userId = call.simplePrincipal?.id ?: throw IllegalArgumentException("Require userId")
 
-        call.respond(WeddingHelper.getWeddingForGuest(userId, db, minified = false))
+            call.respond(WeddingHelper.getWeddingForGuest(userId, db, minified = true))
+        }
+
+        get<Wedding.Full> {   // /wedding
+            val userId = call.simplePrincipal?.id ?: throw IllegalArgumentException("Require userId")
+
+            call.respond(WeddingHelper.getWeddingForGuest(userId, db, minified = false))
+        }
+
+        post<Wedding.Create> {  // /wedding/create
+            val weddingData = call.receive<Data>()
+            val (data, userPws) = WeddingHelper.createWedding(weddingData, db, call.simplePrincipal?.id!!)
+
+            call.respond(Created, WeddingCreator(data, userPws))
+        }
+
+        post<Wedding.Modify> { pathData ->   // /wedding/modify?weddingId={id}
+            val weddingInfo = call.receive<Information>()
+
+            db.weddingInfoQueries.update(weddingInfo.content, weddingInfo.date, pathData.p.weddingId)
+            call.respond(OK)
+        }
+
+        timelineRoute()
+        giftRoute()
+        contactRoute()
+        guestRoute()
+        customRoutes()
     }
-
-    post<Wedding.Create> {  // /wedding/create
-        val weddingData = call.receive<Data>()
-        val (data, userPws) = WeddingHelper.createWedding(weddingData, db, call.simplePrincipal?.id!!)
-
-        call.respond(Created, WeddingCreator(data, userPws))
-    }
-
-    post<Wedding.Modify> { pathData ->   // /wedding/modify?weddingId={id}
-        val weddingInfo = call.receive<Information>()
-
-        db.weddingInfoQueries.update(weddingInfo.content, weddingInfo.date, pathData.p.weddingId)
-        call.respond(OK)
-    }
-
-    timelineRoute()
-    giftRoute()
-    contactRoute()
-    guestRoute()
-    customRoutes()
 }
 
 // TODO add auth based by weddingId
@@ -251,12 +270,8 @@ fun Route.guestRoute() {
 
             db.weddingGuestQueries.updateGuestInfo(guests.comment, extraPre, weddingId, guests.userid)
 
-            if (guests.rsvps.count(RsvpGuest::isComing) in listOf(0, guests.rsvps.size)) {
-                db.weddingRsvpQueries.isComingAll(guests.rsvps.first().isComing, guests.guestid, weddingId)
-            } else {
-                guests.rsvps.forEach { rsvp ->
-                    db.weddingRsvpQueries.isComing(rsvp.isComing, guests.guestid, rsvp.name)
-                }
+            guests.rsvps.forEach { rsvp ->
+                db.weddingRsvpQueries.isComing(rsvp.isComing, guests.guestid, rsvp.name)
             }
 
             val guest = db.weddingGuestQueries.selectByGuestId(guests.guestid).executeAsOne()

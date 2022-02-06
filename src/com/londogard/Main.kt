@@ -24,9 +24,9 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.json.Json
 import org.koin.ktor.ext.Koin
-import org.koin.ktor.ext.get
 import org.koin.ktor.ext.inject
 import java.time.LocalDateTime
+
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -38,7 +38,6 @@ data class LundeNetSession(val userId: String)
 @InternalSerializationApi
 @ExperimentalStdlibApi
 @ExperimentalSerializationApi
-@KtorExperimentalAPI
 @KtorExperimentalLocationsAPI
 @InternalAPI
 @Suppress("unused") // Referenced in application.conf
@@ -177,7 +176,7 @@ fun Application.module() {
         static {
             listOf(
                 "rss.svg", "github.svg", "twitter.svg", "linkedin.svg",
-                "playstore.svg", "swener.jpg", "colorkidz.jpg", "favicon.ico"
+                "playstore.svg", "swener.jpg", "colorkidz.jpg", "favicon.ico", "favicon.svg", "icon.png"
             )
                 .forEach { resource ->
                     resource(resource, resource)
@@ -188,3 +187,41 @@ fun Application.module() {
         }
     }
 }
+/**
+object A {
+    class NightVisionTranslator : Translator<Image, Image> {
+        /** {@inheritDoc}  */
+        override fun processInput(ctx: TranslatorContext, input: Image): NDList {
+            val manager = ctx.ndManager
+            return NDList(input
+                .toNDArray(manager)
+                .toType(DataType.FLOAT32, false)
+                .divi(255.0)
+                .transpose(2,0,1))
+        }
+
+        /** {@inheritDoc}  */
+        override fun processOutput(ctx: TranslatorContext, list: NDList): Image {
+            val output: NDArray = list[0].clip(0, 255).muli(255).toType(DataType.UINT8, false)
+            return ImageFactory.getInstance().fromNDArray(output.squeeze())
+        }
+    }
+
+    @JvmStatic
+    fun main(args: Array<String>) {
+//        InferenceEngine
+        // TODO / 255, * 255 out as INT.
+        val criteria = Criteria.builder()
+            .setTypes(Image::class.java, Image::class.java)
+            .optTranslator(NightVisionTranslator())
+            .optModelUrls("/home/londogard/git/londogard-backend/resources") // search models in specified path
+            .optModelName("out.pth")
+            .build()
+        val model = criteria.loadModel()
+        val predictor = model.newPredictor()
+        predictor
+            .predict(ImageFactory.getInstance().fromUrl("/home/londogard/git/londogard-backend/resources/101_0_.png"))
+            .save(Files.newOutputStream(Paths.get("b.png")), "png")
+    }
+}
+*/

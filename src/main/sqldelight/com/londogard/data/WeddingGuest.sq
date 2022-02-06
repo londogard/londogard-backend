@@ -36,6 +36,13 @@ UPDATE wedding_guest SET extra = ? WHERE weddingid == ? AND userid == ?;
 updateGuestInfo:
 UPDATE wedding_guest SET comment = ?, extra = ? WHERE weddingid == ? AND userid == ?;
 
+getAllRsvps:
+SELECT group_concat(wedding_rsvp.name), '' || sum(wedding_rsvp.coming), comment, extra
+FROM wedding_guest
+    INNER JOIN wedding_rsvp USING(guestid)
+WHERE weddingid == ?
+GROUP BY wedding_guest.guestid;
+
 remove:
 DELETE FROM wedding_guest
 WHERE weddingid == ? AND userid == ?;

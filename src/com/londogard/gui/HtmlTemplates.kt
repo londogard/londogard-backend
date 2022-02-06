@@ -34,6 +34,8 @@ object HtmlTemplates {
             meta(name = "description", content = "Londogard. Our landing page with a few of the products.")
             meta(name = "viewport", content = "width=device-width, initial-scale=1.0")
             meta(charset = "utf-8")
+            link(rel = "icon", type="image/svg+xml", href="/favicon.svg")
+            link(rel = "alternate icon", href="/favicon.ico")
             title { +"$title - Londogard" }
 
             // unsafe { raw("""<script data-ad-client="ca-pub-7340600106400694" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>""") }
@@ -95,13 +97,19 @@ object HtmlTemplates {
     private fun BODY.header(): Unit = header {
         style = "padding:1rem"
         nav {
-            style = "margin-bottom:0"
-            a(href = "/") {
-                img(alt = "londogard.com", src = "/favicon.ico") {
-                    height = "70"
+            style = "margin-bottom:0;width: 100%;"
+            div {
+                style = "width: 100%;"
+                a(href = "/") {
+                    style = "margin-left:0"
+                    img(alt = "londogard.com", src = "/icon.png") {
+                        width = "250px"
+                    }
+                }
+                ul {
+                    titles.forEach { header -> li { a(href = header.href) { +header.title } } }
                 }
             }
-            ul { titles.forEach { header -> li { a(href = header.href) { +header.title } } } }
         }
     }
 }

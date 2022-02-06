@@ -31,9 +31,9 @@ object WrappingJsonListSerializer :
 @InternalSerializationApi
 @Serializable data class FeedHead(val feed: Feed)
 @InternalSerializationApi
-@Serializable data class Feed(val entry: List<Entry>, val subtitle: String, val title: StringContent)
+@Serializable data class Feed(val entry: List<Entry>, val subtitle: String, val title: String)
 @InternalSerializationApi
-@Serializable data class Entry(val id: String, val published: String, val title: StringContent, val summary: StringContent,
+@Serializable data class Entry(val id: String, val updated: String, val title: StringContent, val summary: StringContent,
                                @Serializable(WrappingJsonListSerializer::class) val category: List<Category>)
 @Serializable data class StringContent(val content: String = "Missing")
 @Serializable data class Category(val term: String)
@@ -47,12 +47,11 @@ object BlogHelper {
         isLenient = true
     }
 
-    @KtorExperimentalAPI
     @InternalSerializationApi
     suspend fun fetchBlogRss(): Feed {
         return HttpClient(CIO)
             .use { client ->
-                val stringResponse = client.get<String>("https://blog.londogard.com/feed.xml")
+                val stringResponse = client.get<String>("https://blog.londogard.com/blog/atom.xml")
                 jsonSerializer.decodeFromString<FeedHead>(XML.toJSONObject(stringResponse).toString())
             }.feed
     }

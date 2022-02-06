@@ -10,7 +10,7 @@ import kotlinx.html.*
 fun Route.aboutRoute(): Route = get("/about") {
     call.respondHtmlShell("About") {
         h2 {
-            style="text-align:center;"
+            style = "text-align:center;"
             +"About Londogard"
         }
         p { +"At Londogard we find order in chaos by creating structures and understanding out of unstructured data. Our belief is that by creating understanding of data new possibilities open up and a lot of automation is possible where today manual tedious work is applied." }
@@ -41,10 +41,18 @@ fun Route.aboutRoute(): Route = get("/about") {
         p { +"Through our blog & demos we try to show-case powerful models that all run on the same single Raspberry Pi 4 (4GB)" }
         p {
             +"Our GitHub: "
-            a(href="https://github.com/londogard", target="_blank") { img(src="/github.svg", alt="GitHub") { height = "24" }  }
+            a(href = "https://github.com/londogard", target = "_blank") {
+                img(
+                    src = "/github.svg",
+                    alt = "GitHub"
+                ) { height = "24" }
+            }
+            br {  }
+            +"Email us @ "
+            a(href = "mailto:dev@londogard.com") { +"dev@londogard.com" }
         }
         h2 {
-            style="text-align:center;"
+            style = "text-align:center;"
             +"People @ Londogard"
         }
 
@@ -53,29 +61,38 @@ fun Route.aboutRoute(): Route = get("/about") {
             blobCard("Hampus Londögård", {
                 p {
                     +"The main contributor, MsC Computer Science @ Lunds Tekniska Högskola working at AFRY & Londogard."
-                    br {  }
+                    br { }
                     +"In love with NLP, Functional Programming (especially types) & optimizations."
                 }
-                svgImage(href="https://www.linkedin.com/in/hampus-londögård-6177aa79", img = "/linkedin.svg", alt = "LinkedIn")
-                svgImage(href="https://github.com/Lundez", img="/github.svg", alt="GitHub")
-                svgImage(href="https://twitter.com/Lundesidri", img="/twitter.svg", alt="GitHub")
+                svgImage(
+                    href = "https://www.linkedin.com/in/hampus-londögård-6177aa79",
+                    img = "/linkedin.svg",
+                    alt = "LinkedIn"
+                )
+                svgImage(href = "https://github.com/Lundez", img = "/github.svg", alt = "GitHub")
+                svgImage(href = "https://twitter.com/Lundesidri", img = "/twitter.svg", alt = "GitHub")
             }, image = "hampus", "clipTwo")
             blobCard("Dennis Londögård", {
                 p {
                     +"MsC Computer Science @ Lunds Tekniska Högskola working at AFRY & Londogard."
-                    br {  }
+                    br { }
                     +"Has a big interest in finance, working out and of course coding!"
                 }
 
-                svgImage(href="https://www.linkedin.com/in/dennis-londögård-43a26b15b", img="/linkedin.svg", "LinkedIn")
-                svgImage(href="https://github.com/denkhan", img="/github.svg", alt="GitHub")
+                svgImage(
+                    href = "https://www.linkedin.com/in/dennis-londögård-43a26b15b",
+                    img = "/linkedin.svg",
+                    "LinkedIn"
+                )
+                svgImage(href = "https://github.com/denkhan", img = "/github.svg", alt = "GitHub")
             }, image = "dennis", "clipOne")
         }
     }
 }
 
 fun HTMLTag.defineSvgShapes() = unsafe {
-    raw("""
+    raw(
+        """
         <svg width="0" height="0" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <clipPath id="clipOne">
@@ -90,7 +107,8 @@ fun HTMLTag.defineSvgShapes() = unsafe {
       </clipPath>
     </defs>
   </svg>
-    """.trimIndent())
+    """.trimIndent()
+    )
 }
 
 fun FlowContent.blobCard(
@@ -98,9 +116,9 @@ fun FlowContent.blobCard(
 ): Unit = aside {
     style = "width:var(--width-card-wide);display:flex;flex-wrap:wrap;"
 
-    img(src=image) {
+    img(src = image) {
         width = "200px"
-        style="object-fit: contain; clip-path: url(#$clip);"
+        style = "object-fit: contain; clip-path: url(#$clip);"
     }
     div {
         style = "margin-left:16px;width:50%;"
@@ -109,7 +127,9 @@ fun FlowContent.blobCard(
     }
 }
 
-fun FlowContent.svgImage(href: String, img: String, alt: String) = a(href=href, target="_blank") { img(src=img, alt=alt) {
-    style="margin: 4px"
-    height="24"
-} }
+fun FlowContent.svgImage(href: String, img: String, alt: String) = a(href = href, target = "_blank") {
+    img(src = img, alt = alt) {
+        style = "margin: 4px"
+        height = "24"
+    }
+}
