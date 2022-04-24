@@ -5,9 +5,9 @@ CREATE TABLE blog (
     blog_id INTEGER PRIMARY KEY,
     title TEXT NOT NULL UNIQUE,
     summary TEXT NOT NULL,
-    date TEXT as LocalDateTime NOT NULL,
+    date TEXT AS LocalDateTime NOT NULL,
     blog_body TEXT NOT NULL,
-    category TEXT as List<String> NOT NULL,
+    category TEXT AS List<String> NOT NULL,
     til INTEGER AS Boolean DEFAULT 0
 );
 

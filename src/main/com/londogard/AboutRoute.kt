@@ -61,6 +61,18 @@ fun Route.aboutRoute(): Route = get("/about") {
             blobCard("Hampus Londögård", {
                 p {
                     +"The main contributor, MsC Computer Science @ Lunds Tekniska Högskola working at AFRY & Londogard."
+                    ul {
+                        li { +"MsC Compter Science @ Lunds Tekniska Högskola" }
+                        li { +"Team Lead Future Technologies at AFRY IT South" }
+                        li {
+                            +"Presentations, Panels & More"
+                            ul {
+                                li { +"DevFest2021 (by Google Dev Group): Managing the ML Lifecycle without a Headache" }
+                                li { +"Industry Days 2021: AI-expert of a panel on how to accelerate Industry Automation" }
+                                li { +"Almedalsveckan 2021: The importance of (really) understanding AI Models (ethical and practical issues)" }
+                            }
+                        }
+                    }
                     br { }
                     +"In love with NLP, Functional Programming (especially types) & optimizations."
                 }
@@ -69,8 +81,9 @@ fun Route.aboutRoute(): Route = get("/about") {
                     img = "/linkedin.svg",
                     alt = "LinkedIn"
                 )
+                svgImage(href = "https://www.linkedin.com/in/hampus-londögård", img = "/linkedin.svg", alt = "LinkedIn")
                 svgImage(href = "https://github.com/Lundez", img = "/github.svg", alt = "GitHub")
-                svgImage(href = "https://twitter.com/Lundesidri", img = "/twitter.svg", alt = "GitHub")
+                svgImage(href = "https://twitter.com/hlondogard", img = "/twitter.svg", alt = "GitHub")
             }, image = "hampus", "clipTwo")
             blobCard("Dennis Londögård", {
                 p {

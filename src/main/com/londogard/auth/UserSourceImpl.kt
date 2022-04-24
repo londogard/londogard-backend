@@ -2,9 +2,6 @@ package com.londogard.jwtauth
 
 import com.londogard.Database
 import com.londogard.auth.UserPasswordCredential
-import com.londogard.data.UserQueries
-import org.koin.experimental.property.inject
-import org.koin.java.KoinJavaComponent.inject
 import org.mindrot.jbcrypt.BCrypt
 
 class UserSourceImpl(private val db: Database) : UserSource {
