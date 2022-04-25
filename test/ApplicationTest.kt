@@ -28,7 +28,7 @@ class ApplicationTest {
     @BeforeTest
     fun cleanup() {
         withServer {
-            val db by this.application.inject<Database>()
+            val db = BackendModule.testDb
             db.testingQueries.resetAll()
         }
     }
