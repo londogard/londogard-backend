@@ -34,7 +34,7 @@ repositories {
 }
 
 val ktorVersion="2.0.0"
-val sqldelightVersion="1.5.2"
+val sqldelightVersion="1.5.3"
 val koinVersion="3.1.6"
 val kluentVersion="1.68"
 val kotlinVersion="1.6.21"
