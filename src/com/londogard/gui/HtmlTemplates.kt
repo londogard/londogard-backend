@@ -61,7 +61,10 @@ object HtmlTemplates {
             footer {
                 hr { }
                 p {
-                    +"Made by Londogard - Running on a (single) Raspberry Pi"
+                    +"Made by Londogard - Running on a (single) Raspberry Pi | "
+                    unsafe { + """<a href="https://www.buymeacoffee.com/hlondogard" style="float:center" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 35px;" ></a>"""}
+                    +" "
+                    unsafe { +"""<iframe src="https://github.com/sponsors/Lundez/button" title="Sponsor Lundez" height="35" width="116" style="border: 0;"></iframe>"""}
                     a(href = "https://blog.londogard.com/feed.xml", target="_blank") {
                         style = "float:right"
                         img(src = "/rss.svg", alt = "rss feed") { height = "24" }
