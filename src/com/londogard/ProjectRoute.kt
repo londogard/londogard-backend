@@ -17,7 +17,7 @@ fun Route.projectRoute(): Route = get("") {
                 p {
                     b { +"Quick Links" }
                     ul {
-                        li { a(href = "projects/ner") { +"SweNER" } }
+                        li { a(href = "projects/safe-cosmetics") { +"Cosmetics Checker" } }
                         li { a(href = "https://colorkidz.londogard.com") { +"ColorKidz" } }
                         li { a(href = "projects/smry") { +"Summarizer" }}
                     }
@@ -25,7 +25,9 @@ fun Route.projectRoute(): Route = get("") {
                         summary { +"Other Projects" }
                         small {
                             ul {
-                                li {a(href = "projects/fuzsearch") { +"Fuzzy Search" }}
+                                li { a(href = "projects/ner") { +"SweNER" } }
+                                li { a(href = "https://huggingface.co/lunde/gpt2-snapsvisor") { +"Snapsvisegenerator (GPT-2)" } }
+                                li { a(href = "projects/fuzsearch") { +"Fuzzy Search" } }
                                 li { a(href = "projects/textgen") { +"Text Generation" } }
                                 li { a(href = "projects/billsplit") { +"Billsplitter" } }
                                 li { a(href = "projects/url") { +"URL Shortener" } }
@@ -36,14 +38,13 @@ fun Route.projectRoute(): Route = get("") {
                 }
             }
             section {
-                //style="width=10%;"
                 wideCard("SweNER", {
                     p {
                         i { +"A "; b { +"State-of-the-Art" }; +" Named Entity Recognizer for Swedish" }
                         br { }
                         +"Developed to strike a balance between performance, efficiency & usability there exists two models of different architectures."
                         br { }
-                        +"The models are quantized (1/4th size, 4x faster) and run on a single Raspberry Pi along with our other projects!"
+                        +"The models are quantized (1/4th size & 4x faster)."
                     }
                     a(href = "projects/ner") { +"Test SweNER" }
                 }, image = "swener.jpg")

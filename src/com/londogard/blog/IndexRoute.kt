@@ -52,18 +52,18 @@ fun Route.indexRoute(): Route = route("/") {
 
                     hr { }
                     p {
+                        style= "margin: 0"
                         b { +"SweNER" }
-                        br { }
                         div {
-                            style = "display: flex; flex-direction: row;"
+                            style = "display: flex; flex-direction: row; margin: 0;"
                             p {
                                 small {
                                     style = "color: var(--color-text)"
-                                    i { +"A "; b { +"State-of-the-Art" }; +" Named Entity Recognizer for Swedish" }
+                                    i { b { +"State-of-the-Art" }; +" Swedish Named Entity Recognizer" }
                                     br { }
                                     +"Developed to strike a balance between performance, efficiency & usability there exists two models of different architectures."
                                     br { }
-                                    +"The models are quantized (1/4th size, 4x faster) and run on a single Raspberry Pi along with our other projects!"
+                                    +"The models are quantized (1/4th size & 4x faster)"
                                     br { }
                                 }
                                 a(href = "projects/ner") { +"Demo↗" }
@@ -76,8 +76,8 @@ fun Route.indexRoute(): Route = route("/") {
                     }
                     hr { }
                     p {
+                        style= "margin: 0"
                         b { +"ColorKidz" }
-                        br { }
                         div {
                             style = "display: flex; flex-direction: row;"
                             p {
@@ -102,7 +102,7 @@ fun Route.indexRoute(): Route = route("/") {
                         br { }
                         small {
                             style = "color: var(--color-text)"
-                            i { +"A "; b { +"State-of-the-Art" }; +" language-independent extractive summarizer." }
+                            i { b { +"State-of-the-Art" }; +" language-independent extractive summarizer." }
                             br { }
                             +"Built a very powerful yet simple summarizer that uses pure statistics, no large neural networks or anything. It does "
                             i { +"extractive summarization" }

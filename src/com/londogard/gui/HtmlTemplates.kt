@@ -11,7 +11,7 @@ object HtmlTemplates {
     private val titles = listOf(
         Header("projects.", "/projects"),
         Header("about.", "/about"),
-        Header("blog.", "https://blog.londogard.com")
+        Header("blog.", "https://blog.londogard.com/blog")
     )
 
     suspend fun ApplicationCall.respondHtmlShell(
