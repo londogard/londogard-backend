@@ -1,9 +1,8 @@
 package com.londogard.blog
 
-import com.londogard.BackendModule
-import com.londogard.Database
 import com.londogard.gui.HtmlTemplates.respondHtmlShell
 import com.londogard.gui.mediumCard
+import com.londogard.gui.wideCard
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
 import kotlinx.html.*
@@ -21,10 +20,9 @@ fun Route.indexRoute(): Route = route("/") {
             section {
                 mediumCard("\uD83D\uDCDD Blogs", {
                     p {
-                        +blogs.subtitle.descapeHTML()
-                        //+"Our blogs contains everything from Workshops & Deep Dives to lighter Today I Learned (TILs)."
+                        +"Our blogs contains everything from Workshops & Deep Dives to lighter Today I Learned (TILs)."
                         br { }
-                        +"Only last 4 blogs. "
+                        +"Last 4 blogs. "
                         a(href = "https://blog.londogard.com/blog", target = "_blank") { +"All blogs↗" }
                     }
 
@@ -33,14 +31,16 @@ fun Route.indexRoute(): Route = route("/") {
                         .forEach { blog ->
                             hr { }
                             p {
-                                b { +blog.title.content.descapeHTML() }
+                                a(
+                                    href = "https://blog.londogard.com/blog/${blog.id.descapeHTML()}",
+                                    target = "_blank"
+                                ) { +"${blog.title.content}↗" }
                                 br { }
                                 small {
                                     style = "color: var(--color-text)"
                                     +blog.summary.content.descapeHTML()
                                 }
                                 br { }
-                                a(href = "https://blog.londogard.com/blog/${blog.id.descapeHTML()}") { +"More↗" }
                             }
                         }
                 })
@@ -49,11 +49,32 @@ fun Route.indexRoute(): Route = route("/") {
                         +"Presenting a few of our projects, find the rest "
                         a(href = "projects") { +"here↗" }
                     }
-
                     hr { }
                     p {
-                        style= "margin: 0"
-                        b { +"SweNER" }
+                        style = "margin: 0"
+                        b { a(href = "projects/safe-cosmetics") { +"Safe Cosmetics↗" } }
+                        div {
+                            style = "display: flex; flex-direction: row;"
+                            p {
+                                small {
+                                    style = "color: var(--color-text)"
+                                    p {
+                                        i { +"A simple app to validate if your cosmetics, shampoo or anything contains toxic ingredients." }
+                                        br { }
+                                        +"Snap or upload a photo or simply paste the text and the models will show you!"
+                                    }
+                                }
+                            }
+                            img(src = "safe-cosmetics.jpg") {
+                                style = "object-fit: contain;"
+                                width = "25%"
+                            }
+                        }
+                    }
+                    hr { }
+                    p {
+                        style = "margin: 0"
+                        b { a(href = "projects/ner") { +"SweNER↗" } }
                         div {
                             style = "display: flex; flex-direction: row; margin: 0;"
                             p {
@@ -66,7 +87,6 @@ fun Route.indexRoute(): Route = route("/") {
                                     +"The models are quantized (1/4th size & 4x faster)"
                                     br { }
                                 }
-                                a(href = "projects/ner") { +"Demo↗" }
                             }
                             img(src = "swener.jpg") {
                                 style = "object-fit: contain;"
@@ -76,8 +96,8 @@ fun Route.indexRoute(): Route = route("/") {
                     }
                     hr { }
                     p {
-                        style= "margin: 0"
-                        b { +"ColorKidz" }
+                        style = "margin: 0"
+                        b { a(href = "https://colorkidz.londogard.com") { +"ColorKidz↗" } }
                         div {
                             style = "display: flex; flex-direction: row;"
                             p {
@@ -86,32 +106,15 @@ fun Route.indexRoute(): Route = route("/") {
                                     i { +"Convert your images into colouring pages" }
                                     br { }
                                     +"Our only Progressive Web App (PWA) this far. ColorKidz turns your photo into a colouring page using an algorithmic approach. "
-                                    br {  }
+                                    br { }
                                 }
-                                a(href = "https://colorkidz.londogard.com") { +"Demo↗" }
                             }
                             img(src = "colorkidz.jpg") {
                                 style = "object-fit: contain;"
-                                width = "15%"
+                                width = "20%"
                             }
                         }
                     }
-                    hr { }
-                    p {
-                        b { +"Summarizer" }
-                        br { }
-                        small {
-                            style = "color: var(--color-text)"
-                            i { b { +"State-of-the-Art" }; +" language-independent extractive summarizer." }
-                            br { }
-                            +"Built a very powerful yet simple summarizer that uses pure statistics, no large neural networks or anything. It does "
-                            i { +"extractive summarization" }
-                            +" and it's only the TfIdf-variant is language independent."
-                        }
-                        br { }
-                        a(href = "projects/smry") { +"Demo↗" }
-                    }
-
                 })
             }
         }

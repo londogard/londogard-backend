@@ -179,7 +179,8 @@ fun Application.module() {
         static {
             listOf(
                 "rss.svg", "github.svg", "twitter.svg", "linkedin.svg",
-                "playstore.svg", "swener.jpg", "colorkidz.jpg", "favicon.ico", "favicon.svg", "icon.png"
+                "playstore.svg", "swener.jpg", "colorkidz.jpg", "favicon.ico", "favicon.svg", "icon.png",
+                "safe-cosmetics.jpg"
             )
                 .forEach { resource ->
                     resource(resource, resource)
