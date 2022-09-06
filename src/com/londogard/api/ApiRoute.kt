@@ -14,9 +14,15 @@ import com.londogard.summarizer.SummarizeReq
 import com.londogard.summarizer.summarize
 import com.londogard.textgen.LanguageModelHelper
 import com.londogard.textgen.TextGenInput
-import io.ktor.server.application.call
+import io.ktor.client.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import io.ktor.server.auth.authenticate
 import io.ktor.http.*
+import io.ktor.http.content.*
+import io.ktor.server.application.*
+import io.ktor.server.plugins.cachingheaders.*
 import io.ktor.server.request.receive
 import io.ktor.server.request.receiveOrNull
 import io.ktor.server.response.*
@@ -41,6 +47,21 @@ fun Route.apiRoute(redirections: MutableMap<String, String>): Route = route("/ap
             ?: throw InvalidInputException("POST /billsplit require json body. Format: {'payments': [{person: 'name', amount: 0.00},...]}")
 
         call.respond(splitBills(payments))
+    }
+
+    route("/easyindex") {
+        install(CachingHeaders) {
+            options { call, content -> CachingOptions(CacheControl.MaxAge(maxAgeSeconds = 5*60)) }
+        }
+        get("/{ticker}") {
+            val ticker = call.parameters["ticker"] ?: throw InvalidRouteException()
+            val yahoo = HttpClient(CIO)
+                .use { client ->
+                    client.get("https://query1.finance.yahoo.com/v7/finance/quote?symbols=$ticker").bodyAsText()
+                }
+
+            call.respond(resultResponse(yahoo))
+        }
     }
 
     /**
