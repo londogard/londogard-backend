@@ -28,6 +28,7 @@ import io.ktor.server.plugins.hsts.*
 import io.ktor.server.plugins.httpsredirect.*
 import io.ktor.server.plugins.partialcontent.*
 import io.ktor.server.plugins.statuspages.*
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
@@ -65,7 +66,8 @@ fun Application.module() {
 
     // Default: [Accept, AcceptLanguages, ContentLanguage, ContentType]
     install(CORS) {
-        anyHost()
+        //anyHost()
+        allowHost("*.londogard.com", schemes = listOf("https"))
         allowMethod(HttpMethod.Options)
         allowHeader("Authorization")
         allowNonSimpleContentTypes = true
@@ -151,7 +153,10 @@ fun Application.module() {
     }
 
     install(CachingHeaders) {
-        options { _, outgoingContent ->
+        options { call, outgoingContent ->
+            if ("easyindex" in call.request.uri) {
+                return@options CachingOptions(CacheControl.MaxAge(maxAgeSeconds = 5 * 60), ZonedDateTime.now().plusMinutes(5))
+            }
             when (outgoingContent.contentType?.withoutParameters()) {
                 ContentType.Text.CSS -> CachingOptions(CacheControl.MaxAge(maxAgeSeconds = 24 * 60 * 60), ZonedDateTime.now().plusDays(1))
                 ContentType.Application.Rss -> CachingOptions(CacheControl.MaxAge(maxAgeSeconds = 24 * 60 * 60), ZonedDateTime.now().plusDays(1))
