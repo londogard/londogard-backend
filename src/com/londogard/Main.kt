@@ -66,7 +66,8 @@ fun Application.module() {
 
     // Default: [Accept, AcceptLanguages, ContentLanguage, ContentType]
     install(CORS) {
-        anyHost()
+        //anyHost()
+        allowHost("*.londogard.com", schemes = listOf("https"))
         allowMethod(HttpMethod.Options)
         allowHeader("Authorization")
         allowNonSimpleContentTypes = true
