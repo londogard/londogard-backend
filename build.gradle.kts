@@ -46,7 +46,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$kotlinxSerialization")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-cbor:$kotlinxSerialization")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerialization")
-    implementation("org.json:json:20210307") // XML
+    implementation("org.json:json:20220924") // XML
 
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
 
